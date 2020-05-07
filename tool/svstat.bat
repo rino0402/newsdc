@@ -1,9 +1,11 @@
 @echo off
 pushd %~dp0
 echo.¡net view > svstat.log
-for /f "tokens=1,2*" %%i in ('net view /domain:sdch') do (
-	echo %%i	%%j	%%k | findstr \\ >> svstat.log
-)
+net view /domain:sdch > netview.txt 2>> svstat.log
+findstr \\ netview.txt >> svstat.log
+rem for /f "tokens=1,2*" %%i in ('net view /domain:sdch') do (
+rem 	echo %%i	%%j	%%k | findstr \\ >> svstat.log
+rem )
 echo.¡net session >> svstat.log
 for /f "tokens=1,2*" %%i in ('net session') do (
 	echo %%i	%%j	%%k | findstr \\ >> svstat.log
