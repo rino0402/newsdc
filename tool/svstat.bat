@@ -1,8 +1,8 @@
 @echo off
 pushd %~dp0
 echo.¡net view > svstat.log
-net view /domain:sdch > netview.txt 2>> svstat.log
-findstr \\ netview.txt >> svstat.log
+net view | findstr \\ >> svstat.log
+net view /domain:sdch | findstr \\ >> svstat.log
 rem for /f "tokens=1,2*" %%i in ('net view /domain:sdch') do (
 rem 	echo %%i	%%j	%%k | findstr \\ >> svstat.log
 rem )
