@@ -1,6 +1,6 @@
 @echo off
 echo %CD%
-for /F "tokens=4 delims=\" %%a in ("%CD%") do set cdir=%%a
+for /F "tokens=3 delims=\" %%a in ("%CD%") do set cdir=%%a
 xcopy/d/y %1 \\hs1\newsdc\%cdir%\
 xcopy/d/y %1 \\w1\newsdc\%cdir%\
 xcopy/d/y %1 \\w2\newsdc\%cdir%\
