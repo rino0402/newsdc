@@ -39,6 +39,7 @@ Private Function GetVersion()
 	GetVersion = "<span class=""new"">2020.01.28 配達不能エリア(20.1.1) 鳥取,島根</span>"
 	GetVersion = "<span class=""new"">2020.01.30 配達不能エリア(20.1.1) 山口,徳島,香川,愛媛,高知</span>"
 	GetVersion = "<span class=""new"">2020.04.07 配達不能エリア(2020.3.23) 東京</span>"
+	GetVersion = "<span class=""new"">2020.05.12 配達不能エリア(2020.3.23) 千葉</span>"
 '	xcopy/d/y GetHaitatsu.vbs \\w5\newsdc\files\
 End Function
 Function GetHaitatsu(byVal strAddress)
@@ -2212,17 +2213,18 @@ End Function
 Private Function Chiba(byVal strAddress)
 	Chiba = ""
 	if inAddressEx(strAddress,"美浜区.*中瀬.*幕張メッセ") then
-		Chiba = "千葉県 美浜区中瀬２－１幕張ﾒｯｾ日本ｺﾝﾍﾞﾝｼｮﾝｾﾝﾀｰ<br>各ﾃﾅﾝﾄ宛チャータ扱い"
+		Chiba = "千葉県 美浜区中瀬２－１幕張ﾒｯｾ日本ｺﾝﾍﾞﾝｼｮﾝｾﾝﾀｰ　各ﾃﾅﾝﾄ宛<br>チャータ扱い"
 		exit function
 	end if
 	if inAddressEx(strAddress,"美浜区.*浜田.*海浜幕張") then
 '	or inAddressEx(strAddress,"美浜区.*中瀬.*９.*１") then
-		Chiba = "千葉県 美浜区浜田2-102 海浜幕張パーキングエリア内<br>支店止め又はチャーター"
+		Chiba = "千葉県 美浜区浜田2-102　海浜幕張パーキングエリア内<br>支店止め又はチャーター"
 		exit function
 	end if
 	if inAddressEx(strAddress,"中央区.*浜野町.*１０２５") then
 '	or inAddressEx(strAddress,"中央区.*都町.*１８") then
-		Chiba = "千葉県 中央区浜野町1025-150 日酒販アマゾン京葉流通センター<br>支店止め又はチャーター"
+'		Chiba = "千葉県 中央区浜野町1025-150 日酒販アマゾン京葉流通センター<br>支店止め又はチャーター"
+		Chiba = "千葉県 中央区浜野町1025-150　日酒販アマゾン京葉流通センター<br>支店止め又はチャーター"
 		exit function
 	end if
 	if inAddressEx(strAddress,"船橋市.*浜町.*３") then
@@ -2237,12 +2239,12 @@ Private Function Chiba(byVal strAddress)
 	end if
 	if inAddressEx(strAddress,"芝山町.*香山新田.*雨堤") then
 '	or inAddressEx(strAddress,"芝山") then
-		Chiba = "千葉県 芝山町香山新田字雨堤76 成田国際空港振興協会<br>支店止め又はチャーター"
+		Chiba = "千葉県 芝山町香山新田字雨堤76　成田国際空港振興協会<br>支店止め又はチャーター"
 		exit function
 	end if
 	if inAddressEx(strAddress,"袖.*浦市.*中袖.*１.*１") then
 '	or inAddressEx(strAddress,"袖.*浦市.*野里") then
-		Chiba = "千葉県 袖ヶ浦市中袖１－１ 東京ガス構内<br>支店止め又はチャーター"
+		Chiba = "千葉県 袖ヶ浦市中袖１－１　東京ガス構内<br>支店止め又はチャーター"
 		exit function
 	end if
 	if inAddressEx(strAddress,"袖.*浦市.*代宿") _
@@ -2261,14 +2263,12 @@ Private Function Chiba(byVal strAddress)
 		Chiba = "千葉県 木更津市中島地先　海ほたる（アクアライン海ほたるパーキング）<br>週４回(月･水･金･土）配達"
 		exit function
 	end if
-	if inAddressEx(strAddress,"木更津市.*築地.*１") then
-		Chiba = "千葉県 木更津市築地1番地" _
-					& " 新日鐵住金（株）君津製鐵所本館 君津製鉄所ビジネスセンター 東洋スチレン（株）新日化学木更津製鐵所各企業宛" _
-					& "<br>支店止め又はチャーター"
+	if inAddressEx(strAddress,"木更津市.*築地") then
+		Chiba = "千葉県 木更津市築地全域（築地1-4は除く）<br>支店止め又はチャーター"
 		exit function
 	end if
 	if inAddressEx(strAddress,"君津市.*君津.*１")	then
-		Chiba = "千葉県 君津市君津1番地 新日鐵住金（株）君津製鐵所<br>支店止め又はチャーター"
+		Chiba = "千葉県 君津市君津1番地<br>支店止め又はチャーター"
 		exit function
 	end if
 End Function
