@@ -7,7 +7,8 @@ import sys
 import slackweb
 import codecs
 
-url= "https://hooks.slack.com/services/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"
+#url= "https://hooks.slack.com/services/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"
+url= "https://hooks.slack.com/services/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"
 slack = slackweb.Slack(url = url)
 
 args = sys.argv
