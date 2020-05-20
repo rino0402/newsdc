@@ -33,8 +33,8 @@ echo.%DATE% %TIME:~0,8% F110070:出荷予定削除 >> posend.txt
 d:\%NewSdc%\exe\f110070.exe
 
 echo.%DATE% %TIME:~0,8% del_syuka.py >> posend.txt
-python d:\%NewSdc%\files\del_syuka.py > del_syuka.log
-call d:\newsdc\tool\slack "del_syuka.py" %cd%\del_syuka.log
+python d:\%NewSdc%\files\del_syuka.py --dns %NewSdc% > del_syuka.log
+call d:\newsdc\tool\slack "del_syuka.py %NewSdc%" %cd%\del_syuka.log
 
 echo ■F110030:不要データ削除
 echo.%DATE% %TIME:~0,8% F110030:不要データ削除 >> posend.txt
