@@ -16,25 +16,27 @@ echo.%DATE% %TIME:~0,8% %NewSdc% △ > posend.txt
 
 tasklist /FI "IMAGENAME eq F110010.exe" | findstr /i F110010.exe
 if "%ERRORLEVEL%" == "0" (
-	echo.■スキャナ制御起動中...
+	echo ■スキャナ制御起動中...
 	echo.%DATE% %TIME:~0,8% F110010 スキャナ制御起動中 >> posend.txt
 )
 
-echo.■Glics連携チェック■
+echo ■Glics連携チェック■
 echo.%DATE% %TIME:~0,8% Glics連携チェック >> posend.txt
 pvddl %NewSdc% complt.sql
 
-if /i "%NewSdc%" neq "newsdcn" (
-	echo.■y_syuka 出庫済を検品済にセット
-	echo.%DATE% %TIME:~0,8% y_syuka 出庫済を検品済にセット >> posend.txt
-	pvddl %NewSdc% y_syuka_kenpin.sql
-)
+echo ■y_syuka 出庫済を検品済にセット
+echo.%DATE% %TIME:~0,8% y_syuka 出庫済を検品済にセット >> posend.txt
+pvddl %NewSdc% y_syuka_kenpin.sql
 
-echo.■F110070:出荷予定削除
+echo ■F110070:出荷予定削除
 echo.%DATE% %TIME:~0,8% F110070:出荷予定削除 >> posend.txt
 d:\%NewSdc%\exe\f110070.exe
 
-echo.■F110030:不要データ削除
+echo.%DATE% %TIME:~0,8% del_syuka.py >> posend.txt
+python d:\%NewSdc%\files\del_syuka.py > del_syuka.log
+call d:\newsdc\tool\slack "del_syuka.py" %cd%\del_syuka.log
+
+echo ■F110030:不要データ削除
 echo.%DATE% %TIME:~0,8% F110030:不要データ削除 >> posend.txt
 d:\%NewSdc%\exe\F110030.exe
 
@@ -44,7 +46,7 @@ rem call D:\newsdc\FILES\sagyolog.bat
 rem echo ■welcat.txtローテーション■
 rem call \\hs1\it\bin\rotate d:\newsdc\files\welcat\welcat.txt
 
-echo.■POS filesバックアップ■
+echo ■POS filesバックアップ■
 echo.%DATE% %TIME:~0,8% filesバックアップ >> posend.txt
 xcopy/d/y d:\%NewSdc%\files\*.* d:\%NewSdc%\backup\files\
 
