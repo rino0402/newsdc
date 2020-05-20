@@ -116,6 +116,10 @@ echo %0 %* > getouty.done
 if exist d:\newsdc\B2\INPUT (
 	call d:\newsdc\B2\makecsv.bat
 )
+
+xcopy/d/y \\w4\newsdc\files\ACSHORT.DAT d:\newsdc\files\ > acshort.log 2>&1
+call d:\newsdc\tool\slack "acshort.log" %cd%\acshort.log
+
 rem call d:\log\batlog Å§ %0 %*
 rem call slack "%relPath%:Å§"
 set ret=1
