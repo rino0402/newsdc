@@ -1,0 +1,154 @@
+/*
+p_sukeire_inv.css 2017.12.05 çÏê¨
+*/
+@media print {
+	body {
+		color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+	header {
+		background-color: #fff;
+	}
+	#tab_home {
+		display: block;	/* !important;*/
+	}
+	table tr {
+		background-color: transparent	!important;
+	}
+}
+body {
+	font-family	: 'ÇlÇr ÉSÉVÉbÉN','ÇlÇr ÉSÉVÉbÉN',monospace;
+	/* [è„][âE][â∫][ç∂] */
+/*	padding:10px 5px 1px 5px;	*/
+/*	margin:1px 3px 1px 3px;		*/
+}
+.tab_content {
+	display: none;
+}
+.tab_content:target {
+	display: block;
+}
+.content {
+	padding: 10px;
+}
+a {
+	text-decoration: none;
+}
+a:link {
+/*
+	color: #d4f3ff;
+	background: #4b6000;
+*/
+}
+a:visited {
+/*
+	color: #ffffff;
+	background: #4b6000;
+*/
+}
+a:hover {
+	color: blue;
+/*	text-decoration: underline overline;	*/
+}
+a:active {
+/*	color: #ff0000;	*/
+}
+table {
+	border: solid thin black;
+	border-collapse: collapse;
+	*width:100%;
+/*	table-layout: fixed;*/
+}
+table tr:hover {
+	background-color: aquamarine;	/* çsÇÃîwåiêF */
+}
+table tr th {
+	/* [è„][âE][â∫][ç∂] */
+	padding:2px 3px 2px 3px;
+/*	margin:1px 3px 1px 3px;	*/
+/*	height:1em;	*/
+	font-weight: normal;
+	border: solid thin black;
+	background-color: aliceblue;
+	white-space: nowrap;
+}
+table tr td {
+	/* [è„][âE][â∫][ç∂] */
+	padding:2px 3px 2px 3px;
+	border: solid thin black;
+	vertical-align: top;
+	white-space: nowrap;
+}
+.number {
+	text-align: right;
+}
+.date {
+	text-align: center;
+}
+.left {
+	text-align: left;
+}
+.bg-info {
+	background-color: aquamarine;
+}
+.bg-warning {
+	*background-color: lemonchiffon;
+	background-color: yellow;
+}
+.bg-danger {
+	background-color: mistyrose;
+}
+.clip {
+	white-space: nowrap;
+	text-overflow: clip	!important;
+	overflow:hidden	!important;
+}
+.ellipsis {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow:hidden;
+}
+.small {
+	font-size: 70%;
+}
+.input-sm {
+	/* [è„][âE][â∫][ç∂] */
+	padding:0px 1px 0px 1px;
+	margin:0px;
+	border : 1px solid #ccc;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+.input-sm:focus {
+    border:solid 1px #EEA34A;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+.td-input {
+	padding:0;
+	margin:0;
+}
+.text-top {
+	vertical-align:top;
+}
+.text-red {
+	color: red;
+}
+.text-blue {
+	color: blue;
+}
+.gif-load {
+	background-image:url("gif-load.gif");
+	background-repeat: no-repeat;
+	background-position: left center;
+/*
+	text-align:center;
+	width:100px;
+	padding-top:100px;
+*/
+}
+#msg {
+	padding: 5px;
+}

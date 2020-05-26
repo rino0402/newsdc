@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<!--meta http-equiv="X-UA-Compatible" content="IE=edge"-->
+		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+		<title>商品化納品リスト</title>
+		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2019032701">
+		<link type="text/css" rel="stylesheet" href="p_sukeire_inv.css?v=2019032701">
+	</head>
+	<body>
+		<header role="banner">
+			<audio id="chime" src="sound/tin1.mp3"></audio>
+			<audio id="chime3" src="sound/chime3.mp3"></audio>
+			<nav>
+				<span id="menu"></span>
+				<a href="#tab_home">商品化納品リスト</a>
+				<ul>
+					<li class="active"><a href="#tab_home">一覧</a></li>
+					<li><a href="#tab_option">設定</a></li>
+					<li><a href="#tab_version">ver</a></li>
+					<li><a href="#tab_log">log</a></li>
+					<!--li><a href="#tab_option">設定</a></li-->
+				</ul>
+				<span id="dns_span">newsdc</span>
+			</nav>
+		</header>
+		<main role="main">
+			<div class="tab_content" id="tab_home">
+				<lavel for="UKEIRE_DT1">受入日</lavel>
+				<input type="text" class="input-sm text-center" id="UKEIRE_DT1" size="8">
+				<lavel for="UKEIRE_DT2">～</lavel>
+				<input type="text" class="input-sm text-center" id="UKEIRE_DT2" size="8">
+				<lavel for="SHIMUKE_CODE">仕向先</lavel>
+				<input type="text" class="input-sm text-center config" id="SHIMUKE_CODE" size="3">
+				<lavel for="S_TANTO">収単/担当者</lavel>
+				<input type="text" class="input-sm text-center config" id="S_TANTO" size="3">
+				<!--lavel for="CHECK">見積チェック</lavel-->
+				<!--input type="text" class="input-sm text-center" id="CHECK" size="1">
+				1:見積が必要かチェック-->
+				<select name="CHECK" class="input-sm" id="CHECK">
+					<option value="0">0:チェックなし</option>
+					<option value="1">1:見積チェック</option>
+					<option value="2">2:見積チェック(差額順)</option>
+<!--
+					<option value="2">2:要見積だけを検索</option>
+					<option value="3">3:要見積(工料)だけを検索</option>
+					<option value="4">4:要見積(箱代)だけを検索</option>
+					<option value="5">5:要見積(外装)だけを検索</option>
+					<option value="6">6:要見積(加工)だけを検索</option>
+					<option value="7">7:要見積(BU加工)だけを検索</option>
+-->
+				</select>
+				<input type="submit" value="検索" class="btn-primary btn-xs" id="List">
+				<!--span>ヘッダー<input type="checkbox" id="floatThead"><label for="floatThead" id="floatThead_text">固定しない</label></span-->
+				<span>箱代/外装<input type="checkbox" id="HakoGai"><label for="HakoGai" id="HakoGai_text">非表示</label></span>
+			    <button type="button" class="btn" data-clipboard-target="#table">
+					Copy
+			    </button>
+				<a class="rfbill" href="#" hidden>請求書(ダウンロード)</a>
+				<!--input type="button" value="請求書(ダウンロード)" class="btn_bill" hidden-->
+				<table id="table">
+					<thead id="thead">
+						<tr>
+							<th rowspan="2">#</th>
+							<th rowspan="2">受入日</th>
+							<th rowspan="2">収単/<br>担当者</th>
+							<th rowspan="2">品番</th>
+							<th rowspan="2" width="100px">品名</th>
+							<th rowspan="2">数量</th>
+							<th colspan="2">工料</th>
+							<th colspan="2" class="hakogai">箱代</th>
+							<th colspan="2" class="hakogai">外装</th>
+							<th colspan="2">加工費</th>
+							<th colspan="2">BU加工費</th>
+							<th rowspan="2">引取</th>
+						</tr>
+						<tr>
+							<th class="">＠</th>
+							<th class="">金額</th>
+							<th class="hakogai">＠</th>
+							<th class="hakogai">金額</th>
+							<th class="hakogai">＠</th>
+							<th class="hakogai">金額</th>
+							<th class="">＠</th>
+							<th class="">金額</th>
+							<th class="">＠</th>
+							<th class="">金額</th>
+						</tr>
+			        </thead>
+					<tbody id="tbody">
+						<tr>
+							<td class="number">例</td>
+							<td class="date">20171115</td>
+							<td class="date"></td>
+							<td class="left bg-warning">ACR1367CX2W</td>
+							<td class="clip small">梱包材料（パッキンケース）</td>
+							<td class="number">5</td>
+							<td class="number bg-danger">45.00<br>46.25</td>
+							<td class="number">225.00</td>
+							<td class="number">67.00</td>
+							<td class="number">335.00</td>
+							<td class="number hakogai">6.00</td>
+							<td class="number hakogai">30.00</td>
+							<td class="number hakogai">6.25</td>
+							<td class="number hakogai">31.25</td>
+							<td class="number"></td>
+							<td class="number"></td>
+							<td class="number">50</td>
+						</tr>
+			        </tbody>
+				</table>
+				<div id="msg">
+					条件を指定して[検索]をクリックして下さい。
+				</div>
+			</div>
+			<div class="tab_content" id="tab_option">
+				<div class="content" id="option">
+					<div><label for="dns">DNS<input id="dns" type="text" class="config"></label></div>
+					<div><label for="limit">limit<input id="limit" type="text" class="config"></label></div>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_version">
+				<div class="content">
+					<div>前回開始日時：<span id="start_time"></span></div>
+					<div>前回終了日時：<span id="end_time"></span></div>
+					<div>前回処理時間：<span id="lastTm"></span></div>
+					<div id="version"></div>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_log">
+				<div class="content" id="log"></div>
+			</div>
+		</main>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="jquery.floatThead.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/clipboard.js/1.5.3/clipboard.min.js"></script>
+	<script src="menu.js?v=2019032701"></script>
+	<script src="p_sukeire_inv.js?v=2019092501"></script>
+</html>
