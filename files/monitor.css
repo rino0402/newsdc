@@ -1821,7 +1821,7 @@ img {
     border-width : 1px;
     border-style : solid;
 	text-align: center;
-	padding : 10px;
+	padding : 1px 10px;
 	*padding-left : 5px;
 	*padding-right : 5px;
 	*margin : 0px;
@@ -1829,7 +1829,8 @@ img {
 }
 #work_sch div {
 	*margin : 0px;
-	line-height: 1.2;
+	*line-height: 0.8;
+	*padding : 0;
 }
 #work_sch .tanto_code {
 	font-size: 30%;
@@ -1875,12 +1876,12 @@ img {
     border-width : 1px;
     border-style : solid;
 	text-align: center;
-	padding : 1px;
-	padding-left : 5px;
-	padding-right : 5px;
+	padding : 5px;
+	*padding-left : 5px;
+	*padding-right : 5px;
 	background-color: blue;
 	color: white;
-	line-height: 1.5;
+	*line-height: 1.5;
 	font-size: 2.0vw;
 }
 #work_sch .btn {
