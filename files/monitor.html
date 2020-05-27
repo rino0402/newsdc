@@ -1,0 +1,1250 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<!--- android chrome で全画面表示 --->
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- 画面更新：60分(3600秒) -->
+		<META meta http-equiv="refresh" content="3600">
+		<title>Pos作業モニター</title>
+		<link type="text/css" rel="stylesheet" href="jquery-ui.css">
+		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<!-- font
+		<link href="https://fonts.googleapis.com/earlyaccess/notosansjapanese.css" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Lato:400,900" rel="stylesheet">
+		 -->
+		<!-- local css -->
+		<link type="text/css" rel="stylesheet" href="monitor.css?v=2020040701">
+		<link type="text/css" rel="stylesheet" href="nav.css">
+		<link type="text/css" rel="stylesheet" href="topping.css?v=2019111403">
+	</head>
+
+	<body>
+		<header role="banner">
+			<table>
+				<col width="32%">
+				<col width="34%">
+				<col width="33%">
+				<thead>
+				<tr class="text-top">
+					<td class="header_left">
+						<div id="nav-drawer">
+							<input id="nav-input" type="checkbox" class="nav-unshown">
+							<label id="nav-open" for="nav-input"><span id="name"></span></label>
+							<label class="nav-unshown" id="nav-close" for="nav-input"></label>
+							<div id="nav-content">
+								<nav>
+									<ul>
+									<li><a href="#config_div">設定</a></li>
+									<li><a href="#toppage">Posモニターシステム</a></li>
+									<li><a href="#work_sch">出勤予定</a></li>
+									<li><a href="#jcs_summary">JCSオーダー概況</a></li>
+									<li><a href="#p_sshiji_cat">JCSオーダー(区分別)</a></li>
+									<li><a href="#jcs_list">JCSオーダー追跡リスト</a></li>
+									<li><a href="#y_syuka_h_div">出荷状況(部材C)</a></li>
+									<li><a href="#y_syuka_div">出荷状況</a></li>
+									<li><a href="#order">海外出荷状況</a></li>
+									<li><a href="#package_plan">商品化予定</a></li>
+									<li><a href="#package">商品化状況</a></li>
+									<li><a href="#p_sshiji_jcs">商品化状況(納期)</a></li>
+									<li><a href="#y_spot">出荷商品化待ち</a></li>
+									<li><a href="#AcOrder">エアコン発注残</a></li>
+									<li><a href="#stat2">欠品状況</a></li>
+									<li><a href="#p_shorder">資材入荷予定</a></li>
+									<li><a href="#s_alarm">資材補充アラーム</a></li>
+									<li><a href="#p_sagyo_log">作業状況</a></li>
+									<li><a href="#zaiko9">仮置き状況</a></li>
+									<li><a href="#start">start</a></li>
+									<li><a href="#finish">finish</a></li>
+									<li><a href="#check-point_div">貿易コンプライアンス</a></li>
+									</ul>
+								</nav>
+								<input type="button" id="morning" value="morning">
+								<input type="button" id="slogan" value="スローガン">
+								<input type="button" id="evening" value="evening">
+								<input type="button" id="endofyear" value="endofyear">
+								<input type="button" id="gensan1" value="gensan1">
+								<input type="button" id="gensan2" value="gensan2">
+								<input type="button" id="noon" value="noon">
+								<input type="button" id="order_care" value="order">
+								<input type="button" id="care1" value="care1">
+								<input type="button" id="safe" value="safe">
+								<div>chrome://flags/#autoplay-policy</div>
+							</div>
+						</div>
+						<div class="pager">
+							<i id="prev" class="material-icons" title="前へ">skip_previous</i>
+							<i id="play" class="material-icons" title="自動切替(ON/OFF)">play_arrow</i>
+							<i id="next" class="material-icons" title="次へ">skip_next</i>
+							<!--span id="auto">auto</span-->
+						</div>
+					</td>
+					<!--td class="h2" >PosMonitor</td-->
+					<td class="h2 text-center" id="title"></td>
+					<td class="header_right">
+						<div id="navWindow">
+							<span id="navCnt"></span>
+							<span id="navChg"></span>
+							<span id="navScr"></span>
+							<span id="navId"></span>
+							<!--span id="top"></span-->
+						</div>
+						<div class="h5 text-right" id="tm">日時</div>
+					</td>
+				</tr>
+				</thead>
+			</table>
+			<div id="fetchWindow">fetchWindow</div>
+		</header>
+		<main role="main">
+			<div id="toppage" class="content disable">
+				<div>Posモニターシステム</div>
+				<div class="version"></div>
+				<div class="message"></div>
+			</div>
+			<div id="start" class="content disable">
+				<div class="title">始業</div>
+				<div class="greet">始業時間です。<p>今日も１日がんばりましょう</p><p class="flash1">(^o^)/</p></div>
+			</div>
+			<div id="finish" class="content disable">
+				<div class="title">終業</div>
+				<div class="greet">終業時間です。<br>今日も１日お疲れ様でした。<br><p class="flash1">m(__)m</p>気を付けて帰宅して下さい。</div>
+			</div>
+			<div id="config_div" class="content disable">
+				<table id="config">
+					<!--caption class="text-left">セットアップ</caption-->
+					<tr>
+						<th>タイトル</th>
+						<td>
+							<input type="text" class="config text-left" id="TitleName" size="10">
+							<span id="pref"></span>
+						</td>
+					</tr>
+					<tr>
+						<th>dns</th>
+						<td>
+							<input type="text" class="config" id="dns" size="10">
+							事<input type="text" class="config" id="JGYOBU" size="4">
+							倉庫<input type="text" class="config" id="Soko" size="4">
+							<span>規定値セット</span>
+							<select id="select_config">
+								<option value=""></option>
+								<option value="w7">広島事</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th>debug</th>
+						<td><input type="text" class="config text-right" id="debug" size="4">秒</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table>
+								<tr><td></td><td>切替回数</td><td>scroll開始</td><td>更新間隔(秒)</td><td></td></tr>
+								<tr>
+									<th>出荷状況</th>
+									<td><input type="text" class="config text-right" id="y_syuka_h_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_syuka_h_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_syuka_h_fetch" size="4"></td>
+									<td>※大阪用</td>
+								</tr>
+								<tr>
+									<th>出荷状況</th>
+									<td><input type="text" class="config text-right" id="y_syuka_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_syuka_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_syuka_fetch" size="4"></td>
+									<td>※小野p,滋賀p</td>
+								</tr>
+								<tr>
+									<th>海外出荷状況</th>
+									<td><input type="text" class="config text-right" id="order_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="order_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="order_fetch" size="4"></td>
+									<td>※小野p,滋賀p</td>
+								</tr>
+								<tr>
+									<th>PM</th>
+									<td><input type="text" class="config text-right" id="order_chg_pm" size="4"></td>
+									<td><input type="text" class="config text-right" id="order_scr_pm" size="4"></td>
+									<td><input type="text" class="config text-right" id="order_fetch_pm" size="4"></td>
+									<td>12:00以降</td>
+								</tr>
+								<tr>
+									<th>出荷商品化待ち</th>
+									<td><input type="text" class="config text-right" id="y_spot_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_spot_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="y_spot_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>商品化状況</th>
+									<td><input type="text" class="config text-right" id="p_sshiji_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_fetch" size="4"></td>
+									<td>
+										受払先
+										<input type="text" class="config" id="UKEHARAI_CODE" size="4">
+										商品化済を表示
+										<input type="text" class="config" id="sumi_disp" size="4">
+										商品化完了日
+										<input type="text" class="config" id="KAN_DT" size="6">テスト用
+									</td>
+								</tr>
+								<tr>
+									<th>商品化予定</th>
+									<td><input type="text" class="config text-right" id="package_plan_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="package_plan_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="package_plan_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>エアコン発注残</th>
+									<td><input type="text" class="config text-right" id="AcOrder_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="AcOrder_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="AcOrder_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>欠品状況</th>
+									<td><input type="text" class="config text-right" id="stat2_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="stat2_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="stat2_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>資材入荷予定</th>
+									<td><input type="text" class="config text-right" id="p_shorder_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_shorder_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_shorder_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>資材アラーム</th>
+									<td><input type="text" class="config text-right" id="s_alarm_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="s_alarm_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="s_alarm_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>作業状況</th>
+									<td><input type="text" class="config text-right" id="p_sagyo_log_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sagyo_log_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sagyo_log_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>仮置き状況</th>
+									<td><input type="text" class="config text-right" id="zaiko9_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="zaiko9_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="zaiko9_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>JCS納品リスト</th>
+									<td><input type="text" class="config text-right" id="jcs_list_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="jcs_list_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="jcs_list_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>商品化状況(区分)</th>
+									<td><input type="text" class="config text-right" id="p_sshiji_cat_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_cat_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_cat_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>商品化状況(納期別)</th>
+									<td><input type="text" class="config text-right" id="p_sshiji_jcs_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_jcs_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="p_sshiji_jcs_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>出勤予定</th>
+									<td><input type="text" class="config text-right" id="work_sch_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="work_sch_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="work_sch_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>JCSオーダー概況</th>
+									<td><input type="text" class="config text-right" id="jcs_summary_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="jcs_summary_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="jcs_summary_fetch" size="4"></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>デフォルト</th>
+									<td><input type="text" class="config text-right" id="navChenge" size="4"></td>
+									<td><input type="text" class="config text-right" id="navScroll" size="4"></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<th>通知間隔</th>
+						<td>
+							<input type="text" class="config text-right" id="IntervalNotice" size="4">秒
+						</td>
+					</tr>
+					<tr>
+						<th>通知 dir</th>
+						<td><input type="text" class="config" id="notice"></td>
+					</tr>
+					<tr>
+						<th>スクロールバー</th>
+						<td><input type="text" class="config" id="ScrollBar"></td>
+					</tr>
+					<tr>
+						<th>スライド</th>
+						<td>
+							dir<input type="text" class="config" id="slide">
+							interval<input type="text" class="config text-right" id="slide_interval" size="4">秒
+							delay<input type="text" class="config text-right" id="slide_delay" size="4">秒
+						</td>
+					</tr>
+					<tr>
+						<th>音声</th>
+						<td>
+							<input type="text" id="sp_text" value="Active出荷データを受信しました." size="40">
+							<input type="button" id="sp_test" value="テスト">
+							<input type="button" id="good_morning" value="Good Morning">
+							<br>
+							<input type="text" class="config" id="voiceName" size="40">
+							<input type="button" id="loadVoice" value="音声一覧">
+						    <ul id="VoiceList"></ul>
+						</td>
+					</tr>
+					<tr>
+						<th>音楽</th>
+						<td>
+							<input type="text" id="morningDate" class="config">
+							<input type="button" id="morning_play" value="Morning">
+							<input type="button" id="stop" value="Stop Music">
+						</td>
+					</tr>
+					<!--tr>
+						<th>midi</th>
+						<td>
+							<input type="text" id="midi" value="sound/atomu.MID" size="20">
+							<input type="button" id="play" value="Play">
+							<input type="button" id="stop" value="Stop">
+							<input type="button" id="morning_play" value="Morning">
+						</td>
+					</tr-->
+					<!--tr>
+						<th>midi</th>
+						<td>
+							<audio id="midi2" src="sound/atomu.MID" preload="auto" controls></audio>
+						</td>
+					</tr-->
+					<!--tr>
+						<th>チャイム</th>
+						<td>
+							<audio id="chime" src="sound/chime.mp3" preload="auto" controls></audio>
+							<audio id="chime3" src="sound/chime3.mp3" preload="auto" controls></audio>
+						</td>
+					</tr-->
+					<tr>
+						<th>画面サイズ</th>
+						<td>
+							<input type="text" class="config text-right" id="width" size="4">
+							x
+							<input type="text" class="config text-right" id="height" size="4">
+							<input type="button" id="SetSize" value="新しいウィンドウ">
+						</td>
+					<tr>
+						<th></th>
+						<td><div id="version"></div></td>
+					</tr>
+					<tr>
+						<th>screen</th>
+						<td id="screen"></td>
+					</tr>
+					<tr>
+						<th>innerSize</th>
+						<td id="size"></td>
+					</tr>
+				</table>
+			</div>
+			<div id="check-point_div" class="content disable" tabindex="0">
+				<table class="bg-green width-100" id="check-point">
+					<caption class="title">貿易コンプライアンス 《チェックポイント》</caption>
+					<tr>
+						<th>伝発リスト(輸出)</th>
+						<td class="SyukaDate">出荷日</td>
+						<td class="OrderNo"></td>
+						<td class="PN"></td>
+						<td class="PName"></td>
+						<td class="Qty"></td>
+						<td class="MadeIn"></td>
+					</tr>
+					<tr>
+						<th>出荷予定連絡表</th>
+						<td class="SyukaDate">出荷日</td>
+						<td class="OrderNo">オーダーNo</td>
+						<td class="PN">品番</td>
+						<td class="PName"></td>
+						<td class="Qty">数量</td>
+						<td class="MadeIn"></td>
+					</tr>
+					<tr>
+						<th>出荷伝票</th>
+						<td class="SyukaDate">出荷日</td>
+						<td class="OrderNo">オーダーNo</td>
+						<td class="PN">品番</td>
+						<td class="PName"></td>
+						<td class="Qty">数量</td>
+						<td class="MadeIn"></td>
+					</tr>
+					<tr>
+						<th>現物<small>（パーツラベル）</small></th>
+						<td class="SyukaDate"></td>
+						<td class="OrderNo"></td>
+						<td class="PN">品番</td>
+						<td class="PName">品名</td>
+						<td class="Qty">数量</td>
+						<td class="MadeIn">原産国</td>
+					</tr>
+					<tr>
+						<th>アイテムラベル</th>
+						<td class="SyukaDate"></td>
+						<td class="OrderNo">オーダーNo<br>アイテムNo</td>
+						<td class="PN">品番</td>
+						<td class="PName">品名</td>
+						<td class="Qty">数量</td>
+						<td class="MadeIn">原産国</td>
+					</tr>
+					<tr>
+						<th>送り状<small>（PACKING LIST）</small></th>
+						<td class="SyukaDate">出荷日</td>
+						<td class="OrderNo">オーダーNo</td>
+						<td class="PN">品番</td>
+						<td class="PName"></td>
+						<td class="Qty">数量</td>
+						<td class="MadeIn">原産国</td>
+					</tr>
+					<tr>
+						<th>ケースマークラベル</th>
+						<td class="SyukaDate"></td>
+						<td class="OrderNo">オーダーNo</td>
+						<td class="PN"></td>
+						<td class="PName"></td>
+						<td class="Qty"></td>
+						<td class="MadeIn"></td>
+					</tr>
+				</table>
+			</div>
+			<div id="y_syuka_h_div" class="content disable" tabindex="0">
+				<table id="y_syuka_h" class="sticky">
+					<!--caption class="title">出荷状況</caption-->
+					<!--col>
+					<col width="10%">
+					<col width="15%">
+					<col width="15%">
+					<col width="10%">
+					<col width="10%"-->
+					<thead>
+						<tr class="y_syuka_h_thead">
+							<th><span id="y_syuka_h_update">◇</span>運送会社</th>
+							<!--th class="h4">1便<br>2便</th-->
+							<th class="h4">便</th>
+							<th>送り状</th>
+							<th>伝票</th>
+							<th class="h4">出庫<br>残</th>
+							<th class="h4">検品<br>残</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>福山通運</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+				<table id="y_syuka_h_cancel">
+					<!--thead>
+						<tr>
+							<th>出荷先</th>
+							<th>品番</th>
+							<th>数量</th>
+						</tr>
+					</thead-->
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 出荷状況 y_syuka -->
+			<div id="y_syuka_div" class="content disable" tabindex="0">
+				<!--出荷状況(小野p,滋賀p)-->
+				<div class="utime" id="y_syuka_update">□更新.時刻</div>
+				<table id="y_syuka" class="sticky">
+					<thead>
+						<tr><!--滋賀PC 合計／件数のみ-->
+							<th rowspan="2" class="dest tr-green">出荷先</th>
+							<th class="total tr-green" colspan="3">合計</th>
+							<th class="hojyu" colspan="3">補充</th>
+							<th class="kinky" colspan="3">緊急</th>
+						</tr>
+						<tr>
+							<th class="total tr-green">件数</th>
+							<th class="total-qty tr-green">個数</th>
+							<th class="total-sai tr-green">才数</th>
+<!--
+							<th class="h5 tr-green">出庫<br>残</th>
+							<th class="h5 tr-green">検品<br>残</th>
+							<th class="h5 tr-green">送信<br>残</th>
+-->
+							<th class="hojyu">件数</th>
+							<th class="hojyu hojyu-qty">出庫<br>残</th>
+							<th class="hojyu hojyu-qty">検品<br>残</th>
+
+							<th class="kinky">件数</th>
+							<th class="kinky kinky-qty">出庫<br>残</th>
+							<th class="kinky kinky-qty">検品<br>残</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--tr>
+							<td class="h1">東日本サテ</td>
+
+							<td class="h0 zan">100</td>
+							<td class="h3 zan">100</td>
+							<td class="h3 zan">100</td>
+
+							<td class="h0 zan">100</td>
+							<td class="h3 zan">100</td>
+							<td class="h3 zan">100</td>
+
+							<td class="h0 zan">100</td>
+							<td class="h3 zan">100</td>
+							<td class="h3 zan">100</td>
+						</tr-->
+					</tbody>
+				</table>
+			</div>
+			<!-- 海外出荷状況 -->
+			<div id="order" class="content disable" tabindex="0">
+				<div class="utime" id="order_update">□更新.時刻</div>
+							<table id="order_sum">
+								<tr>
+									<th>出荷日</th>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>件数</th>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
+									<th>検品残</th>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+				<table id="order_list" class="sticky">
+					<!--caption class="title">海外出荷状況</caption-->
+					<thead>
+						<!--tr class="bg-black"><td colspan="9">
+						</td></tr-->
+						<tr class="bg-green">
+							<th class="No">#</th>
+							<th>出荷日</th>
+							<th>出荷先</th>
+							<th>注文区分</th>
+							<th>オーダーNo</th>
+							<th>件数</th>
+							<th>出庫残</th>
+							<th>検品残</th>
+							<th class="h6">個数</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 資材入荷予定 -->
+			<div id="p_shorder" class="content disable" tabindex="0">
+				<div class="utime" id="p_shorder_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>入荷日</th>
+							<th>予定日</th>
+							<th>品番</th>
+							<th>発注数</th>
+							<th>在庫数</th>
+							<th>仕入先</th>
+							<th>収支</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="number">1</td>
+							<td class="date">3/23</td>
+							<td class="date">3/23</td>
+							<td>D763</td>
+							<td class="number">100</td>
+							<td class="number">100</td>
+							<td>Y783</td>
+							<td>120</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 資材アラーム -->
+			<div id="s_alarm" class="content disable" tabindex="0">
+				<div class="utime" id="s_alarm_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th class="rowNo">#</th>
+							<th>品番</th>
+							<th>在庫数</th>
+							<th>補充点</th>
+							<th>発注残</th>
+							<th>不足数</th>
+							<th>前回納入日</th>
+							<th>収支</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 商品化状況 -->
+			<div id="package" class="content disable" tabindex="0">
+				<div class="utime" id="p_sshiji_update">□更新.時刻</div>
+							<table id="summary">
+								<tbody>
+									<tr>
+										<th >区分</th>
+										<th class="jizen">事前</th>
+										<th class="spot">スポット</th>
+										<th class="keppin">欠品解除</th>
+										<th class="bg-skyblue">　計　</th>
+									</tr>
+									<tr>
+										<th class="h5">
+											<span>予定</span>
+										</th>
+										<td class="jizen">
+											<span id="f0_y">0</span>
+										</td>
+										<td class="spot">
+											<span id="f1_y">0</span>
+										</td>
+										<td class="keppin">
+											<span id="f2_y">0</span>
+										</td>
+										<td class="bg-skyblue">
+											<span id="total_y">0</span>
+										</td>
+									</tr>
+									<tr class="hide">
+										<th class="h5">
+											<div>完了</div>
+										</th>
+										<td class="jizen">
+											<div id="f0_k">0</div>
+										</td>
+										<td class="spot">
+											<div id="f1_k">0</div>
+										</td>
+										<td class="keppin">
+											<div id="f2_k">0</div>
+										</td>
+										<td class="bg-skyblue">
+											<div id="total_k">0</div>
+										</td>
+									</tr>
+									<tr>
+										<th class="h5">
+											<div>残</div>
+										</th>
+										<td class="jizen">
+											<div id="f0_z">0</div>
+										</td>
+										<td class="spot">
+											<div id="f1_z">0</div>
+										</td>
+										<td class="keppin">
+											<div id="f2_z">0</div>
+										</td>
+										<td class="bg-skyblue">
+											<div id="total_z">0</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+				<!-- 商品化明細 -->
+				<table id="p_sshiji" class="p_sshiji sticky">
+					<thead>
+						<!--tr><th colspan="11">
+							</th>
+						<tr-->
+						<tr class="p_sshiji_thead">
+							<th>#</th>
+							<th title="商品化計画 予定日">計画</th>
+							<th title="納期回答日">納期</th>
+							<th>区分</th>
+							<th>指示No</th>
+							<th>品番</th>
+							<th>数量</th>
+							<th>状況</th>
+							<th>在庫<br>92</th>
+							<th>在庫<br>未商</th>
+							<th>在庫<br>商済</th>
+						</tr>
+					</thead>
+					<tbody id="tbody_p_sshiji">
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+			</div>
+			<!-- エアコン発注残 -->
+			<div id="AcOrder" class="content disable" tabindex="0">
+				<div class="utime" id="AcOrder_update">□更新.時刻</div>
+				<table class="AcOrder sticky">
+					<thead>
+						<tr class="date">
+							<th>指定納期</th>
+							<td>1/1</td>
+							<td>1/2</td>
+							<td>1/3</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="cnt">
+							<th>商品化 件数</th>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<th>商品化 件数残</th>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr class="qty">
+							<th>商品化 個数</th>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<th>商品化 個数残</th>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 商品化状況 JCS -->
+			<div id="p_sshiji_jcs" class="content disable" tabindex="0">
+				<div class="utime" id="p_sshiji_jcs_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th class="keppin" colspan="2">8/20</th>
+							<th class="jizen" colspan="2">8/21</th>
+							<th class="spot" colspan="2">8/22</th>
+							<th colspan="2">8/23</th>
+							<th colspan="2">8/24</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td class="keppin">P51N15200</td><td>1</td>
+							<td class="jizen">P51N15200</td><td>1</td>
+							<td class="spot">P51N15200</td><td>1</td>
+							<td></td><td></td>
+							<td></td><td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 商品化状況 JCS カテゴリー別 -->
+			<div id="p_sshiji_cat" class="content disable" tabindex="0">
+				<div class="utime" id="p_sshiji_cat_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th><div class="div1">区分</div><div class="div2">納期</div></th>
+							<th>-/--</th>
+							<th>-/--</th>
+							<th>-/--</th>
+							<th>-/--</th>
+							<th>-/--</th>
+							<th>-/--</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="kubun C01">コンデンサ</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C02">フィルター</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C03">パイプ</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C04">モータファン</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C05">エバポレータ</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C06">ヒータコア</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C07">Ｏリング</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="kubun C99">その他</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="h6 text-right" colspan="7">※NG=Z(在庫なし)を集計</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="break">明細</div>
+				<table class="list">
+					<thead>
+						<tr><th class="row">#</th>
+						<th class="noki">納期</th>
+						<th class="pn">品番</th>
+						<th class="name">品名</th>
+						<th class="qty">数量</th>
+						<th class="kubun">区分</th>
+						<th class="spn">資材</th>
+						<th class="type">タイプ</th>
+						<th class="stat">NG</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+				<div class="jump_to_top">▲先頭に戻る▲</div>
+			</div>
+			<!-- 出勤予定 -->
+			<div id="work_sch" class="content disable" tabindex="0">
+				<div class="utime" id="work_sch_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th>担当者</th>
+							<th class="prev">月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+							<th>土</th>
+							<th class="next">日</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>佐々木</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>日出</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>田尾</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>土井</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>延谷</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>梶山</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 仮置き状況 -->
+			<div id="zaiko9" class="content disable" tabindex="0">
+				<div class="utime" id="zaiko9_update">□更新.時刻</div>
+				<table class="zaiko9 sticky">
+					<thead>
+						<tr>
+							<th>棚番</th>
+							<th>品番</th>
+							<th>在庫数</th>
+							<th>入庫日</th>
+							<th>標準棚番</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td class="soko" colspan="5">90</td></tr>
+						<tr>
+							<td>90010101</td>
+							<td>AMC94P-VD0W</td>
+							<td>50</td>
+							<td>20180406</td>
+							<td>01080103</td>
+						</tr>
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+			</div>
+			<!-- 作業状況 -->
+			<div id="p_sagyo_log" class="content disable" tabindex="0">
+				<div id="p_sagyo_log_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th>エリア</th>
+							<th>担当者</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 欠品状況 -->
+			<div id="stat2" class="content disable" tabindex="0">
+				<div class="utime" id="stat2_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th>事業部</th>
+							<th>国内<br>海外</th>
+							<th>ｱｲﾃﾑ</th>
+							<th>件数</th>
+							<th>個数</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 出荷商品化待ち -->
+			<div id="y_spot" class="content disable" tabindex="0">
+				<div class="utime" id="y_spot_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th rowspan="2" class="rowNo"><!--div class="New blinking">New</div-->#</th>
+							<th rowspan="2">出荷日</th>
+							<th rowspan="2">進捗</th>
+							<th rowspan="2">出荷先</th>
+							<th rowspan="2" class="SOKO_NAME">倉庫</th>
+							<th rowspan="2">品番</th>
+							<th rowspan="2">出荷数</th>
+							<!--th>不足数</th-->
+							<th class="zaiko" colspan="3">在庫数</th>
+						</tr>
+						<tr>
+							<th class="qty0">商済</th>
+							<th class="qty92">９２</th>
+							<th class="qty1">未商</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- JCSオーダー概況 -->
+			<div id="jcs_summary" class="content disable" tabindex="0">
+				<div class="input">
+					<div>　納入日：</div><input type="text" class="noki" size="6">　<div class="update">□更新.time</div><div></div>
+				</div>
+				<div class="summary">
+					<div class="box sumi">
+						<div>手配済</div>
+						<div class="qty fadeInDown">-</div>
+					</div>
+					<div class="box zan">
+						<div>手配残</div>
+						<div class="qty">-</div>
+					</div>
+					<div class="box kan">
+						<div>完了</div>
+						<div class="qty">-</div>
+					</div>
+				</div>
+				<div class="summary2">
+					<div class="box stat1">
+						<div>①手配前</div>
+						<div class="qty">-</div>
+					</div>
+					<div class="box stat2">
+						<div>②商品化</div>
+						<div class="qty">-</div>
+					</div>
+					<div class="box stat3">
+						<div>③納品チェック</div>
+						<div class="qty">-</div>
+					</div>
+					<div class="box stat4">
+						<div>④出荷レーン</div>
+						<div class="qty">-</div>
+					</div>
+				</div>
+				<table>
+					<thead>
+						<tr><td class="row">#</td><th class="no">納品番号</th><th class="pn">品番</th><th></th><th class="qty">数量</th><th class="stat">進捗</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- JCSオーダー追跡リスト -->
+			<div id="jcs_list" class="content disable" tabindex="0">
+				<div class="utime" id="jcs_list_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th rowspan="2" class="rowNo">#</th>
+							<th rowspan="2">納入先</th>
+							<th rowspan="2">場所</th>
+							<th rowspan="2">納品書No</th>
+							<th rowspan="2">マツダ品番</th>
+							<th rowspan="2">納入数</th>
+							<th rowspan="2">在庫</th>
+							<th rowspan="2" class="Date">受注日</th>
+							<th rowspan="2" class="Date">引取</th>
+							<th colspan="2" class="Date">商品化</th>
+							<th rowspan="2" class="Date">納品<br>ﾁｪｯｸ</th>
+							<th rowspan="2" class="Date">納入日</th>
+						</tr>
+						<tr>
+							<th class="Date">手配</th>
+							<th class="Date">完了</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<!-- 商品化予定 -->
+			<div id="package_plan" class="content" tabindex="0">
+				<div class="utime" id="package_plan_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th class="rowNo">#</th>
+							<th class="Date">予定日</th>
+							<th>品番</th>
+							<th>品名</th>
+							<th class="Qty">数量</th>
+							<th>見本</th>
+							<th>メモ</th>
+							<th>状況</th>
+							<th class="zQtyS">在庫<br>商済</th>
+							<th class="zQty92">在庫<br>92</th>
+							<th class="zQtyM">在庫<br>未商</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td class="rowNo"></td><td colspan="10"><div class="info">0件</div><div class="fileinfo">商品化予定.xlsx</div></td></tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<div class="centerWindow">真ん中</div>
+		<section class="modal-window" id="modal-p01">
+			<div class="modal-inner">
+				<h1>Modal Window</h1>
+			</div>
+		</section>
+		<footer role="contentinfo" class="h7 text-center" id="footer">
+		</footer>
+		<!-- #dialog-edit  -->
+		<div id="dialog-edit" title="海外出荷データ：編集">
+		    <form>
+		        <table id="form_edit" class="sample">
+		            <tr>
+		                <td class="header">出荷日</td>
+		                <td><input type="text" id="eKEY_SYUKA_YMD" name="eKEY_SYUKA_YMD"></td>
+		            </tr>
+		            <tr>
+		                <td class="header">出荷先</td>
+		                <td><input type="text" id="eMUKE_NAME" readonly="readonly" ></td>
+		            </tr>
+		            <tr>
+		                <td class="header">注文区分</td>
+		                <td><input type="text" id="eCYU_KBN_NAME" readonly="readonly"></td>
+		            </tr>
+		            <tr>
+		                <td class="header">オーダーNo</td>
+		                <td><input type="text" id="eODER_NO" readonly="readonly"></td>
+		            </tr>
+		            <tr class="hide">
+		                <td class="header">件数</td>
+		                <td><input type="text" id="ecnt"></td>
+		            </tr>
+		            <tr class="hide">
+		                <td class="header">個数</td>
+		                <td><input type="text" id="eqty"></td>
+		            </tr>
+		        </table>
+			</form>
+		</div>
+		<!-- end of #dialog-edit -->
+		<div id="work_sch_edit" title="勤務予定：編集" class="dialog">
+		        <table id="work_sch_form" class="sample">
+					<thead>
+						<tr>
+							<th>担当者</th>
+							<th>月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+							<th>土</th>
+							<th>日</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>佐々木</td>
+							<td>
+								<div class="holiday">休日</div>
+								<div class="filter">フィルター</div>
+								<div class="condenser">コンデンサ</div>
+								<div class="pipe">パイプ</div>
+								<div class="petty">小物</div>
+							</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+		        </table>
+		</div>
+		<div id="dialog"></div>
+	</body>
+	<script src="jquery-3.3.1.min.js"></script>
+	<script src="jquery-ui.js"></script>
+	<script type="text/javascript" src="jquery.toast.js"></script>
+	<!--script src="jquery.floatThead.min.js"></script-->
+	<script src="monitor.js?v=2020040401"></script>
+</html>

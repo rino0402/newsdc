@@ -1,0 +1,110 @@
+#nav-drawer {
+	position: relative;
+}
+
+/*チェックボックス等は非表示に*/
+.nav-unshown {
+	display:none;
+}
+
+/*アイコンのスペース*/
+#nav-open {
+	display: inline-block;
+	width: 1em		/* 10px;	*/
+	height: 1em;	/* 10px;	*/
+	vertical-align: top; /*middle;*/
+	padding: 0px;
+	top: 0px;
+}
+
+/*ハンバーガーアイコンをCSSだけで表現*/
+#nav-open {
+	cursor: pointer;
+}
+/*
+#nav-open span, #nav-open span:before, #nav-open span:after {
+    position: absolute;
+    height: 3px;	/*線の太さ*
+    width: 1em; 	/*10px;/*長さ*
+    border-radius: 3px;
+*    background: black;	*
+    display: block;
+    content: '';
+    cursor: pointer;
+}
+*/
+/*
+#nav-open span:before {
+    bottom: -8px;
+}
+#nav-open span:after {
+    bottom: -16px;
+}
+*/
+
+/*閉じる用の薄黒カバー*/
+#nav-close {
+    display: none;/*はじめは隠しておく*/
+    position: fixed;
+    z-index: 20000;
+    top: 0;/*全体に広がるように*/
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0;
+    transition: .3s ease-in-out;
+}
+/*中身*/
+#nav-content {
+	font-size: 10px;
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 20010;/*最前面に*/
+    width: 90%;/*右側に隙間を作る*/
+    max-width: 200px;/*最大幅*/
+    height: 100%;
+    background: black;/*背景色*/
+    transition: .3s ease-in-out;/*滑らかに表示*/
+    -webkit-transform: translateX(-105%);
+    transform: translateX(-105%);/*左に隠しておく*/
+}
+/*チェックが入ったらもろもろ表示*/
+#nav-input:checked ~ #nav-close {
+    display: block;/*カバーを表示*/
+    opacity: .5;
+}
+
+#nav-input:checked ~ #nav-content {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);/*中身を表示*/
+    box-shadow: 6px 0 25px rgba(0,0,0,.15);
+}
+#nav-content  ul{ 
+margin: 0; 
+padding: 0; 
+list-style: none; 
+}
+#nav-content  li{ 
+display: inline; 
+padding: 0; 
+margin: 0; 
+}
+#nav-content  li a{
+display: block; 
+border: 1px solid #9F99A3;
+background-color: #EEEEEE;
+padding: 3px 10px;
+text-decoration: none;
+color: #333;
+/*width: 150px; */
+margin: 2px 0px;
+text-align: left;
+font-size: 14px;
+}
+#nav-content  li a:hover{
+border: 1px solid #8593A9;
+background-color: #9EB7DD;
+}
