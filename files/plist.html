@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="expires" content="0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+		<title>荷積明細</title>
+		<link type="text/css" rel="stylesheet" href="jquery-ui.css">
+		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2020040601">
+		<link type="text/css" rel="stylesheet" href="plist.css?v=2020040601">
+	</head>
+	<body>
+		<header role="banner">
+			<audio id="chime" src="sound/tin1.mp3"></audio>
+			<audio id="chime3" src="sound/chime3.mp3"></audio>
+			<nav>
+				<span id="menu"></span>
+				<ul>
+					<li class="active"><a href="#tab_home">荷積明細</a></li>
+					<li><a href="#tab_option">設定</a></li>
+					<li><a href="#tab_version">ver</a></li>
+				</ul>
+				<span id="dns_span">newsdc</span>
+			</nav>
+		</header>
+		<main role="main">
+			<div class="tab_content" id="tab_home">
+				<div class="content">
+					<form method="get">
+						<label for="pallet_no1">パレットNo.<input id="pallet_no1" type="text" class="config pallet_no"></label>
+						<label for="pallet_no2">～<input id="pallet_no2" type="text" class="config pallet_no"></label>　
+						<input id="submit" type="submit" value="検索">　
+						<input type="reset" value="リセット">　
+						<input id="plist" type="button" value="荷積明細印刷">
+					</form>
+					<table id="list" class="sticky">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>ID_No</th>
+								<th>品番</th>
+								<th>数量</th>
+								<th>パレットNo</th>
+								<th>箱数</th>
+								<th>編集</th>
+								<th>Pos検品日時</th>
+								<th>発注残</th>
+								<th>備考欄１</th>
+								<th>商品化完了日</th>
+								<th>商品化完了数</th>
+								<th>奈良納入日</th>
+							</tr>
+				        </thead>
+						<tbody>
+				        </tbody>
+					</table>
+					<p id="msg"></p>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_option">
+				<div class="content" id="option">
+					<table>
+						<tr><td>DNS</td><td><input id="dns" type="text" class="config"></td><tr>
+						<tr><td>limit</td><td><input id="limit" type="text" class="config"></td><tr>
+						<tr><td>key</td><td id="key"></td><tr>
+					</table>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_version">
+				<div class="content" id="version">version</div>
+				<div class="content" id="log">log</div>
+				<div class="content" id="err">err</div>
+			</div>
+			<!--a class="do_print" href="#">印刷</a-->
+			<div id="result_table"></div>
+		</main>
+		<footer role="contentinfo">
+			<div id="msg"></div>
+		</footer>
+		<!-- #dialog-edit  -->
+		<div id="pallet_edit">
+			<table>
+		            <tr>
+		                <td class="header">Row</td>
+		                <td id="Row"></td>
+		            </tr>
+		            <tr>
+		                <td class="header">ID_No</td>
+		                <td id="ID_NO"></td>
+		            </tr>
+		            <tr>
+		                <td class="header">パレットNo</td>
+		                <td><input type="text" id="e_pallet_no"></td>
+		            </tr>
+		            <tr>
+		                <td class="header">箱数</td>
+		                <td><input type="text" id="e_case_qty"></td>
+		            </tr>
+			</table>
+			<div class="msg"> </div>
+		</div>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="jquery-ui.js"></script>
+	<script type="text/javascript" src="jquery.toast.js"></script>
+	<!--script src="jquery.floatThead.min.js"></script-->
+	<script src="menu.js?v=2020040601"></script>
+	<script src="plist.js?v=2020043001"></script>
+</html>
