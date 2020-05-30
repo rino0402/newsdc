@@ -38,7 +38,7 @@ def main(r):
             r["mtime"] = datetime.fromtimestamp(os.stat(r["filename"]).st_mtime).strftime('%Y/%m/%d %H:%M:%S')
             r["log"] = "{}\t{}件\t{}\n".format(os.path.basename(r["filename"]),len(r["load"]), r["mtime"])
         except:
-            r["log"] = "{}\t{}件\n".format(r["filename"],len(r["load"]))
+            r["log"] = "{}\t{}件\n".format(r["name"],len(r["load"]))
         open(log, mode='a').write(r["log"])
     print("conn.close()", end=".")
     conn.close()
@@ -166,6 +166,7 @@ if __name__ == "__main__":
         r = {}
         r["dns"] = form.getvalue('dns', 'newsdc')
         r["filename"] = filename
+        r["name"] = form.getvalue('name', '')
         r["limit"] = int(form.getvalue('limit', 0))
         sys.stdout = None
         r = main(r)
