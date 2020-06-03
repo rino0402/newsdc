@@ -492,9 +492,11 @@ Function GetCenterName()
 						GetCenterName = "“Ş—Ç‰c"
 						select case strDir1
 						case "newsdc8"
-									GetCenterName = "ƒŒƒ“ƒW"
+									GetCenterName = "“Œ‚T"
 						case "newsdc9"
 									GetCenterName = "“Ş—Ç‚b"
+						case "newsdcy"
+									GetCenterName = "O—mƒeƒXƒg"
 						end select
 	case "w7","192.168.7.31"
 						GetCenterName = "L“‡‰c"	

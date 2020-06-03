@@ -46,6 +46,7 @@ Function GetVersion()
 	GetVersion = "2017.09.22 出力形式：端末ID・要因別"
 	GetVersion = "2018.12.25 出力形式：一覧表 項目追加[Memo][外装Check]"
 	GetVersion = "2019.01.10 出力形式：一覧表 項目追加[JAN]"
+	GetVersion = "2020.06.03 検索条件：処理時刻 対応"
 End Function
 Function GetToday()
 	GetToday = right("0000" & year(now),4) & right("00" & month(now),2) & right("00" & day(now),2)
@@ -97,6 +98,7 @@ function DoCopy(arg){
 		<tr>
 			<th>事業部</th>
 			<th>処理日</th>
+			<th>処理時刻</th>
 			<th>担当者</th>
 			<th>メニューNo</th>
 			<th>要因</th>
@@ -113,9 +115,14 @@ function DoCopy(arg){
 				<INPUT TYPE="text" NAME="JGYOBU" id="JGYOBU" VALUE="<%=GetRequest("JGYOBU","")%>" size="2" style="text-align:center;">
 			</td>
 			<td align="center" nowrap>
-				<INPUT TYPE="text" NAME="dt" id="dt" VALUE="<%=GetRequest("dt",GetToday())%>" size="10" maxlength="8">
+				<INPUT TYPE="text" NAME="dt" id="dt" VALUE="<%=GetRequest("dt",GetToday())%>" size="10">
 				～
-				<INPUT TYPE="text" NAME="dtTo" id="dtTo" VALUE="<%=GetRequest("dtTo","")%>" size="10" maxlength="8">
+				<INPUT TYPE="text" NAME="dtTo" id="dtTo" VALUE="<%=GetRequest("dtTo","")%>" size="10">
+			</td>
+			<td align="center" nowrap>
+				<INPUT TYPE="text" NAME="tmFr" id="tmFr" VALUE="<%=GetRequest("tmFr", "")%>" size="5">
+				～
+				<INPUT TYPE="text" NAME="tmTo" id="tmTo" VALUE="<%=GetRequest("tmTo", "")%>" size="5">
 			</td>
 			<td align="center">
 				<INPUT TYPE="text" NAME="Tanto" id="Tanto" VALUE="<%=GetRequest("Tanto","")%>" size="10">
@@ -149,7 +156,7 @@ function DoCopy(arg){
 			</td>
 		</tr>
 		<tr>
-			<td colspan="12" nowrap>
+			<td colspan="13" nowrap>
 				<table>
 				<tr>
 				<td><b>出力形式：</b></td>
@@ -206,7 +213,7 @@ function DoCopy(arg){
 			</td>
 		</tr>
 		<tr bordercolor=White>
-			<td colspan="12" nowrap>
+			<td colspan="13" nowrap>
 				<INPUT TYPE="submit" value="検索" id=submit1 name=submit1>
 				<INPUT TYPE="reset" value="リセット" id=reset1 name=reset1 onClick="location.href='<%=Request.ServerVariables("URL")%>';">
 				最大件数：<INPUT TYPE="text" NAME="max" id="max" VALUE="<%=GetRequest("max","1000")%>" size="8" maxlength="6">
@@ -235,6 +242,7 @@ function DoCopy(arg){
 		andStr = " where"
 
 		whereStr = makeWhere(whereStr,"p.JITU_DT",GetRequest("dt",GetToday()),GetRequest("dtTo",""))
+		whereStr = makeWhere(whereStr,"p.JITU_TM",GetRequest("tmFr", ""), GetRequest("tmTo", ""))
 		whereStr = makeWhere(whereStr,"p.JGYOBU",GetRequest("JGYOBU",""),"")
 		whereStr = makeWhere(whereStr,"p.TANTO_CODE",GetRequest("Tanto",""),"")
 		whereStr = makeWhere(whereStr,"p.MENU_NO",GetRequest("MENU_NO",""),"")
