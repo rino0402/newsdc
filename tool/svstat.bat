@@ -18,6 +18,7 @@ echo.¡openfiles >> svstat.log
 openfiles | findstr /r /c:"^[=0-9]" | sort /+10 >> svstat.log
 echo.¡loadpercentage
 wmic cpu get loadpercentage >> svstat.log
+whoami >> svstat.log
 echo.%date% %time:~0,8% %0 %* >> svstat.log
 slack "%0 %*" %cd%\svstat.log
 popd

@@ -69,7 +69,7 @@ select
 ,itm.GPn
 from P_SSHIJI_O p
 left outer join JcsNohin n
- on ((rtrim(n.NohinNo) + n.NohinNo2) = left(p.SHIJI_NO,7))
+ on ((rtrim(n.NohinNo) + n.NohinNo2) = left(p.SHIJI_NO,7) and p.HIN_GAI = n.MazdaPn)
 left outer join JcsItem itm
  on (p.HIN_GAI = itm.MazdaPn)
 where p.ORDER_DT {0} '{1}'

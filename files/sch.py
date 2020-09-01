@@ -103,6 +103,8 @@ def list1(dns, post, stdate):
     where = "where c.CalDate between '{0}' and '{1}'".format(today.strftime('%Y-%m-%d'), (today + timedelta(6)).strftime('%Y-%m-%d'))
     if post != '':
         where += " and t.POST_CODE = '{0}'".format(post)
+    else:
+        where += " and t.POST_CODE <> ''"
     sql = """
 select
  t.TANTO_CODE
@@ -122,7 +124,8 @@ from Calendar c , Tanto t
 ) t
 left outer join Sch s on (t.TANTO_CODE = s.TANTO_CODE and t.CalDate = s.Dt)
 order by
- t.TANTO_CODE
+ t.POST_CODE
+,t.TANTO_CODE
 ,t.CalDate
 """.format(where)
     print(sql)

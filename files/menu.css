@@ -73,6 +73,11 @@ input[type="submit"]:hover {
 	background-color: yellow;
 	color: midnightblue;
 }
+#jgyobu {
+	width: 1em;
+	text-align: center;
+	text-transform: uppercase;
+}
 /*
 左サイドメニュー
 */

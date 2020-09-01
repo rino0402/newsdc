@@ -10,6 +10,9 @@ if /i "%ComputerName%" == "w1" (
 if /i "%ComputerName%" == "doel" (
 	set	Chnl=w1
 )
+if /i "%ComputerName%" == "high" (
+	set	Chnl=w1
+)
 if /i "%ComputerName%" == "w2" (
 	set	Chnl=w2
 )

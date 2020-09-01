@@ -12,22 +12,19 @@ import json
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
-def main(dns, test):
-    print("main({0}, {1})".format(dns, test))
-    results = {}
-    results["dns"] = dns
-    results["test"] = test
+def main(r):
+    print("main({})".format(r))
 
-    print("pyodbc.connect({0})".format(dns), end=".")
-    conn = pyodbc.connect('DSN=' + dns)
+    print("pyodbc.connect({0})".format(r["dns"]), end=".")
+    conn = pyodbc.connect('DSN=' + r["dns"])
     print("ok")
 
-    results["acorder"] = acorder(conn)
+    r["acorder"] = acorder(conn, r)
 
-    if test:
+    if r["test"]:
         print("test")
     else:
-        print("pyodbc.commit).".format(dns), end="")
+        print("pyodbc.commit).".format(r["dns"]), end="")
         conn.commit()
         print("ok")
         
@@ -35,9 +32,9 @@ def main(dns, test):
     conn.close()
     print("ok")
 
-    return results
+    return r
 
-def acorder(conn):
+def acorder(conn, r):
     sql = """
 select
 *
@@ -52,7 +49,10 @@ or
 ODER_NO in (select Id from aczan)
 )
 """
-    r = []
+    if r["kenpin"] != 0:
+        sql += " or KENPIN_YMD >= '{0:%Y%m%d}'".format(date.today() - timedelta(r["kenpin"]))
+    print(sql)
+    ret = []
     try:
         cursor = conn.cursor()
         cursor.execute(sql)
@@ -65,7 +65,7 @@ from del_syuka
 where KEY_ID_NO='{1}'
 """.format(",".join(map(str, columns)), row.KEY_ID_NO)
 #            print(sql)
-            print("{0} {1} {2}.".format(row.KEY_ID_NO, row.ODER_NO, row.KEY_SYUKA_YMD), end="")
+            print("{0} {1} {2} {3}.".format(row.KEY_ID_NO, row.ODER_NO, row.KEY_SYUKA_YMD, row.KENPIN_YMD), end="")
             conn.execute(sql)
             print("y_syuka:{}.".format(conn.execute("select @@rowcount").fetchone()[0]), end="")
             conn.execute("delete from del_syuka where KEY_ID_NO='{}'".format(row.KEY_ID_NO))
@@ -82,9 +82,7 @@ where KEY_ID_NO='{1}'
     except:
         print('error')
         raise
-    return r
-
-
+    return ret
 
 def decimal_default_proc(obj):
     if isinstance(obj, Decimal):
@@ -116,8 +114,10 @@ if __name__ == "__main__":
         import argparse
         parser = argparse.ArgumentParser()
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--kenpin", help="KENPIN_YMD の過去？日分", default=0, type=int)
         parser.add_argument("--test",action="store_true")
-        args= parser.parse_args()
-        r = main(args.dns, args.test)
+        r = main(vars(parser.parse_args()))
+#        args= parser.parse_args()
+#        r = main(args.dns, args.test)
 #        import pprint
 #        pprint.pprint(r)

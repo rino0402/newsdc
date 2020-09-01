@@ -96,8 +96,18 @@ class notice:
 #            r["speech"] = self.st_mtime.strftime('%H:%M') + " Active,出荷実績データを送信しました."
             r["speech"] = "。"
             r["chime"] = "48 Dragon Quest 3 - Special Item"
+        elif self.filename == 'corona.html':
+            r["speech"] = "新型コロナウイルスの、感染防止対策のお願いです"
+            r["title"] = self.filename
+            r["chime"] = "Chime-Announce09-1(5-Tone-Fast-Up)"
+        elif self.filename.endswith('.html'):
+            r["title"] = self.filename
+            r["chime"] = "chime"
         elif self.filename != '':
-            r["title"] = self.st_mtime.strftime('%H:%M ') + self.filename
+            try:
+                r["title"] = self.st_mtime.strftime('%H:%M ') + self.filename
+            except:
+                r["title"] = self.filename
         r["text"] = self.text
         r["test"] = self.test
         print('Content-Type:application/json; charset=UTF-8;\n')

@@ -120,6 +120,10 @@ var	version = '<p>1.24 2020.03.07 商品化予定 商品化完了したものを
 var	version = '<p>1.25 2020.03.09 商品化予定 数量＝空白の場合は品番以降の項目を結合して表示';
 var	version = '<p>1.26 2020.04.01 2020年度 スローガン「衆知を集め 全員経営」';
 var	version = '<p>1.27 2020.05.27 広島事 出勤予定 行間を狭くして表示行数を増やしました.';
+var	version = '<p>1.28 2020.06.05 誤出荷注意メッセージ：2020年度.';
+var	version = '<p>1.29 2020.08.11 袋井「入出荷予定」対応しました.';
+var	version = '<p>1.30 2020.08.25 大阪「出勤予定」テストバージョン.5';
+var	version = '<p>1.31 2020.08.28 JCSオーダー概況 進捗チェックの不具合修正';
 /*
 debugフラグ
 */
@@ -219,6 +223,7 @@ $(document).ready(function() {
 	//タイトルセット
 	$('title').text(title);
 	$('#name').text(title);
+	setConfig('#volume','');
 	//スクロールバー表示／非表示
 	if( setConfig('#ScrollBar','true') == 'true') {
 		$('body').css('overflow-y','auto');
@@ -1548,7 +1553,11 @@ function chime(nm = 'chime', volume = 0.1) {
 */
 	audio.src = 'sound/' + nm + '.mp3';
 	audio.load();
-	audio.volume = volume;
+	if($('#volume').val()) {
+		audio.volume = parseInt($('#volume').val());
+	} else {
+		audio.volume = volume;
+	}
 	if(audio.paused) {
 		audio.play().catch(function(e) {
 			console.log('audio.play():' + e);
@@ -1681,29 +1690,42 @@ $(document).ready(function() {
 			heading : '<div class="h0 text-center text-red blinking">≪誤出荷注意≫</div>'
 //<!--caption class="">誤出荷発生状況 ※全社</caption>
 			,text : '<center><table class="gosyuka">'
-					+ '<tr><th colspan="3">誤出荷発生状況</th>											                            <th>小野</th><th>滋Ｐ</th>                 <th>滋物</th><th>袋井</th><th>大阪</th><th>奈良</th>                 <th>広島</th></tr>'
-					+ '<tr><td>2019年度</td><td class="text-red">１５件</td><td class="text-left h4">(11/25現在)</td><td class="text-red">４</td>  <td>２</td>  <td class="text-red">２</td>  <td>－</td>  <td>１</td>  <td>４</td>  <td class="text-red">２</td></tr>'
-					+ '<tr><td>2018年度</td>                 <td>１０件</td><td class="text-left h4">(年間累計)</td>                  <td>－</td>  <td>３</td>                   <td>１</td>  <td>１</td>  <td>１</td>  <td>４</td>                   <td>－</td></tr>'
+					+ '<tr><th colspan="3">誤出荷発生状況</th><th>小野</th><th>滋Ｐ</th><th>滋物</th><th>袋井</th><th>大阪</th><th>奈良</th><th>広島</th></tr>'
+					+ '<tr><td>2020年度</td><td class="text-red">１件</td><td class="text-left h4">(6/18現在)</td>'
+					+ '<td>－</td>'
+					+ '<td>－</td>'
+					+ '<td>－</td>'
+					+ '<td>－</td>'
+					+ '<td>－</td>'
+					+ '<td class="text-red">１</td>'
+					+ '<td>－</td>'
+					+ '</tr>'
+					+ '<tr><td>2019年度</td><td>１５件</td><td class="text-left h4">(年間累計)</td><td>４</td><td>２</td><td>２</td><td>－</td><td>１</td><td>４</td><td>２</td></tr>'
+					+ '<tr><td>2018年度</td><td>１０件</td><td class="text-left h4">(年間累計)</td><td>－</td><td>３</td><td>１</td><td>１</td><td>１</td><td>４</td><td>－</td></tr>'
 					+ '</table></center>'
 					+ '<div class="box">誤出荷は１拠点だけの問題でなく、会社全体の信用・信頼を損ないます。'
 					+ '細心の注意を心がけましょう！</div>'
 					+ '<div class="h2 text-red -blinking marquee">'
-					+ '　⑮11/18 奈良センター倉庫：中身違い(セット品不足 )'
-					+ '　⑭10/23 広島事：ラベル違い'
-					+ '　⑬10/19 奈良センター倉庫：送り先違い'
-					+ '　⑫10/15 大阪事業所：送り先違い'
-					+ '　⑪10/3 滋賀DC：中身違い(ラベル貼り間違い)'
-					+ '　⑩9/24 滋賀PC：中身違い'
-					+ '　⑨7/31 小野PC：その他(個装ラベル未貼付)'
-					+ '　⑧6/28 広島事：数量違い'
-					+ '　⑦6/24 小野PC：数量違い'
-					+ '　⑥6/15 奈良センター倉庫：送り先違い'
-					+ '　⑤6/14 奈良センター倉庫：その他（現品違い）'
-					+ '　④6/13 滋賀PC：送り先違い'
-					+ '　③6/7 小野PC：数量違い'
-					+ '　②6/7 滋賀PC：数量違い'
-					+ '　①5/21 小野PC：納品書誤送'
+					+ '2020年度発生分'
+					+ '  ①6/17 奈良センター倉庫：送り先違い'
 					+ '</div>'
+//					+ '2019年度発生分'
+//					+ '  ⑮11/18 奈良センター倉庫：中身違い(セット品不足 )'
+//					+ '　⑭10/23 広島事：ラベル違い'
+//					+ '　⑬10/19 奈良センター倉庫：送り先違い'
+//					+ '　⑫10/15 大阪事業所：送り先違い'
+//					+ '　⑪10/3 滋賀DC：中身違い(ラベル貼り間違い)'
+//					+ '　⑩9/24 滋賀PC：中身違い'
+//					+ '　⑨7/31 小野PC：その他(個装ラベル未貼付)'
+//					+ '　⑧6/28 広島事：数量違い'
+//					+ '　⑦6/24 小野PC：数量違い'
+//					+ '　⑥6/15 奈良センター倉庫：送り先違い'
+//					+ '　⑤6/14 奈良センター倉庫：その他（現品違い）'
+//					+ '　④6/13 滋賀PC：送り先違い'
+//					+ '　③6/7 小野PC：数量違い'
+//					+ '　②6/7 滋賀PC：数量違い'
+//					+ '　①5/21 小野PC：納品書誤送'
+//					+ '</div>'
 			,bgColor : 'white'
 			,textColor : 'black'
 			,position : 'bottom-left'
@@ -1920,10 +1942,10 @@ function toastMessage() {
 		return;
 	}
 	//誤出荷注意
-	if(now.getMinutes() == 20) {
-		$('#care1').trigger('click');
-		return;
-	}
+//	if(now.getMinutes() == 20) {
+//		$('#care1').trigger('click');
+//		return;
+//	}
 	//スローガン
 	if(now.getMinutes() == 15) {
 		$('#slogan').trigger('click');
@@ -3077,6 +3099,7 @@ $(document).ready(function() {
 	setConfig('#work_sch_chg','');
 	setConfig('#work_sch_scr','');
 	setConfig('#work_sch_fetch','');
+	setConfig('#work_sch_mode','');
 	$('#work_sch').on('focus', function() {
 		utimeOffset('#work_sch_update','#' + this.id);
 		$('#navChg').text($('#work_sch_chg').val());
@@ -3110,7 +3133,10 @@ $(document).ready(function() {
 	$('#work_sch_update').on('click', function() {
 		console.log(this.id + '.click()');
 		$(this).text($(this).text().replace('□','■'));
-		var	url = 'sch.py?dns=' + $('#dns').val() + '&post=01';
+		var	url = 'sch.py?dns=' + $('#dns').val();
+		if($('#work_sch_mode').val() == '') {
+			url += '&post=01';
+		}
 		var title = $('#work_sch_update').attr('title');
 		if(typeof title !== 'undefined' && title != '') {
 			url += '&stdate=' + title;
@@ -3135,19 +3161,24 @@ $(document).ready(function() {
 					tanto_code = json.data[i].TANTO_CODE;
 					var title = tanto_code;
 					title += ' ' + json.data[i].TANTO_NAME;
-					tr += '<tr class="click"><td title="' + title + '">';
+					tr += '<tr class="click ' + $('#work_sch_mode').val() + '"><td title="' + title + '">';
 					tr += '<div class="tanto_code">' + tanto_code + '</div>';
-					tr += '<div>' + json.data[i].SurName + '</div></td>';
+					tr += '<div class="tanto_name">' + json.data[i].SurName + '</div></td>';
 				}
 				var title = json.data[i].CalDate;
 				title += ' ' + json.data[i].sTANTO_CODE;
 				tr += '<td title="' + title + '">';
 				var	div = '';
-				div += '<div class="btn off holiday">休日</div>';
-				div += '<div class="btn off filter">フィルター</div>';
-				div += '<div class="btn off condenser">コンデンサ</div>';
-				div += '<div class="btn off pipe">パイプ</div>';
-				div += '<div class="btn off petty">小物</div>';
+				if($('#work_sch_mode').val() != 'w5') {
+					div += '<div class="btn off holiday">休日</div>';
+					div += '<div class="btn off filter">フィルター</div>';
+					div += '<div class="btn off condenser">コンデンサ</div>';
+					div += '<div class="btn off pipe">パイプ</div>';
+					div += '<div class="btn off petty">小物</div>';
+				} else {
+					div += '<div class="btn off am">AM</div>';
+					div += '<div class="btn off pm">PM</div>';
+				}
 				if(json.data[i].WorkDet.indexOf('休日') != -1) {
 					div = div.replace('off holiday','holiday');
 				}
@@ -3162,6 +3193,12 @@ $(document).ready(function() {
 				}
 				if(json.data[i].WorkDet.indexOf('小物') != -1) {
 					div = div.replace('off petty','petty');
+				}
+				if(json.data[i].WorkDet.indexOf('AM') != -1) {
+					div = div.replace('off am','am');
+				}
+				if(json.data[i].WorkDet.indexOf('PM') != -1) {
+					div = div.replace('off pm','pm');
 				}
 				tr += div + '</td>';
 				if( i < 7 ) {
@@ -3850,21 +3887,18 @@ $(document).ready(function() {
 				tr += '\n' + json.data[i].EntID + ' ' + json.data[i].EntTm;
 				tr += '\n' + json.data[i].PRINT_DATETIME + ' ' + json.data[i].TANTO_CODE + ' ' + json.data[i].SHONIN_CODE;
 				tr += '">';
-				var	stat = 0;
-				if(ng != '') {
-					//ｷｬﾝｾﾙ NG
-				} else if(json.data[i].EntID && json.data[i].EntID != '') {
-					//④出荷レーン
-					stat = 4;
-				} else if(json.data[i].KAN_F != '0') {
-					//③納品チェック
-					stat = 3;
-				} else if(json.data[i].PRINT_DATETIME != '') {
-					//②商品化
-					stat = 2;
-				} else {
-					//①手配前
-					stat = 1;
+				var	stat = 0;	//ｷｬﾝｾﾙ NG
+				if(ng == '') {
+					stat = 1;	//①手配前
+					if(json.data[i].PRINT_DATETIME != '') {
+						stat = 2;	//②商品化
+						if(json.data[i].KAN_F != '0') {
+							stat = 3;	//③納品チェック
+							if(json.data[i].EntID && json.data[i].EntID != '') {
+								stat = 4;	//④出荷レーン
+							}
+						}
+					}
 				}
 				switch(stat) {
 				case 1:	//①手配前
@@ -4075,6 +4109,74 @@ $(document).ready(function() {
 		$('#package_plan').removeClass('disable');
 	} else {
 		$('#package_plan').addClass('disable');
+	}
+});
+/*
+入出荷予定
+*/
+$(document).ready(function() {
+	setConfig('#inout_plan_chg','');
+	setConfig('#inout_plan_scr','');
+	setConfig('#inout_plan_fetch','600');
+	$('#inout_plan').on('focus', function() {
+		utimeOffset('#inout_plan_update','#inout_plan');
+		$('#navChg').text($('#inout_plan_chg').val());
+		$('#navScr').text($('#inout_plan_scr').val());
+	});
+	var timer = null;
+	$('#inout_plan_update').on('click', function() {
+		console.log(this.id + '.click()');
+		// 同時処理防止
+		if(fetchWait(this.id)) {
+			return;
+		}
+		$(this).text($(this).text().replace('□','■'));
+		var	url = 'inout_plan.py?dns=' + $('#dns').val();
+		if ($('#pref').text()) {
+			url += '&filename=入出荷予定_' + $('#pref').text() + '.xlsx';
+		}
+		fetch(url)
+		.then((res) => {
+			// 同時処理解除
+			fetchWait('');
+			return res.json();
+		})
+		.then((json) => {
+			var	tr = '';
+			for ( var i = 0 ; i < json.data.length ; i++ ) {
+				tr += '<tr>';
+				tr += '<td class="rowNo">' + (i + 1) + '</td>';
+				for (var item in json.data[i]) {
+					var	v = json.data[i][item] || '';
+					tr += '<td class="c' + item + '">' + json.data[i][item] + '</td>';
+				}
+				tr += '</tr>';
+			}
+			$('#inout_plan > table > tbody').find("tr").remove();
+			$('#inout_plan > table > tbody').append(tr);
+			$(this).text('□更新.' + nowTM());
+			utimeOffset('#inout_plan_update','#inout_plan');
+		})
+		.catch((err) => {
+			$(this).text('□更新.Error');
+			$('#inout_plan .info').text(err);
+			console.log(err);
+		});
+		if($('#inout_plan_fetch').val() > 0) {
+			clearTimeout(timer);
+			if($('#navId').text() != '#config_div') {
+				timer = setTimeout(function() {
+					$('#inout_plan_update').trigger("click");
+				},$('#inout_plan_fetch').val() * 1000);
+			}
+		}
+		return false;
+	});
+	if($('#inout_plan_chg').val() > 0) {
+		$('#inout_plan_update').trigger("click");
+		$('#inout_plan').removeClass('disable');
+	} else {
+		$('#inout_plan').addClass('disable');
 	}
 });
 function changeText(q , v) {
@@ -4302,7 +4404,7 @@ $(document).ready(function() {
 			case 4:	music = "IHonestlyLoveYou";			break;
 			}
 		}
-		if (dt >= 1001 && dt <= 1031) {
+		if (dt >= 824 && dt <= 1031) {
 			music = "majo_umi";	//
 		}
 		if (dt >= 1101 && dt <= 1130) {
@@ -4529,6 +4631,7 @@ $(document).ready(function() {
 	});
 //	$('a[href~="#package"]').trigger("click");
 	setConfig('#notice','');
+	setConfig('#notice_debug','');
 	var	iNotice = setConfig('#IntervalNotice',15);
 	$('#navChg').text(setConfig('#navChenge',15));
 	$('#navScr').text(setConfig('#navScroll',''));
@@ -4580,20 +4683,51 @@ $(document).ready(function() {
 				}
 				if($('#notice').val() != '') {
 					url = 'notice.py?path=' + $('#notice').val();
-					fetch(url)
+					fetch(url, {cache: "no-store"})
 					.then((res) => {
+						console.log(url);
+						console.log(res);
+						if($('#notice_debug').val()) {
+							$.toast({
+									 heading : url
+									,text : res.headers.get("content-type")
+									,hideAfter : $('#notice_debug').val() * 1000
+									});
+						}
 						return res.json();
 					} )
 					.then((json) => {
 						console.log( url + ':json.title=' + json.title );
-						if (json.title.length > 0) {
+						if($('#notice_debug').val()) {
 							$.toast({
-								 text : '<div class="h1">' + json.title + '</div>' + '<pre class="h5">' + json.text + '</pre>'
-								,loader: false
-								,bgColor : 'white'			// 背景色
-								,textColor : 'blue'			// 文字色
-								,hideAfter : 60 * 1000
-							});
+									 heading : url
+									,text : JSON.stringify(json)
+									,hideAfter : $('#notice_debug').val() * 1000
+									});
+						}
+						if (json.title.length > 0) {
+							if (json.title.endsWith('.html')) {
+								if(!($('#notice_debug').val())) {
+									$.toast().reset('all');
+								}
+								$.toast({
+									 heading : json.title
+									,text : json.text
+									,loader: false
+									,bgColor : 'white'			// 背景色
+									,textColor : 'black'			// 文字色
+									,hideAfter : 60 * 1000
+									,position : 'center-center'	// ページ内での表示位置
+								});
+							} else {
+								$.toast({
+									 text : '<div class="h1">' + json.title + '</div>' + '<pre class="h5">' + json.text + '</pre>'
+									,loader: false
+									,bgColor : 'white'			// 背景色
+									,textColor : 'blue'			// 文字色
+									,hideAfter : 60 * 1000
+								});
+							}
 							chime(json.chime, json.volume);
 							var	repeat = setInterval(function(){
 								if(audio.paused) {
@@ -4603,7 +4737,11 @@ $(document).ready(function() {
 								}
 							},100);
 						}
-					} );
+					})
+					.catch((err) => {
+						console.log(err);
+						$.toast({text: '<div class="h7">' + url + '</div><div class="h7">fetch err:' + err + '</div>',loader: false, hideAfter : 60000});
+					});
 				}
 			}
 		},iNotice * 1000 /* 15000 */);

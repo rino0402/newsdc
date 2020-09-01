@@ -23,7 +23,7 @@ $(document).ready(function() {
 		$('#cname').text(localStorage.getItem(key));
 
 		var	req = 'jgyobu.py?dns=' + $(this).val() + '&jgyobu=0';
-		log(req);
+		console.log(req);
 		fetch(req).then((res) => {
 			return res.json();
 		}).then((json) => {
@@ -40,7 +40,7 @@ $(document).ready(function() {
 	$('input[type="text"].config').each(function() {
 		var	key = $('#key').text() + '#' + this.id;
 		var	val = localStorage.getItem(key);
-		log('getItem():' + key + ':' + val);
+		console.log('getItem():' + key + ':' + val);
 		if(!val) {
 			switch(this.id) {
 			case 'limit':	val = 1000;	break;
@@ -51,7 +51,7 @@ $(document).ready(function() {
 	});
 	$(document).on("change",'input[type="text"].config', function() {
 		var	key = $('#key').text() + '#' + this.id;
-		log('setItem():' + key + ':' + $(this).val());
+		console.log('setItem():' + key + ':' + $(this).val());
 		localStorage.setItem(key ,$(this).val());
 	});
 });

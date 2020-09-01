@@ -7,9 +7,10 @@
 		<meta http-equiv="Expires" content="0">
 		<!--- android chrome で全画面表示 --->
 		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="format-detection" content="telephone=no">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- 画面更新：60分(3600秒) -->
-		<META meta http-equiv="refresh" content="3600">
+		<META meta http-equiv="refresh" content="4000">
 		<title>Pos作業モニター</title>
 		<link type="text/css" rel="stylesheet" href="jquery-ui.css">
 		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
@@ -19,7 +20,7 @@
 		<link href="https://fonts.googleapis.com/css?family=Lato:400,900" rel="stylesheet">
 		 -->
 		<!-- local css -->
-		<link type="text/css" rel="stylesheet" href="monitor.css?v=2020052701">
+		<link type="text/css" rel="stylesheet" href="monitor.css?v=2020082803">
 		<link type="text/css" rel="stylesheet" href="nav.css">
 		<link type="text/css" rel="stylesheet" href="topping.css?v=2019111403">
 	</head>
@@ -49,6 +50,7 @@
 									<li><a href="#y_syuka_h_div">出荷状況(部材C)</a></li>
 									<li><a href="#y_syuka_div">出荷状況</a></li>
 									<li><a href="#order">海外出荷状況</a></li>
+									<li><a href="#inout_plan">入出荷予定</a></li>
 									<li><a href="#package_plan">商品化予定</a></li>
 									<li><a href="#package">商品化状況</a></li>
 									<li><a href="#p_sshiji_jcs">商品化状況(納期)</a></li>
@@ -203,6 +205,13 @@
 									<td></td>
 								</tr>
 								<tr>
+								<tr>
+									<th>入出荷予定</th>
+									<td><input type="text" class="config text-right" id="inout_plan_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="inout_plan_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="inout_plan_fetch" size="4"></td>
+									<td></td>
+								</tr>
 									<th>エアコン発注残</th>
 									<td><input type="text" class="config text-right" id="AcOrder_chg" size="4"></td>
 									<td><input type="text" class="config text-right" id="AcOrder_scr" size="4"></td>
@@ -270,6 +279,7 @@
 									<td><input type="text" class="config text-right" id="work_sch_chg" size="4"></td>
 									<td><input type="text" class="config text-right" id="work_sch_scr" size="4"></td>
 									<td><input type="text" class="config text-right" id="work_sch_fetch" size="4"></td>
+									<td>※<input type="text" class="config" id="work_sch_mode" size="4">w5:大阪(AM/PM)</td>
 									<td></td>
 								</tr>
 								<tr>
@@ -297,7 +307,10 @@
 					</tr>
 					<tr>
 						<th>通知 dir</th>
-						<td><input type="text" class="config" id="notice"></td>
+						<td>
+							<input type="text" class="config" id="notice">
+							<input type="text" class="config" id="notice_debug" placeholder="notice_debug">
+						</td>
 					</tr>
 					<tr>
 						<th>スクロールバー</th>
@@ -329,6 +342,10 @@
 							<input type="text" id="morningDate" class="config">
 							<input type="button" id="morning_play" value="Morning">
 							<input type="button" id="stop" value="Stop Music">
+							<input type="text" class="config" id="volume" placeholder="chime再生ボリューム">
+						</td>
+						<td>
+							<iframe src="sound/silence.mp3" allow="autoplay" id="audio"></iframe>
 						</td>
 					</tr>
 					<!--tr>
@@ -922,17 +939,7 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td>佐々木</td>
 							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td>日出</td>
 							<td></td>
 							<td></td>
 							<td></td>
@@ -942,17 +949,7 @@
 							<td></td>
 						</tr>
 						<tr>
-							<td>田尾</td>
 							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td>土井</td>
 							<td></td>
 							<td></td>
 							<td></td>
@@ -962,7 +959,7 @@
 							<td></td>
 						</tr>
 						<tr>
-							<td>延谷</td>
+							<td></td>
 							<td></td>
 							<td></td>
 							<td></td>
@@ -972,7 +969,27 @@
 							<td></td>
 						</tr>
 						<tr>
-							<td>梶山</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
 							<td></td>
 							<td></td>
 							<td></td>
@@ -1165,6 +1182,39 @@
 					</tbody>
 				</table>
 			</div>
+			<!-- 入出荷予定 -->
+			<div id="inout_plan" class="content tatami" tabindex="0">
+				<div class="utime" id="inout_plan_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th class="rowNo">#</th>
+							<th class="Date">日程</th>
+							<th>行先・入荷元</th>
+							<th>品番</th>
+							<th>品名他</th>
+							<th class="Qty">数量</th>
+							<th>詳細、物</th>
+							<th>便名</th>
+							<th>備考</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="rowNo"></td>
+							<td class="Date"></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td class="Qty"></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="info"></div><div class="fileinfo"></div>
+			</div>
 		</main>
 		<div class="centerWindow">真ん中</div>
 		<section class="modal-window" id="modal-p01">
@@ -1246,5 +1296,5 @@
 	<script src="jquery-ui.js"></script>
 	<script type="text/javascript" src="jquery.toast.js"></script>
 	<!--script src="jquery.floatThead.min.js"></script-->
-	<script src="monitor.js?v=2020052701"></script>
+	<script src="monitor.js?v=2020082803"></script>
 </html>

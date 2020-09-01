@@ -56,7 +56,7 @@ set PrevDate=%DT%
 	set TM=%TM:~0,5%
 	if %TM% gtr 13:00 set WT=30
 	if %TM% gtr 18:00 set WT=300
-	if %TM% gtr 22:00 goto _End
+	if %TM% gtr 23:00 goto _End
 	echo.%WT%ïbë“ã@íÜ...í èÌ60ïb 18:00à»ç~30ï™ %DT% %TM%
 rem	start /min /wait timeout /t %WT%
 	timeout /t %WT%

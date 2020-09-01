@@ -13,7 +13,7 @@ html {
 	margin: 0px;
 }
 header {
-    position: fixed;            /* ヘッダーの固定 */
+    *0828*position: fixed;            /* ヘッダーの固定 */
     top: 0px;                   /* 位置(上0px) */
     left: 0px;                  /* 位置(右0px) */
     width: 100%;                /* 横幅100%　*/
@@ -48,16 +48,11 @@ header table {
 body {
 	background-color: black;
 	color: white;
-	overflow-x:hidden;
-	overflow-y:hidden;
-	padding: 0px;
-	margin: 0px;
-	*padding-top: 1em; /*15px;*/
-	padding-top: calc(1rem + 2px); /*15px;*/
-/*	font-size: 300%;	*/
-/*	padding: 0;	*/
-/*	margin: 0;
-	padding-top: 500;	/* 35px; */
+	*0828*overflow-x:hidden;
+	*0828*overflow-y:hidden;
+	padding: 0;
+	margin: 0;
+	*0828*padding-top: calc(1rem + 2px);
 }
 table {
 	word-break: break-word;
@@ -800,14 +795,15 @@ table.zaiko9 tr td.soko {
     white-space: nowrap;
 
     animation-name: marquee;
-    animation-duration: 60s;
+    animation-duration: 60s;	/* 120s */
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 	animation-fill-mode: forwards;
 }
 @keyframes marquee {
     from    { transform: translate(0%); } 
-    100%,to { transform: translate(-800%); }
+    100%,to { transform: translate(-400%); }
+/*  100%,to { transform: translate(-800%); }	*/
 }
 /* modal window */
 .modal-window {
@@ -1887,6 +1883,38 @@ img {
 #work_sch .btn {
 	*font-size: 50%;
 }
+#work_sch .w5 .tanto_code {
+	font-size: 0.7vh;
+}
+#work_sch .w5 .tanto_name {
+	font-size: 4vh;
+}
+#work_sch_edit .tanto_name {
+	font-size: 4vh;
+}
+
+#work_sch .am,
+#work_sch_edit .am ,
+#work_sch .pm,
+#work_sch_edit .pm {
+	font-size: 2.2vh;
+	padding: 0;
+    width: 6vw;
+}
+#work_sch .am,
+#work_sch_edit .am {
+	color: black;
+	background-color: Aqua;
+}
+#work_sch .pm,
+#work_sch_edit .pm {
+	color: black;
+	background-color: Lime;
+}
+#work_sch_edit .am ,
+#work_sch_edit .pm {
+	font-size: 4vh;
+}
 
 #work_sch .holiday,
 #work_sch_edit .holiday {
@@ -1930,6 +1958,12 @@ img {
 #work_sch .off {
 	display: none;
 }
+#work_sch .off.am ,
+#work_sch .off.pm {
+	display: block;
+	visibility	:	hidden;
+}
+
 .check.icon {
 	color: limegreen;
 	position: absolute;
@@ -2651,6 +2685,94 @@ img {
 	padding-left: 1em;
 }
 #package_plan div.fileinfo {
+	font-family: "Ubuntu Mono", Consolas;
+	font-size: 60%;
+	*display: inline-block;
+	padding-left: 5em;
+	text-align: right;
+	display:block;
+	position:absolute;
+	bottom: 3px;
+	right: 3px;
+}
+#inout_plan {
+	height: auto;
+	min-height: 92vh;
+	*background-image: url("images/Melamine-wood-005.png");
+	*background-size: cover;
+}
+#inout_plan table {
+	text-shadow: none;
+	white-space: nowrap;
+	font-family: 'Meiryo UI';
+}
+#inout_plan th {
+	background-color: mediumblue;
+	border-color: white;
+    border-width : 1px;
+    border-style : solid;
+	padding : 1px;
+	font-size: 4vh;
+	line-height: 1;
+}
+#inout_plan td {
+	*background-color: dimgray;
+	*background-color: #383838;
+	background-color: #186a3b;
+	border-color: white;
+    border-width : 1px;
+    border-style : solid;
+	padding : 5px 5px;
+	line-height: 1;
+	text-align: left;
+	font-size: 5vh;
+}
+#inout_plan .rowNo {
+	background: none;
+	border: none;
+	color: black;
+	*border-top-color: none;
+	*border-left-color: none;
+	*border-bottom-color: none;
+	text-align: right;
+	font-size: 3vh;
+}
+#inout_plan td.c0 {
+	*font-size: 3vh;
+	text-align: center;
+}
+#inout_plan td.c2 {
+	*font-family: "Ubuntu Mono", Consolas;
+	font-family: monospace,Courier,Consolas,'Courier New';
+	*padding-right: 15px;
+	*font-size: 70%;
+}
+#inout_plan td.c1 ,
+#inout_plan td.c3 ,
+#inout_plan td.c5 ,
+#inout_plan td.c6 ,
+#inout_plan td.c7 {
+	font-size: 50%;
+	white-space: normal;
+}
+#inout_plan td.c1 ,
+#inout_plan td.c5 ,
+#inout_plan td.c6 {
+	*font-size: 3vh;
+}
+#inout_plan td.c4 {
+	text-align: right;
+	padding-right: 4px;
+	*font-size: 5vh;
+	*font-weight: bold;
+	*-webkit-text-stroke: 1px black;
+	*text-shadow: 1px 1px 0 black;	/*水平方向の距離 垂直方向の距離 影のぼかし半径 影の色*/
+}
+#inout_plan div.info {
+	*display: inline-block;
+	padding-left: 1em;
+}
+#inout_plan div.fileinfo {
 	font-family: "Ubuntu Mono", Consolas;
 	font-size: 60%;
 	*display: inline-block;

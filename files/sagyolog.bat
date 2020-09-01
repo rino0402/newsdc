@@ -6,7 +6,7 @@ pushd %~dp0
 call d:\log\batlog ¢ %0 %*
 set Computername
 if /i "%Computername%" == "w1" (
-	cscript sagyolog.vbs -stclear > sagyolog.log
+	%windir%\syswow64\cscript sagyolog.vbs -stclear > sagyolog.log
 )
 if /i "%Computername%" == "w2" (
 	cscript sagyolog.vbs -stnoclear > sagyolog.log

@@ -9,7 +9,11 @@ p_sukeire_inv.js
 //var	version = '2017.12.05 課題対応中<br><small>・１回目の検索が10分以上かかる(未)<br>・行がずれる場合がある(未)<br>・塗り潰しが印刷されない(対応中)</small>';
 var	vie11 = '<p>Internet Explorer 11 でヘッダーを固定すると表示がズレます。<br>ヘッダーを固定する場合は他のブラウザ(Chrome,Firefox)を使用して下さい。</p>';
 var	arr = [];
-
+arr.push('<p>2020.07.20 v.017<br>'
+		+'・冷蔵庫請求書 BU加工費 引取除外<br>');
+arr.push('<p>2020.06.16 v.016a<br>'
+		+'・冷蔵庫請求書 BU加工費請求書<br>'
+		+'・仕向先：01 がセットされる不具合修正');
 arr.push('<p>2019.09.25 v.015<br>'
 		+'・合計数量追加');
 arr.push('<p>2019.03.27 v.014<br>'
@@ -58,6 +62,13 @@ arr.push('<p>2018.01.12</p>'
 var	version = arr[0];
 var	tHistory = arr.join('');
 
+function log(t) {
+	if(!t) {
+		$('#log').html('');
+	} else {
+		$('#log').html($('#log').html() + t + '<br>');
+	}
+}
 function Log(v) {
 	console.log(v);
 //	var	html = $('#log').html();
@@ -74,6 +85,7 @@ var nFormat = function(number,n) {
     return result;
 };
 //設定：読込セット
+/*
 function setConfig(id,def) {
 	console.log( 'setConfig(1):' + id + ',' + def );
 	var v = localStorage.getItem(id);
@@ -86,7 +98,12 @@ function setConfig(id,def) {
 	$(id).val(v);
 	return v;
 }
+*/
 $(document).ready(function() {
+	$('#key').text(location.pathname.replace(/\/[^/]*$/, '') + '/');
+	$('a[href^="#"]').click(function() {
+		$("html, body").animate({scrollTop:0}, 550, "swing");
+	});
 	var	startTm = new Date(Date.parse(storage('start_time')));
 	var	endTm = new Date(Date.parse(storage('end_time')));
 	$('#start_time').text(dateTimeFormat(startTm,true));
@@ -99,13 +116,51 @@ $(document).ready(function() {
 	// 初期値セット
 	//設定：初期値
 	$("#dns").blur(function() {
-		if($(this).val() == '') {
-			$(this).val(location.pathname.split('/')[1]);
+//		if($(this).val() == '') {
+//			$(this).val(location.pathname.split('/')[1]);
+//		}
+//		$('#dns_span').text(setConfig('#' + this.id, $(this).val()));
+		$('#dns_span').text($(this).val());
+		var	key = $('#key').text() + '#cname';
+		$('#cname').text(localStorage.getItem(key));
+
+		var	req = 'jgyobu.py?dns=' + $(this).val() + '&jgyobu=0';
+		log(req);
+		fetch(req).then((res) => {
+			return res.json();
+		}).then((json) => {
+			if(json.list.length > 0) {
+				$('#cname').text(json.list[0].Name);
+				localStorage.setItem(key ,$('#cname').text());
+			} else {
+				$('#cname').text('');
+			}
+		}).catch(function(err) {
+			$('#cname').text(err);
+		});
+	});
+	$('input[type="text"].config').each(function() {
+		var	key = $('#key').text() + '#' + this.id;
+		var	val = localStorage.getItem(key);
+		log('getItem():' + key + ':' + val);
+		if(!val) {
+			switch(this.id) {
+			case 'limit'		:	val = 300;	break;
+			case 'dns'			:	val = location.pathname.split('/')[1];	break;
+			case 'SHIMUKE_CODE'	:	val = '';	break;
+			case 'S_TANTO'		:	val = '';	break;
+			case 'CHECK'		:	val = '1';	break;
+			}
 		}
-		$('#dns_span').text(setConfig('#' + this.id, $(this).val()));
+		$(this).val(val);
+	});
+	$(document).on("change",'input[type="text"].config', function() {
+		var	key = $('#key').text() + '#' + this.id;
+		log('setItem():' + key + ':' + $(this).val());
+		localStorage.setItem(key ,$(this).val());
 	});
 	$('#dns').trigger('blur');
-	setConfig('#limit', 300);
+//	setConfig('#limit', 300);
 
 	var now = new Date();
 	var dt2 = now.getFullYear()+
@@ -118,15 +173,15 @@ $(document).ready(function() {
 	$('#UKEIRE_DT1').val(dt1);
 	$('#UKEIRE_DT2').val(dt2);
 	//設定：初期値
-	setConfig('#SHIMUKE_CODE', '01');
-	setConfig('#S_TANTO', '');
-	setConfig('#CHECK', '1');
+//	setConfig('#SHIMUKE_CODE', '01');
+//	setConfig('#S_TANTO', '');
+//	setConfig('#CHECK', '1');
 	// 検索ボタン
 	var $table = $('#table');
     $('#List').click(function () {
-		localStorage.setItem('#SHIMUKE_CODE',$('#SHIMUKE_CODE').val());
-		localStorage.setItem('#S_TANTO',$('#S_TANTO').val());
-		localStorage.setItem('#CHECK',$('#CHECK').val());
+//		localStorage.setItem('#SHIMUKE_CODE',$('#SHIMUKE_CODE').val());
+//		localStorage.setItem('#S_TANTO',$('#S_TANTO').val());
+//		localStorage.setItem('#CHECK',$('#CHECK').val());
 		$('#log').html('click:' + this.id + '<br>');
 		$('#msg').html('検索中<span class="gif-load">...</span>前回: ' + $('#lastTm').text());
 //		$('#msg').addClass('gif-load');
@@ -290,10 +345,28 @@ $(document).ready(function() {
 				tr += '<td class="' + cls +'">' + txt + '</td>';
 				//BU加工金額
 				tr += '<td class="number">' + nFormat(json.data[i].Bu,2) + '</td>';
-				//引取
+				//BU加工:請求
+				cls = 'number';
+				txt = nFormat(json.data[i].BillBuPrc,2);
+				tr += '<td class="' + cls +'">' + txt + '</td>';
+				//BU加工金額:請求
+				tr += '<td class="number">' + nFormat(json.data[i].BillBu,2) + '</td>';
+				//引取 秒
 				txt = '';
 				if (typeof json.data[i].HikitoriTm != "undefined") {
 					txt = nFormat(json.data[i].HikitoriTm,0);
+				}
+				tr += '<td class="number">' + txt + '</td>';
+				//引取 ＠
+				txt = '';
+				if (typeof json.data[i].HikitoriPrc != "undefined") {
+					txt = nFormat(json.data[i].HikitoriPrc,2);
+				}
+				tr += '<td class="number">' + txt + '</td>';
+				//引取 金額
+				txt = '';
+				if (typeof json.data[i].Hikitori != "undefined") {
+					txt = nFormat(json.data[i].Hikitori,2);
 				}
 				tr += '<td class="number">' + txt + '</td>';
 				tr += '</tr>';
@@ -317,11 +390,15 @@ $(document).ready(function() {
 			tr += '<td class="number">' + nFormat(json.data.reduce((a,x) => a += parseFloat(x.Kako),0),2) +'</td>';	//加工金額
 			tr += '<td></td>';		//BU加工
 			tr += '<td class="number">' + nFormat(json.data.reduce((a,x) => a += parseFloat(x.Bu),0),2) +'</td>';	//BU加工金額
+			tr += '<td></td>';		//BU加工:請求
+			tr += '<td class="number">' + nFormat(json.data.reduce((a,x) => a += parseFloat(x.BillBu),0),2) +'</td>';	//BU加工金額:請求
 			txt = '';
 			if (typeof json.data[0].HikitoriTm != "undefined") {
 				txt = nFormat(json.data.reduce((a,x) => a += parseFloat(x.HikitoriTm),0),0);
 			}
-			tr += '<td class="number">' + txt +'</td>';	//引取
+			tr += '<td class="number">' + txt +'</td>';	//引取 秒
+			tr += '<td></td>';		//引取 ＠
+			tr += '<td class="number">' + nFormat(json.data.reduce((a,x) => a += parseFloat(x.Hikitori),0),2) +'</td>';	//引取 金額
 			tr += '</tr>';
 			$('#table > tbody').append(tr);
 //			$('#floatThead').trigger('change');

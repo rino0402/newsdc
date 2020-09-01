@@ -77,6 +77,8 @@ xcopy/d/y getoutn.ok \\hs1\it\pos\newsdc\files\notice\
 move/y %relPath% out_save\
 echo.■■韓国リサイクルマーク個別表示確認
 call HMTH011 out_save\%relPath%
+echo.■■AIR注意
+call d:\newsdc\files\li_ion.bat %relPath%
 call d:\log\batlog ▽ %0 %*
 rem call slack "%relPath%:▽"
 if exist d:\newsdc\files\ySize.sql (

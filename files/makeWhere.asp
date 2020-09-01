@@ -52,6 +52,16 @@ function makeWhere(byval strWhere,byval strField,byval strValue1,byval strValue2
 				strWhere = strWhere & strAnd & " (z.Soko_No+z.Retu+z.Ren+z.Dan) in (select distinct (Soko_No+Retu+Ren+Dan) from Tana where ZAIKO_SHOGO_FLG = '1')"
 			end if
 			strValue1 = ""
+		case "z.GOODS_ON"
+			' 2:商品化中
+			select case ucase(strValue1)
+			case "2"
+				strWhere = strWhere & strAnd & " (z.Soko_No in (select distinct Soko_No from Soko where GOODS_ON_F = '0'))"
+				strValue1 = ""
+			case "2A"
+				strWhere = strWhere & strAnd & " (z.hin_gai in (select distinct hin_gai from zaiko where Soko_No in (select distinct Soko_No from Soko where GOODS_ON_F = '0')))"
+				strValue1 = ""
+			end select
 		case "h.出庫"
 			if strValue1 = "0" then
 				' 9(出庫済)を除く
@@ -331,7 +341,7 @@ end function
 function getPoint(byval strName)
 	dim	intPoint
 	intPoint = 0
-	if right(strName,2) = "単価" then
+	if right(strName,2) = "単価" or right(strName,3) = "(Ｈ)" then
 		intPoint = 2
 	elseif strName = "才数" or strName = "才数計" then
 		intPoint = 2

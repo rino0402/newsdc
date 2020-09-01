@@ -3,6 +3,7 @@ for /F "tokens=3 delims=\" %%a in ("%CD%") do set cdir=%%a
 echo.%cdir%
 call :ftm %1
 call :ftm \\hs1\newsdc\%cdir%\%1
+call :ftm \\hs2\tool\backup\%1
 call :ftm \\w1\newsdc\%cdir%\%1
 call :ftm \\w2\newsdc\%cdir%\%1
 call :ftm \\w3\newsdc\%cdir%\%1

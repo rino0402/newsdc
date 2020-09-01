@@ -2,6 +2,8 @@
 echo %CD%
 for /F "tokens=3 delims=\" %%a in ("%CD%") do set cdir=%%a
 xcopy/d/y %1 \\hs1\newsdc\%cdir%\
+xcopy/d/y %1 \\hs2\newsdc\%cdir%\
+xcopy/d/y %1 \\hs2\tool\
 xcopy/d/y %1 \\w1\newsdc\%cdir%\
 xcopy/d/y %1 \\w2\newsdc\%cdir%\
 xcopy/d/y %1 \\w3\newsdc\%cdir%\
