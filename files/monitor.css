@@ -2783,3 +2783,69 @@ img {
 	bottom: 3px;
 	right: 3px;
 }
+#short_plan {
+	height: auto;
+	min-height: 92vh;
+	*background-image: url("images/Melamine-wood-005.png");
+	*background-size: cover;
+}
+#short_plan table {
+	text-shadow: none;
+	white-space: nowrap;
+	font-family: 'Meiryo UI';
+}
+#short_plan th {
+	background-color: #00552E; /*ê[óŒmediumgreen; /*maroon;*/
+	border-color: white;
+    border-width : 1px;
+    border-style : solid;
+	padding : 1px;
+	font-size: 2vw;
+	line-height: 1;
+}
+#short_plan tbody td {
+	background-color: #8B0A50; /*DeepPink4#CD1076; DeepPink3;*/
+	border-color: white;
+    border-width : 1px;
+    border-style : solid;
+	padding : 5px 5px;
+	line-height: 1;
+	text-align: left;
+	font-size: 2vw;
+	white-space: normal;
+}
+#short_plan tbody td.c0 {
+	text-align: center;
+}
+#short_plan tbody td.c1 ,
+#short_plan tbody td.c2 {
+	font-family: monospace,Courier,Consolas,'Courier New';
+	white-space: nowrap;
+	font-size: 2.5vw;
+}
+#short_plan tbody td.c3 {
+	font-size: 1.5vw;
+}
+#short_plan .rowNo {
+	background: none;
+	border: none;
+	color: white;
+	text-align: right;
+	font-size: 2vh;
+}
+#short_plan div.info {
+	*display: inline-block;
+	font-size: 60%;
+	padding-left: 1vw;
+}
+#short_plan div.fileinfo {
+	font-family: "Ubuntu Mono", Consolas;
+	font-size: 1vw;
+	*display: inline-block;
+	*padding-left: 5em;
+	text-align: right;
+	*display:block;
+	*position:absolute;
+	*bottom: 3px;
+	*right: 3px;
+}

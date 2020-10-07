@@ -10,7 +10,8 @@
 		<meta name="format-detection" content="telephone=no">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- 画面更新：60分(3600秒) -->
-		<META meta http-equiv="refresh" content="4000">
+		<!-- 画面更新：80分(4800秒) -->
+		<META meta http-equiv="refresh" content="4800">
 		<title>Pos作業モニター</title>
 		<link type="text/css" rel="stylesheet" href="jquery-ui.css">
 		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
@@ -20,7 +21,7 @@
 		<link href="https://fonts.googleapis.com/css?family=Lato:400,900" rel="stylesheet">
 		 -->
 		<!-- local css -->
-		<link type="text/css" rel="stylesheet" href="monitor.css?v=2020082803">
+		<link type="text/css" rel="stylesheet" href="monitor.css?v=2020100601">
 		<link type="text/css" rel="stylesheet" href="nav.css">
 		<link type="text/css" rel="stylesheet" href="topping.css?v=2019111403">
 	</head>
@@ -39,6 +40,7 @@
 							<label id="nav-open" for="nav-input"><span id="name"></span></label>
 							<label class="nav-unshown" id="nav-close" for="nav-input"></label>
 							<div id="nav-content">
+								<input type="button" value="♪chime" onClick="chime()">
 								<nav>
 									<ul>
 									<li><a href="#config_div">設定</a></li>
@@ -52,6 +54,7 @@
 									<li><a href="#order">海外出荷状況</a></li>
 									<li><a href="#inout_plan">入出荷予定</a></li>
 									<li><a href="#package_plan">商品化予定</a></li>
+									<li><a href="#short_plan">欠品入荷リスト</a></li>
 									<li><a href="#package">商品化状況</a></li>
 									<li><a href="#p_sshiji_jcs">商品化状況(納期)</a></li>
 									<li><a href="#y_spot">出荷商品化待ち</a></li>
@@ -212,6 +215,14 @@
 									<td><input type="text" class="config text-right" id="inout_plan_fetch" size="4"></td>
 									<td></td>
 								</tr>
+								<tr>
+									<th>欠品入荷リスト</th>
+									<td><input type="text" class="config text-right" id="short_plan_chg" size="4"></td>
+									<td><input type="text" class="config text-right" id="short_plan_scr" size="4"></td>
+									<td><input type="text" class="config text-right" id="short_plan_fetch" size="4"></td>
+									<td><input type="text" class="config" id="short_plan_file" size="40"></td>
+								</tr>
+								<tr>
 									<th>エアコン発注残</th>
 									<td><input type="text" class="config text-right" id="AcOrder_chg" size="4"></td>
 									<td><input type="text" class="config text-right" id="AcOrder_scr" size="4"></td>
@@ -1215,6 +1226,42 @@
 				</table>
 				<div class="info"></div><div class="fileinfo"></div>
 			</div>
+			<!-- 欠品入荷リスト -->
+			<div id="short_plan" class="content" tabindex="0">
+				<div class="utime" id="short_plan_update">□更新.時刻</div>
+				<table class="sticky">
+					<thead>
+						<tr>
+							<th class="rowNo">#</th>
+							<th>商品化先</th>
+							<th>品目番号</th>
+							<th>工場品番</th>
+							<th>品名</th>
+							<th>仕入先</th>
+							<th>担当</th>
+							<th>納期状況</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="rowNo"></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="8"><div class="fileinfo">fileinfo</div></td>
+						</tr>
+					</tfoot>
+				</table>
+				<div class="info">info</div>
+			</div>
 		</main>
 		<div class="centerWindow">真ん中</div>
 		<section class="modal-window" id="modal-p01">
@@ -1296,5 +1343,5 @@
 	<script src="jquery-ui.js"></script>
 	<script type="text/javascript" src="jquery.toast.js"></script>
 	<!--script src="jquery.floatThead.min.js"></script-->
-	<script src="monitor.js?v=2020082803"></script>
+	<script src="monitor.js?v=2020100601"></script>
 </html>

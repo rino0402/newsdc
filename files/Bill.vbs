@@ -58,6 +58,7 @@ Private Function Main()
     	select case lcase(strArg)
 		case "db"
 		case "list"
+		case "jgyobu"
 		case "load"
 		case "top"
 		case "debug"
@@ -138,7 +139,11 @@ End Function
 
 Function GetJGyobu(objBk)
 	dim	strJGyobu
-	strJGyobu = ""
+	strJGyobu = GetOption("jgyobu","")
+	if strJGyobu <> "" then
+		GetJGyobu = strJGyobu
+		exit function
+	end if
 	dim	objSt
 	for each objSt in objBk.Worksheets
 		dim	strName

@@ -124,6 +124,8 @@ var	version = '<p>1.28 2020.06.05 誤出荷注意メッセージ：2020年度.';
 var	version = '<p>1.29 2020.08.11 袋井「入出荷予定」対応しました.';
 var	version = '<p>1.30 2020.08.25 大阪「出勤予定」テストバージョン.5';
 var	version = '<p>1.31 2020.08.28 JCSオーダー概況 進捗チェックの不具合修正';
+var	version = '<p>1.32 2020.10.05 JCSオーダー概況 担当者IDが空白になる不具合により進捗④にならないのを修正';
+var	version = '<p>1.33 2020.10.06 袋井「欠品入荷リスト」対応しました.';
 /*
 debugフラグ
 */
@@ -1541,7 +1543,6 @@ http://www47.tok2.com/home/cs381/hassya.html
 midi→mp3
 https://www.conversion-tool.com/midi?lang=en
 */
-audio = new Audio();
 function chime(nm = 'chime', volume = 0.1) {
 	console.log('chime()' + nm, + ',' + volume);
 /*
@@ -1551,6 +1552,7 @@ function chime(nm = 'chime', volume = 0.1) {
 		,hideAfter : 3 * 1000
 	});
 */
+	audio = new Audio();
 	audio.src = 'sound/' + nm + '.mp3';
 	audio.load();
 	if($('#volume').val()) {
@@ -1558,16 +1560,17 @@ function chime(nm = 'chime', volume = 0.1) {
 	} else {
 		audio.volume = volume;
 	}
-	if(audio.paused) {
+//	if(audio.paused) {
 		audio.play().catch(function(e) {
 			console.log('audio.play():' + e);
 			$.toast({
-				 text : '<div class="h5">play().error:' + audio.src + '</div>' + '<div class="h5">' + e + '</div>'
+				 heading: 'audio.play().error'
+				,text : '<div class="h5">' + audio.src + '</div>' + '<div class="h5">' + e + '</div>' + '<input type="button" onClick="audio.play();" value="♪">'
 				,loader: false
 				,hideAfter : 30 * 1000
 			});
 		});
-	}
+//	}
 /*
 	sound = new Audio('sound/' + nm + '.mp3');
 	sound.load();
@@ -3741,7 +3744,7 @@ $(document).ready(function() {
 				tr += '</td>';
 				//納品ﾁｪｯｸ
 				tr += '<td class="NohinChk" title="' + json.data[i].EntID + '\n' + json.data[i].EntTm + '">';
-				if(json.data[i].EntID) {
+				if(json.data[i].EntTm) {
 					var	mm = json.data[i].EntTm.slice(5, 7);
 					var	dd = json.data[i].EntTm.slice(8,10);
 					tr += parseInt(mm) + '/' + parseInt(dd);
@@ -3894,7 +3897,7 @@ $(document).ready(function() {
 						stat = 2;	//②商品化
 						if(json.data[i].KAN_F != '0') {
 							stat = 3;	//③納品チェック
-							if(json.data[i].EntID && json.data[i].EntID != '') {
+							if(json.data[i].EntTm && json.data[i].EntTm != '') {
 								stat = 4;	//④出荷レーン
 							}
 						}
@@ -3916,6 +3919,9 @@ $(document).ready(function() {
 				case 4:	//④出荷レーン
 						stat4++;
 						tr += '④';
+						if(!json.data[i].EntID) {
+							tr += '.';
+						}
 						break;
 				case 0: //ｷｬﾝｾﾙ
 						break;
@@ -4177,6 +4183,75 @@ $(document).ready(function() {
 		$('#inout_plan').removeClass('disable');
 	} else {
 		$('#inout_plan').addClass('disable');
+	}
+});
+/*
+欠品入荷リスト
+*/
+$(document).ready(function() {
+	setConfig('#short_plan_chg','');
+	setConfig('#short_plan_scr','');
+	setConfig('#short_plan_fetch','600');
+	setConfig('#short_plan_file','');
+	$('#short_plan').on('focus', function() {
+		utimeOffset('#short_plan_update','#short_plan');
+		$('#navChg').text($('#short_plan_chg').val());
+		$('#navScr').text($('#short_plan_scr').val());
+	});
+	var timer = null;
+	$('#short_plan_update').on('click', function() {
+		console.log(this.id + '.click()');
+		// 同時処理防止
+		if(fetchWait(this.id)) {
+			return;
+		}
+		$(this).text($(this).text().replace('□','■'));
+		var	url = 'short_plan.py?dns=' + $('#dns').val();
+		url += '&filename=' + $('#short_plan_file').val();
+		fetch(url)
+		.then((res) => {
+			// 同時処理解除
+			fetchWait('');
+			return res.json();
+		})
+		.then((json) => {
+			var	tr = '';
+			for ( var i = 0 ; i < json.data.length ; i++ ) {
+				tr += '<tr>';
+				tr += '<td class="rowNo">' + (i + 1) + '</td>';
+				for (var item in json.data[i]) {
+					var	v = json.data[i][item] || '';
+					tr += '<td class="c' + item + '">' + json.data[i][item] + '</td>';
+				}
+				tr += '</tr>';
+			}
+			$('#short_plan > table > tbody').find("tr").remove();
+			$('#short_plan > table > tbody').append(tr);
+			$('#short_plan .fileinfo').text($('#short_plan_file').val());
+			$('#short_plan .info').text('');
+			$(this).text('□更新.' + nowTM());
+			utimeOffset('#short_plan_update','#short_plan');
+		})
+		.catch((err) => {
+			$(this).text('□更新.Error');
+			$('#short_plan .info').text((url) + ' ' + (err));
+			console.log(err);
+		});
+		if($('#short_plan_fetch').val() > 0) {
+			clearTimeout(timer);
+			if($('#navId').text() != '#config_div') {
+				timer = setTimeout(function() {
+					$('#short_plan_update').trigger("click");
+				},$('#short_plan_fetch').val() * 1000);
+			}
+		}
+		return false;
+	});
+	if($('#short_plan_chg').val() > 0) {
+		$('#short_plan_update').trigger("click");
+		$('#short_plan').removeClass('disable');
+	} else {
+		$('#short_plan').addClass('disable');
 	}
 });
 function changeText(q , v) {
@@ -4898,4 +4973,5 @@ $(document).ready(function() {
 	});
 	$(window).trigger('resize');
 	$('#navWindow').toggle();
+	chime('silence');
 });
