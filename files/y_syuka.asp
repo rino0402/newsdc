@@ -77,6 +77,9 @@ Function GetVersion()
 	GetVersion = "2019.06.05 検索条件：更新日時"
 	GetVersion = "2019.11.01 検品OK解除：JITU_SURYOに0をセットするように修正"
 	GetVersion = "2020.03.23 クリップボードコピー対応(IE以外)"
+	GetVersion = "2020.07.21 事業部の検索不具合修正"
+	GetVersion = "2020.07.21 クリップボードコピー範囲変更(検索日時を除外)"
+	GetVersion = "2020.08.18 出庫テスト用"
 End Function
 
 '----------------------------------------------------------
@@ -91,6 +94,12 @@ Function GetFrom(byVal strName)
 		GetFrom = " left outer join ItemSize iSize on (y.jgyobu = iSize.jgyobu and y.key_hin_no = iSize.hin_gai)"
 	case "Zaiko"
 		GetFrom = GetFrom & " left outer join (select JGYOBU,NAIGAI,HIN_GAI,sum(if(GOODS_ON = '0',convert(YUKO_Z_QTY,SQL_DECIMAL),0)) sumi_qty,sum(if(GOODS_ON <> '0',convert(YUKO_Z_QTY,SQL_DECIMAL),0)) mi_qty from zaiko group by JGYOBU,NAIGAI,HIN_GAI)"
+		GetFrom = GetFrom & " z on ("
+		GetFrom = GetFrom & " z.JGYOBU = y.JGYOBU and"
+		GetFrom = GetFrom & " z.NAIGAI = y.NAIGAI and"
+		GetFrom = GetFrom & " z.HIN_GAI = y.KEY_HIN_NO)"
+	case "Zaiko.Tana"
+		GetFrom = GetFrom & " left outer join (select JGYOBU,NAIGAI,HIN_GAI,Soko_No+Retu+Ren+Dan Tana,sum(if(GOODS_ON = '0',convert(YUKO_Z_QTY,SQL_DECIMAL),0)) sumi_qty,sum(if(GOODS_ON <> '0',convert(YUKO_Z_QTY,SQL_DECIMAL),0)) mi_qty from zaiko group by JGYOBU,NAIGAI,HIN_GAI,Tana)"
 		GetFrom = GetFrom & " z on ("
 		GetFrom = GetFrom & " z.JGYOBU = y.JGYOBU and"
 		GetFrom = GetFrom & " z.NAIGAI = y.NAIGAI and"
@@ -143,6 +152,8 @@ Function GetSelect(byVal strName)
 		GetSelect = GetSelect & " ,d.ChoCode + ' ' + d.ChoName)"
 	case "出荷先LK"
 		GetSelect = GetSelect & " y.KEY_MUKE_CODE + ' ' + y.MUKE_NAME + '<br>' + y.LK_MUKE_CODE"
+	case "出荷先_BC"
+		GetSelect = GetSelect & " y.LK_MUKE_CODE"
 	case "出荷先数<br>"
 		GetSelect = GetSelect & "count(distinct if(ifnull(d.ChoCode,'')='',LK_MUKE_CODE + if(convert(m.DISPLAY_RANKING,sql_decimal)>0,m.MUKE_NAME,y.MUKE_NAME),d.ChoCode + d.ChoName))"
 	case "出荷先 直送集計"
@@ -271,7 +282,9 @@ Function GetSelect(byVal strName)
 	case "標準棚番"
 		GetSelect = GetSelect & "rtrim(i.ST_SOKO + i.ST_RETU + i.ST_REN + i.ST_DAN)"
 	case "棚番_BC"
-		GetSelect = GetSelect & "rtrim(i.ST_SOKO + i.ST_RETU + i.ST_REN + i.ST_DAN)"
+		GetSelect = GetSelect & "if(rtrim(i.ST_SOKO)<>'',rtrim(i.ST_SOKO + i.ST_RETU + i.ST_REN + i.ST_DAN),y.HTANABAN)"
+	case "z棚番_BC"
+		GetSelect = GetSelect & "'.' + z.Tana"
 	case "登録日時"
 		GetSelect = GetSelect & "left(y.INS_NOW,8) + '-' + substring(y.INS_NOW,9,4)"
 	case "更新日時"
@@ -528,8 +541,8 @@ function autoChange() {
 %>
   <FORM name="sqlForm">
   <div id="sqlDiv">
+	<div><%=centerStr%> 出荷予定検索 <%=delStr%></div>
 	<table id="sqlTbl">
-		<caption style="text-align:left;"><%=centerStr%> 出荷予定検索 <%=delStr%></caption>
 		<tr>
 			<th>伝票日付</th>
 			<th title="事業場コード">事業場</th>
@@ -595,13 +608,13 @@ function autoChange() {
 			</td>
 			<td align="center">
 				<INPUT TYPE="text" NAME="JGYOBU" id="JGYOBU" VALUE="<%=JGYOBUStr%>" size="4" style="text-align:center;">
-				<div style="text-align:left;">
+				<!--div style="text-align:left;">
 				1:ﾗﾝﾄﾞﾘｰBU<br>
 				4:CABU<br>
 				D:IHBU<br>
 				7:ｸﾘｰﾅｰBU<br>
 				A:ｴｱｺﾝBU
-				</div>
+				</div-->
 			</td>
 			<td align="center">
 				<INPUT TYPE="text" NAME="TOK_KBN" id="TOK_KBN" VALUE="<%=TOK_KBNStr%>" size="1" maxlength="1" style="text-align:center;"><br>
@@ -743,6 +756,8 @@ function autoChange() {
 					<label for="pTablePnJumpUp">集計表(品番 出荷増)</label>
 <% if adminStr = "admin" then %>
 				<br>
+				<INPUT TYPE="radio" NAME="ptype" VALUE="pTest" id="pTest">
+					<label for="pTest">出庫テスト</label>
 				<INPUT TYPE="radio" NAME="ptype" VALUE="pPickingTest" id="pPickingTest">
 					<label for="pPickingTest">検品テスト</label>
 				<INPUT TYPE="radio" NAME="ptype" VALUE="uSyuko" id="uSyuko" onclick="uSyukoClick();">
@@ -807,6 +822,7 @@ function autoChange() {
 		</button>
 	</div>
 	<div id='resultDiv'>
+	<div><%=now%> 現在</div>
 	<table id="resultTbl" class="<%=ptypeStr%>">
 	<%
 		dim	strYMD
@@ -852,8 +868,9 @@ function autoChange() {
    		whereStr = makeWhere(whereStr,"HAN_KBN",HAN_KBNStr,"")
    		whereStr = makeWhere(whereStr,"CHOKU_KBN",TOK_KBNStr,"")
 		whereStr = makeWhere(whereStr,"BIKOU1",GetRequest("BIKOU1",""),"")
+		whereStr = makeWhere(whereStr,"y.JGYOBU",GetRequest("JGYOBU",""),"")
 
-		if len(JGYOBUStr) > 0 then
+		if len(JGYOBUStr) > 0 and False then	'2020.07.21 Falseコメント
 			cmpStr = " = "
 			if left(JGYOBUStr,1) = "-" then
 				JGYOBUStr = right(JGYOBUStr,len(JGYOBUStr)-1)
@@ -888,7 +905,7 @@ function autoChange() {
 
 		if len(KAN_KBNStr) > 0 then
 			if left(KAN_KBNStr,1) = "-" then
-				whereStr = whereStr & andStr & " KAN_KBN <> '" & right(KAN_KBNStr,1) & "'"
+				whereStr = andWhere(whereStr) & " KAN_KBN <> '" & right(KAN_KBNStr,1) & "'"
 			elseif KAN_KBNStr = "=" then
 				whereStr = whereStr & andStr & " KAN_KBN = '0'"
 				whereStr = whereStr &          " and convert(SURYO,SQL_INTEGER) = convert(JITU_SURYO,SQL_INTEGER)"
@@ -1577,6 +1594,26 @@ function autoChange() {
 			sqlStr = sqlStr & ",""注文<br>区分"""
 			sqlStr = sqlStr & ",""出荷先"""
 			sqlStr = sqlStr & ",""ID"""
+		case "pTest"	' 出庫テスト
+			sqlStr = sqlStr & " " & GetSelect("z棚番_BC")
+			sqlStr = sqlStr & "," & GetSelect("事")
+			sqlStr = sqlStr & "," & GetSelect("品番_BC")
+			sqlStr = sqlStr & "," & GetSelect("数量")
+			sqlStr = sqlStr & "," & GetSelect("出荷日")
+			sqlStr = sqlStr & "," & GetSelect("注文区分")
+			sqlStr = sqlStr & "," & GetSelect("出荷先")
+			sqlStr = sqlStr & "," & GetSelect("出荷先_BC")
+			sqlStr = sqlStr & "," & GetSelect("(出庫済)")
+			sqlStr = sqlStr & "," & GetSelect("完了区分")
+			sqlStr = sqlStr & "," & GetSelect("ID_BC")
+			sqlStr = sqlStr & GetFrom(tblStr)
+			sqlStr = sqlStr & GetFrom("Zaiko.Tana")
+			sqlStr = sqlStr & GetFrom("HtDrctId")
+			sqlStr = sqlStr & GetFrom("Mts")
+			sqlStr = sqlStr & whereStr
+			sqlStr = sqlStr & " order by"
+			sqlStr = sqlStr & " ""ID_BC"""
+			sqlStr = sqlStr & ",""z棚番_BC"""
 		case "pPickingTest"	' 検品テスト
 			sqlStr = sqlStr & " " & GetSelect("棚番_BC")
 			sqlStr = sqlStr & "," & GetSelect("事")
@@ -1594,8 +1631,8 @@ function autoChange() {
 			sqlStr = sqlStr & GetFrom("Mts")
 			sqlStr = sqlStr & whereStr
 			sqlStr = sqlStr & " order by"
-			sqlStr = sqlStr & " ""棚番_BC"""
-			sqlStr = sqlStr & ",""ID_BC"""
+			sqlStr = sqlStr & " ""ID_BC"""
+			sqlStr = sqlStr & ",""棚番_BC"""
 		case "pPicking"	' 出庫表
 			sqlStr = sqlStr & " " & GetSelect("標準棚番")
 			sqlStr = sqlStr & "," & GetSelect("事")
@@ -1839,7 +1876,6 @@ function autoChange() {
 		db.CommandTimeout=900
 		set rsList = db.Execute(sqlStr)
 	%>
-		<caption style="text-align:left;"><%=now%> 現在</caption>
 		<%
 			strTh = "<TR BGCOLOR=""#ccffee"">"
 			strTh = strTh & "<TH>No.</TH>"
@@ -1961,6 +1997,7 @@ function autoChange() {
 '							tdTag = "<TD align=""center"" style=""border-style: none;"">"
 							tdTag = "<TD class=""_BC"">"
 							src = "https://www.fabrice.co.jp/cgi-bin/code128.cgi?code=" & fValue
+							src = "http://barcodes4.me/barcode/c39/" & fValue & ".png"
 							fValue = fValue & "<p><a href=""" & src & """><img src=""" & src & """></href>"
 						else
 							' 位置定義（型）
@@ -2048,7 +2085,7 @@ function autoChange() {
 	<!--
 		sqlForm.disabled = false;
 		btnClip.disabled = false;
-		$('#btnClip').text('結果をコピー')
+		$('#btnClip').text('結果をコピー');
 //		cpTblBtn.value = "結果をコピー";
 //		autoBtn.disabled = false;
 	//-->
