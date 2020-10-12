@@ -1,0 +1,174 @@
+<style type="text/css">
+div.s_error {
+	width			: 100%	;
+}
+div.s_error_title {
+	/* 点滅 */
+	*animation	: blink 1.0s ease-in-out 20 alternate;
+	font-size	: 3vw;
+	color		: red;
+	text-align	: center;
+}
+@keyframes blink {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+.s_error table {
+	margin-left		: auto	;
+	margin-right	: auto	;
+	font-size	: 2vw;
+	border-color: black;
+    border-width : 1px;
+    border-style : solid;
+	border-collapse: collapse;
+}
+.s_error th {
+	text-align: center;
+	border-color: black;
+    border-width : 1px;
+    border-style : solid;
+	padding: 2px;
+}
+.s_error td {
+	text-align: center;
+	border-color: black;
+    border-width : 1px;
+    border-style : solid;
+	padding: 2px .8em;
+}
+.s_error table.list ,
+.s_error .list td {
+	border	: none	;
+	padding: 0 1em;
+}
+.red {
+	color		: red	;
+	font-weight	: bold	;
+}
+.s_error td.red {
+	background-color: pink;
+}
+.new {
+    animation	: blink 1.0s ease-in-out 20 alternate;
+}
+div.s_error_box {
+	margin			: 0 auto	;
+	*display: inline-block;
+	border-color: black;
+    border-width : 1px;
+    border-style : solid;
+	background-color: yellow;
+	padding: 10px;
+	text-align: center;
+	vertical-align:	top;
+	font-size: 2vw ;
+	font-weight: bold ;
+	letter-spacing: normal;
+}
+div.s_error_marquee {
+	width		:	100%;
+	overflow	:	hidden;
+}
+div.s_error_marquee p {
+	font-size: 2vw ;
+	color		: red;
+    padding-left: 100%;
+    white-space: nowrap;
+    animation-name: marquee;
+    animation-duration: 20s;	/* 120s */
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+	animation-fill-mode: forwards;
+}
+@keyframes marquee {
+	from	{ transform: translate(0%); } 
+	99%,to	{ transform: translate(-300%); }
+}
+</style>
+<div class="s_error">
+<div class="s_error_title">≪誤出荷注意≫</div>
+<table>
+	<tr>
+		<th colspan="3">誤出荷発生状況</th>
+		<th>小野</th>
+		<th>滋Ｐ</th>
+		<th>滋物</th>
+		<th>袋井</th>
+		<th>大阪</th>
+		<th>奈良</th>
+		<th>広島</th>
+	</tr>
+	<tr>
+		<td>2020年度</td>
+		<td class="red">４件</td>
+		<td class="">(10/6現在)</td>
+		<td class="red new" title="小野">１</td>
+		<td class="red" title="滋Ｐ">１</td>
+		<td>－</td>
+		<td>－</td>
+		<td>－</td>
+		<td class="red" title="奈良">２</td>
+		<td>－</td>
+	</tr>
+	<tr>
+		<td>2019年度</td>
+		<td>１５件</td>
+		<td class="">(年間累計)</td>
+		<td>４</td>
+		<td>２</td>
+		<td>２</td>
+		<td>－</td>
+		<td>１</td>
+		<td>４</td>
+		<td>２</td>
+	</tr>
+	<tr>
+		<td>2018年度</td>
+		<td>１０件</td>
+		<td class="">(年間累計)</td>
+		<td>－</td>
+		<td>３</td>
+		<td>１</td>
+		<td>１</td>
+		<td>１</td>
+		<td>４</td>
+		<td>－</td>
+	</tr>
+</table>
+<table class="list">
+	<tr>
+		<td>①</td>
+		<td>6/17</td>
+		<td> 奈良センター倉庫</td>
+		<td>送り先違い</td>
+	</tr>
+	<tr>
+		<td>②</td>
+		<td>8/7</td>
+		<td> 滋賀PC</td>
+		<td>中身違い</td>
+	</tr>
+	<tr class="">
+		<td>③</td>
+		<td>9/16</td>
+		<td>奈良センター倉庫</td>
+		<td>数量違い</td>
+	</tr>
+	<tr class="red">
+		<td>④</td>
+		<td>10/6</td>
+		<td class="new">小野PC</td>
+		<td>OEM専用ラベル貼換漏れ</td>
+	</tr>
+</table>
+
+<div class="s_error_box">誤出荷は１拠点だけの問題でなく、会社全体の信用・信頼を損ないます。細心の注意を心がけましょう！</div>
+<!--div class="s_error_marquee">
+<p>
+2020年度誤出荷内訳
+　　①6/17 奈良センター倉庫「送り先違い」
+　　②8/7 滋賀PC「中身違い」
+　　<span class="new">③9/16 奈良センター倉庫「数量違い」</span>
+</p>
+</div-->
+</div>
