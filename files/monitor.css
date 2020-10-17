@@ -2562,7 +2562,7 @@ img {
     border-width : 1px;
     border-style : solid;
 	padding : 1px;
-	font-size: 4vh;
+	font-size: min(3vh, 3vw);
 	line-height: 1;
 }
 #package_plan td {
@@ -2608,7 +2608,24 @@ img {
 	white-space: normal;
 	word-break: break-all;
 }
-#package_plan td.Memo ,
+#package_plan td.Sample {
+	text-align: center;
+	font-size: 5vh;
+	font-size-adjust : 0.56;
+	font-weight: bold;
+	*white-space: normal;
+	white-space: nowrap;
+}
+#package_plan th.Memo {
+	white-space: normal;
+	word-break: break-all;
+	font-size: 2vw;
+}
+#package_plan td.Memo {
+	white-space: normal;
+	word-break: break-all;
+	font-size: 2vw;
+}
 #package_plan td.Stat {
 	font-size: 3vh;
 }
@@ -2673,12 +2690,6 @@ img {
 		white 0%,
 		lightgray 100%
 	);
-}
-#package_plan td.Sample {
-	text-align: center;
-	font-size: 5vh;
-	font-weight: bold;
-	white-space: normal;
 }
 #package_plan div.info {
 	*display: inline-block;

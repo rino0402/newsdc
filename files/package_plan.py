@@ -11,14 +11,19 @@ import pyodbc
 import json
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+import pathlib
 
 def main(dns, filename, limit):
     print("main({0}, {1}, {2})".format(dns, filename, limit))
     results = {}
     results["dns"] = dns
     results["limit"] = limit
+
+    if pathlib.Path(filename).is_absolute():
+        filepath = filename
+    else:
+        filepath = os.path.dirname(os.path.abspath(__file__)) + '\\' + filename
     results["filename"] = filename
-    filepath = os.path.dirname(os.path.abspath(__file__)) + '\\' + filename
     results["filepath"] = filepath
     results["mtime"] = datetime.fromtimestamp(os.stat(filepath).st_mtime)
     print("pyodbc.connect({0})".format(dns), end=".", flush=True)
@@ -140,7 +145,9 @@ left outer join (
     group by
      o.HIN_GAI
 ) u on (u.hin_gai = i.hin_gai)
-where i.HIN_GAI='{0}'""".format(pn, dt8 if dt8 else date.today().strftime("%Y%m%d"))
+where i.HIN_GAI='{0}'
+order by i.HIN_NAME desc
+""".format(pn, dt8 if dt8 else date.today().strftime("%Y%m%d"))
     item = conn.execute(sql).fetchone()
     return item
 

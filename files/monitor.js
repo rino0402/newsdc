@@ -3985,6 +3985,7 @@ $(document).ready(function() {
 	setConfig('#package_plan_chg','');
 	setConfig('#package_plan_scr','');
 	setConfig('#package_plan_fetch','600');
+	setConfig('#package_plan_file','');
 	$('#package_plan').on('focus', function() {
 		utimeOffset('#package_plan_update','#package_plan');
 		$('#navChg').text($('#package_plan_chg').val());
@@ -3999,8 +4000,12 @@ $(document).ready(function() {
 		}
 		$(this).text($(this).text().replace('□','■'));
 		var	url = 'package_plan.py?dns=' + $('#dns').val();
-		if ($('#pref').text()) {
-			url += '&filename=商品化予定_' + $('#pref').text() + '.xlsx';
+		if($('#package_plan_file').val()) {
+			url += '&filename=' + $('#package_plan_file').val();
+		} else {
+			if ($('#pref').text()) {
+				url += '&filename=商品化予定_' + $('#pref').text() + '.xlsx';
+			}
 		}
 		fetch(url)
 		.then((res) => {
