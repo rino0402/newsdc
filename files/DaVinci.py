@@ -99,7 +99,8 @@ def OkButton(event):
         nsbcd = ",NS={},NE={}".format(len(bcd) - int(ns) + 1,ns)
     txt = '''
 JOB
-DEF MK=1,MD=1,DR=2,DK={dk},MS=0,GS=0,PO=0,TO=0,PW=384,PH=344,PG=16,UM=24,BM=0,XO=0,AF=1,AB=0
+#DEF MK=1,MD=3,DR=2,DK={dk},MS=0,GS=0,PO=25,TO=0,PW=384,PH=344,PG=16,UM=24,BM=0,XO=0,AF=1,AB=0
+DEF MK=1,MD={md},DR=2,DK={dk},MS=28,PW=384,PH=344,UM=0,BM=0,XO=0,PO=45
 START
 #FONT TP=7,DR=1,CS=0,LS=0,WD=45,LG=120,SL=0
 FONT TP=7,WD=46,LG=120
@@ -110,7 +111,10 @@ BCD TP=7,X={bx},Y=165,DR=1,NW={nw},RA=2,HT=100,CD=0,HR=1,MG={mg}{nsbcd}
 {bcd}
 QTY P={p}
 END
-DEF MK=1,MD=3,PH=344,PW=384,UM=24,BM=0,DK=12,XO=8,AF=1,MS=28,PO=25,TO=100,PG=24
+#DEF MK=1,MD=3,PH=344,PW=384,UM=24,BM=0,DK=12,XO=8,AF=1,MS=28,PO=25,TO=100,PG=24
+#LABEL.txt
+#EF MK=1,DK=12,MD=3,PW=384,PH=344,XO=8,UM=24,BM=0,AF=1
+#INIT
 JOBE
 '''.format(text=text,
            x=x,
@@ -121,6 +125,7 @@ JOBE
            nstxt=nstxt,
            nsbcd=nsbcd,
            p=textQty.get(),
+           md=textMD.get(),
            dk=textDK.get())
     print(txt)
     if varPrinter.get() == 0:
@@ -147,13 +152,14 @@ def text1FocusOut(event):
     dispImage(event)
 
 def get_config():
-    return os.path.dirname(os.path.abspath(__file__)) + '\\Davinci.cfg'
+    return os.path.dirname(os.path.abspath(sys.argv[0])) + '\\Davinci.cfg'
+#   return os.path.dirname(os.path.abspath(__file__)) + '\\Davinci.cfg'
 
 cfg = configparser.ConfigParser()
 cfg.read(get_config())
 
 root = tkinter.Tk()
-root.title("DaVinciラベル発行 - 0.02")
+root.title("DaVinciラベル発行 - 0.03")
 # 1
 frame1 = tkinter.Frame(padx=5, pady=5)
 frame1.pack()
@@ -240,6 +246,20 @@ prgBar.pack()
 prgTxt = tkinter.Label(text='')
 prgTxt.pack()
 #button1.grid(column=1, row=5)
+#opt MD
+frameMD = tkinter.Frame(padx=5, pady=5)
+frameMD.pack()
+labelMD = tkinter.Label(frameMD, text='発行方式')
+labelMD.pack(side="left")
+textMD = tkinter.Entry(frameMD, font=("", 14), justify="center", width=1)
+try:
+    md = (cfg['Davinci']['md'] or "1")
+except KeyError:
+    md = "1"
+textMD.insert(tkinter.END, md)
+textMD.pack(side="left")
+labelMD2 = tkinter.Label(frameMD, text='1:通常/3:剥離')
+labelMD2.pack(side="left")
 # option
 frameOpt = tkinter.Frame(padx=5, pady=5)
 frameOpt.pack()
@@ -278,7 +298,8 @@ textAddr.pack(side="left")
 # footer
 frameFoot = tkinter.Frame(padx=5, pady=5)
 frameFoot.pack()
-labelFoot = tkinter.Label(frameFoot, text='0.02 Bluetooth対応',
+#0.02 Bluetooth対応
+labelFoot = tkinter.Label(frameFoot, text='0.03 発行方式 1:通常/3:剥離',
                           width=40, anchor='w', justify='left')
 labelFoot.pack()
 
@@ -290,6 +311,7 @@ def on_closing():
         'sep': textSep.get(),
         'ns': textNS.get(),
         'qty': textQty.get(),
+        'md': textMD.get(),
         'dk': textDK.get(),
         'printer': varPrinter.get(),
         'addr': textAddr.get()
