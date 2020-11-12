@@ -34,7 +34,8 @@
 						<label for="pallet_no2">～<input id="pallet_no2" type="text" class="config pallet_no"></label>　
 						<input id="submit" type="submit" value="検索">　
 						<input type="reset" value="リセット">　
-						<input id="plist" type="button" value="荷積明細印刷">
+						<input id="plist" type="button" value="荷積明細印刷">　
+					    <button type="button" class="btn" data-clipboard-target="#list">Copy</button>
 					</form>
 					<table id="list" class="sticky">
 						<thead>
@@ -107,6 +108,7 @@
 	<script src="jquery-ui.js"></script>
 	<script type="text/javascript" src="jquery.toast.js"></script>
 	<!--script src="jquery.floatThead.min.js"></script-->
+	<script src="https://cdn.jsdelivr.net/clipboard.js/1.5.3/clipboard.min.js"></script>
 	<script src="menu.js?v=2020040601"></script>
-	<script src="plist.js?v=2020043001"></script>
+	<script src="plist.js?v=2020112001"></script>
 </html>

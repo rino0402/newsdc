@@ -3,6 +3,7 @@ plist.js
 */
 var	arr = [];
 
+arr.push('v0.08 2020.11.10 [Copy]ボタン：検索結果をクリップボードにコピー');
 arr.push('v0.07 2020.04.30 編集でパレットNoが変更できないのを修正');
 arr.push('v0.06 2020.04.06 No.がパレットNo単位でクリアされないのを修正');
 arr.push('v0.05 2020.04.03 パレットNo範囲指定で荷積明細を印刷できるようにしました.');
@@ -387,6 +388,15 @@ $(document).ready(function() {
 //			w.close();
 		});
 		return false;
+	});
+	$('.btn').on('click', function(){
+	    var clipboard = new Clipboard('.btn');
+	    clipboard.on('success', function(e) {
+	        //成功時の処理
+	    });
+	    clipboard.on('error', function(e) {
+	      //失敗時の処理
+	    });
 	});
 	window.location.hash = '#tab_home';
 //	$('#submit').trigger('click');

@@ -1,6 +1,7 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
 set ret=0
+color
 echo.■getall %* %Computername%
 rem 2016.11.17 gift受信ファイル名形式変更
 rem 2017.03.08 ActiveGift対応準備
@@ -197,6 +198,12 @@ for %%i in (g:\gift\recv\hmem702szz.dat.%DT%-*.*.) do (
 	call getoutg %%~nxi 7
 	set /a ret=%ret% + %ERRORLEVEL%
 )
+call d:\newsdc\files\spc_syuka.bat %DT%
+call d:\newsdc\files\spc_nyuka.bat %DT%
+call d:\newsdc\files\spc_zaiko.bat %DT%
+call d:\newsdc\files\spc_pn.bat %DT%
+call d:\newsdc\files\spc_country.bat %DT%
+
 endlocal && set ret=%ret%
 exit/b %ret%
 rem --------------------------------------
@@ -273,6 +280,11 @@ for %%i in (g:\gift\recv\hmem708szz.dat.%DT%-*.*.) do (
 	call getoutg %%~nxi 5
 	set /a ret=%ret% + %ERRORLEVEL%
 )
+call d:\newsdc\files\spc_syuka.bat %DT%
+call d:\newsdc\files\spc_nyuka.bat %DT%
+call d:\newsdc\files\spc_zaiko.bat %DT%
+call d:\newsdc\files\spc_pn.bat %DT%
+call d:\newsdc\files\spc_country.bat %DT%
 :_End
 endlocal && set ret=%ret%
 exit/b %ret%
