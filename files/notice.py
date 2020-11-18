@@ -35,19 +35,20 @@ class notice:
     def get1file(self):
         path = os.path.dirname(os.path.abspath(__file__))
         path += '\\' + self.path
-        try:
-            for f in os.listdir(path):
-                if os.path.isfile(path + '\\' + f):
-                    self.filename = f
-                    filepath = path + '\\' + f
+        for f in os.listdir(path):
+            if os.path.isfile(path + '\\' + f):
+                self.filename = f
+                filepath = path + '\\' + f
+                try:
                     file = open(filepath)
                     self.text = file.read()
                     file.close()
                     self.st_mtime = datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime)
                     if self.test == False:
                         os.remove(path + '\\' + f)
-        except:
-            self.status = 'error'
+                    break
+                except:
+                    pass
 
     def print_response(self):
         r = {}
@@ -96,10 +97,30 @@ class notice:
 #            r["speech"] = self.st_mtime.strftime('%H:%M') + " Active,出荷実績データを送信しました."
             r["speech"] = "。"
             r["chime"] = "48 Dragon Quest 3 - Special Item"
+        elif self.filename == 'spc_pn.log':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " SpicePNデータを受信しました."
+            r["speech"] = ""
+            r["chime"] = "se_maoudamashii_jingle03"
+        elif self.filename == 'spc_zaiko.log':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Spice在庫データを受信しました."
+            r["speech"] = ""
+            r["chime"] = "se_maoudamashii_jingle03"
+        elif self.filename == 'spc_nyuka.log':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Spice入荷データを受信しました."
+            r["speech"] = self.st_mtime.strftime('%H:%M') + "....スパイス入荷データを受信しました."
+            r["chime"] = "tennoji2"
+        elif self.filename == 'spc_syuka.log':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Spice出荷データを受信しました."
+            r["speech"] = self.st_mtime.strftime('%H:%M') + "....スパイス出荷データを受信しました."
+            r["chime"] = "minatomirai1"
         elif self.filename == 'corona.html':
             r["speech"] = "新型コロナウイルスの、感染防止対策のお願いです"
             r["title"] = self.filename
             r["chime"] = "Chime-Announce09-1(5-Tone-Fast-Up)"
+        elif self.filename == 'dscope_list.html':
+            r["speech"] = ""
+            r["title"] = self.st_mtime.strftime('%H:%M') + " 顔認証 D-Scope"
+            r["chime"] = "ji_Vibra"
         elif self.filename.endswith('.html'):
             r["title"] = self.filename
             r["chime"] = "chime"
