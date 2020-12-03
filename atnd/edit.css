@@ -1,0 +1,165 @@
+﻿/*
+report.css 2020.07.10 作成
+*/
+@media print{
+	header, a, .tab_content {
+		display: none;
+	}
+    #result_table {
+        display: block;
+    }
+}
+a {
+	text-decoration: none;
+}
+body {
+	*font-family: monospace,Courier,Consolas,'Courier New';
+	font-family: "Meiryo UI","メイリオ";
+	*font-family: Consolas;
+}
+.tab_content {
+	display: none;
+}
+.tab_content:target {
+	display: block;
+}
+.content {
+	padding: 10px;
+}
+#filter {
+	width	: 8em	;
+}
+input[name="month"] {
+	
+}
+input[name="copy"] {
+	color : blue;
+	background-color: white;
+}
+table {
+	border: solid thin black;
+	border-collapse: collapse;
+	*width:100%;
+}
+table tr th {
+	/* [上][右][下][左] */
+	padding:2px 3px;
+	font-weight: normal;
+	border: solid thin black;
+	background-color: aliceblue;
+	white-space: nowrap;
+}
+table tr td {
+	/* [上][右][下][左] */
+	padding:2px 3px;
+	border: solid thin black;
+	vertical-align: center;
+	white-space: nowrap;
+}
+table tr:hover {
+	background-color: aquamarine;
+}
+.text {
+	text-align: left;
+	white-space: normal;
+}
+.number {
+	text-align: right;
+}
+.red {
+	color: red;
+}
+.center {
+	text-align: center;
+}
+.gif-load {
+	background-image:url("images/loading1.gif?v=2020032501");
+	background-repeat: no-repeat;
+	background-position: center center;
+	*background-size: contain;
+	background-size: cover;
+}
+.qty {
+	text-align: right;
+}
+#option table {
+	border: none;
+}
+#option table td {
+	border: none;
+}
+#option table td:first-child {
+	text-align: right;
+}
+.sticky {
+	border: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.sticky thead {
+}
+.sticky thead tr th {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	border: solid thin black;
+	*border-left: 0;
+	*font-weight: normal;
+	*padding:2px;
+	*background-color: aliceblue;
+	*white-space: nowrap;
+	background-clip: padding-box;
+}
+.sticky tbody tr td {
+	*border: 1;
+	*border: solid thin black;
+	border-top: 0;
+	*border-left: 0;
+	background-clip: padding-box;
+}
+.content form {
+	padding: 2px 2px;
+}
+.hour {
+	text-align: right;
+}
+.modify {
+	background-color: lavenderblush;	/* pink #FFCCCC #FFD8CC */
+}
+.土 {
+	color : blue;
+}
+.日 {
+	color : red;
+}
+.holiday {
+	color : red;
+}
+.input-sm {
+	width		: 3em	!important;
+}
+.Memo .input-sm {
+	width		: auto	!important;
+}
+td.date {
+	text-align: center;
+}
+span.edit ,
+th.edit {
+	background-color: #FFFFCC;
+}
+span.edit {
+	border: solid thin black;
+	padding:2px 3px;
+	font-size : 80%;
+}
+th.total {
+	padding:2px 4px;
+	font-size: 0.7em;
+	background-color: #CCFFFF;
+	white-space: normal;
+}
+td.total {
+	text-align: right;
+}

@@ -1,5 +1,6 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
+pushd %~dp0
 set ret=0
 color
 echo.Å°getall %* %Computername%
@@ -74,6 +75,7 @@ for %%i in (b:\hmem707szz.dat.%DT%-*.*.) do (
 	call hmem700 newsdcr %%i
 	set /a ret=%ret% + %ERRORLEVEL%
 )
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
 rem --------------------------------------
@@ -119,6 +121,7 @@ for %%i in (g:\gift\recv\hmem70Aszz.dat.%DT%-*.*.) do (
 	call getoutg %%~nxi 2 newsdc8
 )
 call d:\newsdc9\files\pop3w9.bat
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
 rem --------------------------------------
@@ -151,6 +154,7 @@ for %%i in (g:\gift\recv\hmem701szz.dat.%DT%-*.*.) do (
 	call getoutg %%~nxi 1
 	set /a ret=%ret% + %ERRORLEVEL%
 )
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
 rem --------------------------------------
@@ -204,6 +208,7 @@ call d:\newsdc\files\spc_zaiko.bat %DT%
 call d:\newsdc\files\spc_pn.bat %DT%
 call d:\newsdc\files\spc_country.bat %DT%
 
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
 rem --------------------------------------
@@ -286,8 +291,10 @@ call d:\newsdc\files\spc_zaiko.bat %DT%
 call d:\newsdc\files\spc_pn.bat %DT%
 call d:\newsdc\files\spc_country.bat %DT%
 :_End
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
+
 :W11
 if not exist A:\nul (
 	net use * /del /y
@@ -299,5 +306,6 @@ if not exist G:\nul (
 	net use G: \\hs1\glics /y
 )
 set ret=%ERRORLEVEL%
+popd
 endlocal && set ret=%ret%
 exit/b %ret%
