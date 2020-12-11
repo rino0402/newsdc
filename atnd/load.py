@@ -42,6 +42,10 @@ select
 ,a.FinTm
 ,a.BegTm_i
 ,a.FinTm_i
+,a.StartTm
+,a.FinishTm
+,a.StartTm_i
+,a.FinishTm_i
 ,a.Late
 ,a.Early
 ,a.PTO

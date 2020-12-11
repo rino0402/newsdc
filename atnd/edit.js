@@ -11,6 +11,16 @@ function fmtHour(d) {
 	}
 	return '';
 }
+function fmtTm(tm) {
+	if(tm) {
+//		console.log(tm + '=' + tm.prototype.toString);
+		console.log(tm + '=' + typeof tm);	//08:45:00=string
+//		return tm.getHours() + ':' + tm.getMinutes();
+		return tm.slice(0,5);
+	} else {
+		return '';
+	}
+}
 
 //テーブル 検索
 $("input[name='load']").on('click', function() {
@@ -49,6 +59,18 @@ $("input[name='load']").on('click', function() {
 			} else {
 				tr += '<td class="time BegTm modify" title="' + json.data[i]['BegTm5'] + '">';
 				tr += json.data[i]['BegTm_i'] + '</td>';
+			}
+			if (!json.data[i]['StartTm_i']) {
+				tr += '<td class="time StartTm">' + fmtTm(json.data[i]['StartTm']) + '</td>';
+			} else {
+				tr += '<td class="time StartTm modify" title="' + fmtTm(json.data[i]['StartTm']) + '">';
+				tr += fmtTm(json.data[i]['StartTm_i']) + '</td>';
+			}
+			if (!json.data[i]['FinishTm_i']) {
+				tr += '<td class="time FinishTm">' + fmtTm(json.data[i]['FinishTm']) + '</td>';
+			} else {
+				tr += '<td class="time FinishTm modify" title="' + fmtTm(json.data[i]['FinishTm']) + '">';
+				tr += fmtTm(json.data[i]['FinishTm_i']) + '</td>';
 			}
 			if (json.data[i]['FinTm_i'] == '') {
 				tr += '<td class="time FinTm">' + json.data[i]['FinTm5'] + '</td>';
@@ -170,14 +192,16 @@ $("input[name='load']").on('click', function() {
 		    columns: {
 		      identifier: [0, 'id'],
 		        editable: [	 [ 4, 'BegTm_i']
-							,[ 5, 'FinTm_i']
-							,[ 6, 'Late']
-							,[ 7, 'Early']
-							,[ 8, 'PTO']
-							,[ 9, 'Actual_i']
-							,[10, 'Extra_i']
-							,[11, 'Night_i']
-							,[12, 'Memo']
+							,[ 5, 'StartTm_i']
+							,[ 6, 'FinishTm_i']
+							,[ 7, 'FinTm_i']
+							,[ 8, 'Late']
+							,[ 9, 'Early']
+							,[10, 'PTO']
+							,[11, 'Actual_i']
+							,[12, 'Extra_i']
+							,[13, 'Night_i']
+							,[14, 'Memo']
 						  ]
 		    }
 		});
@@ -201,7 +225,7 @@ $(document).on("change",'.time input[type="text"]', function() {
 	console.log('change() parent(title)=' + $(this).parent().attr('title'));
 	var	tm = $(this).val().trim();
 	if(tm == '') {
-		$(this).val($(this).parent().attr('title'));
+//		$(this).val($(this).parent().attr('title'));
 	} else if(tm.match(/^\d{2}:\d{2}$/)) {
 		// hh:mm
 		console.log('hh:mm=' + tm);

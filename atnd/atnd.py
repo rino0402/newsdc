@@ -9,7 +9,7 @@ import xlrd
 import pandas as pd
 import pyodbc
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from decimal import Decimal
 import traceback
 
@@ -19,7 +19,7 @@ def main(r):
     conn = pyodbc.connect('DSN=' + r["dns"])
     print("ok")
 
-    make(conn, r)
+    r["data"] = make(conn, r)
     conn.commit()
     
     print("conn.close()", end=".")
@@ -79,6 +79,10 @@ select
 ,a.BegTm_i
 ,a.FinTm
 ,a.FinTm_i
+,a.StartTm
+,a.StartTm_i
+,a.FinishTm
+,a.FinishTm_i
 from Staff s
 left outer join (
 select
@@ -111,6 +115,7 @@ left outer join Atnd a
     df = pd.read_sql(sql, conn)
     df['StaffNo'] = df['StaffNo'].str.rstrip()
     print(df)
+    data = []
     for i, row in df.iterrows():
         print(i,row)
         d = {}
@@ -125,13 +130,18 @@ left outer join Atnd a
         d["FinTm_i"] = row["FinTm_i"]
         if row["maxTs"]:
             d["FinTm"] = row["maxTs"]
+        d["StartTm"] = row["StartTm"]
+        d["StartTm_i"] = row["StartTm_i"]
+        d["FinishTm"] = row["FinishTm"]
+        d["FinishTm_i"] = row["FinishTm_i"]
         d = calc(d)
         if row["aDt"]:
             d["update"] = update(conn, d)
         else:
             d["insert"] = insert(conn, d)
         print(d)
-    return r
+        data.append(d)
+    return data
 
 def get_h_m_s(td):
     m, s = divmod(td.seconds, 60)
@@ -156,11 +166,25 @@ def calc(d):
             pass
     if beg == None:
         return d
-    # 15分単位で切り上げ
+    # 始業
+    if "{:%H:%M}".format(beg) < "07:30":
+        beg = time(7,30)
+    elif "{:%H:%M}".format(beg) < "08:30":
+        beg = time(8,30)
+    elif "{:%H:%M}".format(beg) < "09:00":
+        beg = time(9,00)
+    minute15 = -(-beg.minute // 15) * 15
+    if minute15 == 60:
+        d["StartTm"] = beg.replace(hour=beg.hour + 1, minute=0)
+    else:
+        d["StartTm"] = beg.replace(minute=minute15)
+    # 始業 入力
+    try:
+        beg = datetime.strptime(d["StartTm_i"], "%H:%M")
+    except:
+        pass
+    # 10進数 15分単位で切り上げ
     beg = beg.hour + (-(-beg.minute // 15) * 0.25)
-    # 9時始業
-    if beg < 9:
-        beg = 9
 
     # 退勤
     fin = None
@@ -173,34 +197,37 @@ def calc(d):
             fin = datetime.strptime(d["FinTm"], "%H:%M")
         except:
             pass
-
+    # 終業
+    if fin:
+        minute15 = fin.minute // 15 * 15
+        d["FinishTm"] = fin.replace(minute=minute15)
+    if d["FinishTm_i"]:
+        fin = datetime.strptime(d["FinishTm_i"], "%H:%M")
     if fin == None:
         return d
-    # 15分単位で切り捨て
+    # 10進数 15分単位で切り捨て
     fin = fin.hour + (fin.minute // 15) * 0.25
     print("{}-{}".format(beg, fin))
     #所定内
-    if fin > 17.5:
-        act = 17.5 - beg
-    else:
-        act = fin - beg
+    act = fin - beg
     if act < 1:
         fin = 0
         act = 0
         d["FinTm"] = None
+        d["FinishTm"] = None
     #昼休み 12:00-12:45
     if beg < 12 and fin > 12.75:
         act -= 0.75
     #休憩 15:00-15:15
-    if beg < 15 and fin > 15:
+    if beg < 15 and fin > 15.25:
         act -= 0.25
-    print(act, beg, fin)
-    d["Actual"] = act
+    #休憩 19:30-19:45
+    if beg < 19.5 and fin > 19.75:
+        act -= 0.25
+    print(beg, fin, act)
+    d["Actual"] = min(act, 7.5)
     #残業
-    if fin > 17.5:
-        d["Extra"] = fin - 17.5
-    else:
-        d["Extra"] = 0
+    d["Extra"] = max(0, act - 7.5)
     return d
 
 def update(conn, data):
@@ -243,8 +270,11 @@ def insert(conn, data):
     sql += ") values ("
     for d in data:
         if data[d]:
+            print("{}={} type:{}".format(d, data[d], type(data[d])))
             if type(data[d]) == str:
                 sql += "'{0}',".format(data[d].replace("'","''"))
+            elif "datetime" in str(type(data[d])):
+                sql += "'{0}',".format(data[d])
             else:
                 sql += "{0},".format(data[d])
     sql = sql[:-1] + ")"
@@ -281,3 +311,19 @@ if __name__ == "__main__":
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
         parser.add_argument("--id", help="", default="", type=str)
         r = main(vars(parser.parse_args()))
+        print(r["data"])
+        for d in r["data"]:
+            print("{}".format(d["Dt"]), end=" ")
+            print("{}".format(d["StaffNo"]), end=" ")
+            print("{}".format(d["BegTm"]), end=" ")
+            print("{}".format(d["FinTm"]), end=" ")
+            print("{}".format(d["Actual"] if d.get('Actual') else None), end=" ")
+            print("{}".format(d["Extra"] if d.get('Extra') else None), end=" ")
+            print("{}".format("insert:" + str(d["insert"]) if d.get('insert') else ""), end="")
+            print("{}".format("update:" + str(d["update"]) if d.get('update') else ""), end="")
+            print("")
+
+
+
+
+            

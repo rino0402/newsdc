@@ -15,13 +15,9 @@ $(document).ready(function() {
 		$('#dns').trigger('blur');
 	});
 	$("#dns").blur(function() {
-//		if($(this).val() == '') {
-//			$(this).val(location.pathname.split('/')[1]);
-//		}
 		$('#dns_span').text($(this).val());
 		var	key = $('#key').text() + '#cname';
 		$('#cname').text(localStorage.getItem(key));
-
 		var	req = 'jgyobu.py?dns=' + $(this).val() + '&jgyobu=0';
 		console.log(req);
 		fetch(req).then((res) => {
@@ -41,12 +37,6 @@ $(document).ready(function() {
 		var	key = $('#key').text() + '#' + this.id;
 		var	val = localStorage.getItem(key);
 		console.log('getItem():' + key + ':' + val);
-		if(!val) {
-			switch(this.id) {
-			case 'limit':	val = 1000;	break;
-			case 'dns':		val = location.pathname.split('/')[1];	break;
-			}
-		}
 		$(this).val(val);
 	});
 	$(document).on("change",'input[type="text"].config', function() {
@@ -67,40 +57,33 @@ function padZero(num) {
 }
 function dns() {
 	var	dns = 'newsdc';
-	if(dns = location.search.substring(1)) {
-	}
 	return dns;
 }
 $(document).ready(function() {
-	$("#config").load('config.html', function(response, status, xhr) {
-		console.log('load:config.html');
-		console.log('response:' + response);
-		console.log('status:' + status);
-		console.log('xhr:' + xhr);
-	});
 	// 初期値セット
 	//設定：初期値
-	$('#pref').text(location.search.substring(1));
-//	var dns = storage('#dns');
-	var dns = location.search.substring(1);
-	console.log('dns:' + dns);
-	if(dns == '') {
-		dns = location.pathname;
-		dns = dns.split('/')[1];
-//		if(location.host == 'w0') {
-//			dns = 'newsdc4';
-//		}
-	}
+	$('#pref').text('');
+	var dns = 'newsdc';
 	console.log('dns:' + dns);
 	$('#dns').text(dns);
 	console.log('#dns:' + $('#dns').text());
 	//設定：変更メソッド
-//	$('.config').change(function() {
 	$(document).on("change",".config", function() {
 		console.log( 'change() ' + this.id + ':' + $(this).val());
 		var id = '#' + this.id;
 		storage(id,$(this).val());
 	});
+	//ユーザー名
+	console.log('username...');
+	$('#username').text('...');
+	fetch('username.asp').then((res) => {
+		return res.json();
+	}).then((json) => {
+		console.log('username:' + json.username);
+		$('#username').text(json.username);
+	}).catch(function(err) {
+		$('#username').text(err);
+    });
 });
 //localStorage 保存
 function storage(n,v) {

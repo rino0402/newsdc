@@ -23,7 +23,7 @@ def main(r):
     print("ok")
     r["StaffNo"] = r["id"].split("_")[0]
     r["Dt"] = r["id"].split("_")[1]
-    if len(r.keys() & {"BegTm_i","FinTm_i"}) > 0:
+    if len(r.keys() & {"BegTm_i","FinTm_i","StartTm_i","FinishTm_i"}) > 0:
         sql = "select top 1 * from Atnd where StaffNo='{}' and Dt='{}'".format(r["StaffNo"],r["Dt"])
         print(sql)
         row = conn.execute(sql).fetchone()
@@ -34,11 +34,19 @@ def main(r):
         
         d["FinTm"] = "{:%H:%M}".format(row.FinTm) if row.FinTm else row.FinTm
         d["FinTm_i"] = datetime.strptime(r["FinTm_i"], "%H:%M") if r.get('FinTm_i') else row.FinTm_i
+
+        d["StartTm"] = row.StartTm
+        d["StartTm_i"] = r["StartTm_i"] if r.get('StartTm_i') else row.StartTm_i
+        d["FinishTm"] = row.FinishTm
+        d["FinishTm_i"] = r["FinishTm_i"] if r.get('FinishTm_i') else row.FinishTm_i
         import atnd
         d = atnd.calc(d)
         print(d)
-        r["Actual"] = "{}".format(d["Actual"])
-        r["Extra"] = "{}".format(d["Extra"])
+        try:
+            r["Actual"] = "{}".format(d["Actual"])
+            r["Extra"] = "{}".format(d["Extra"])
+        except:
+            pass
 
     r["update"] = update(conn, r)
     print("conn.commit()", end=".")
@@ -54,7 +62,7 @@ def update(conn, data):
     st = " set"
     for d in data:
         if d not in ["StaffNo","Dt","dns","id", "action"]:
-            if d in ["BegTm_i","FinTm_i"]:
+            if d in ["BegTm_i","FinTm_i","StartTm_i","FinishTm_i"]:
                 try:
                     tm = datetime.strptime(data[d],"%H:%M")
                     sql += "{} {} = '{}'".format(st, d, data[d])
