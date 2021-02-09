@@ -46,6 +46,7 @@ nav > ul > li > a {
 /*
 ボタン
 */
+/*
 input ,
 select {
 	*font-family: monospace,Courier,Consolas,'Courier New';
@@ -72,6 +73,7 @@ input[type="submit"]:hover {
 	background-color: yellow;
 	color: midnightblue;
 }
+*/
 #jgyobu {
 	width: 1em;
 	text-align: center;

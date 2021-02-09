@@ -12,8 +12,11 @@ Attendance 	ATND
 		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 		<meta name="format-detection" content="telephone=no">
 		<title>勤怠編集</title>
-		<link type="text/css" rel="stylesheet" href="menu.css?v=2020120701">
-		<link type="text/css" rel="stylesheet" href="edit.css?v=2020120701">
+		<!--
+	    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		-->
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2020122501">
+		<link type="text/css" rel="stylesheet" href="edit.css?v=2020122501">
 	</head>
 	<body>
 		<header role="banner">
@@ -21,6 +24,7 @@ Attendance 	ATND
 				<span id="menu"></span>
 				<ul>
 					<li class="active"><a href="#tab_month">勤怠編集</a></li>
+					<li><a href="#tab_staff">従業員</a></li>
 					<li><a href="#tab_option">設定</a></li>
 					<li><a href="#tab_version">ver</a></li>
 				</ul>
@@ -31,26 +35,37 @@ Attendance 	ATND
 		<main role="main">
 			<div class="tab_content" id="tab_month">
 				<div class="content">
-					<form method="get">
+					<form>
+						<input type="text" name="post" placeholder="部署">
 						<input type="month" name="month">
 						<input type="button" name="load" value="検索">
+						<input type="search" name="filter" id="filter" placeholder="ﾌｨﾙﾀｰ;ID,名前,日付" autocomplete="off" list="slist">
+						<datalist id="slist">
+							<!--
+							<option value="apple" label="りんご">
+							<option value="lemon" label="れもん">
+							<option value="banana" label="ばなな">
+							-->
+						</datalist>
+						<input type="button" name="edit" value="編集">
 						<span class="edit">編集可(クリック：入力／Enter：確定)</span>
-						<input type="text" id="filter" placeholder="フィルター">
+						<input type="button" name="copy0" value="Copy">
 						<input type="button" name="copy" value="Copy" data-clipboard-target="#list">
+						<input type="button" name="print" value="勤務表">
 					</form>
 					<table id="list" class="sticky">
 						<thead>
 							<tr>
 								<th>#</th>
+								<th>部署</th>
 								<th>ID</th>
 								<th>名前</th>
 								<th>日付</th>
-								<!--th class="edit">区分</th>
-								<th class="edit">シフト</th-->
-								<th class="edit">出勤</th>
+								<th class="edit">シフト</th>
+								<th class="BegTm">出勤</th>
 								<th class="edit">始業</th>
 								<th class="edit">終業</th>
-								<th class="edit">退勤</th>
+								<th class="FinTm">退勤</th>
 								<th class="edit">遅刻</th>
 								<th class="edit">早退</th>
 								<th class="edit">有休</th>
@@ -72,6 +87,26 @@ Attendance 	ATND
 					<p id="msg"></p>
 				</div>
 			</div>
+			<div class="tab_content" id="tab_staff">
+				<div class="content">
+					<input type="button" name="staff" value="検索">
+					<table class="sticky">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>部署</th>
+								<th>ID</th>
+								<th>名前</th>
+								<th>シフト</th>
+								<th>退職日</th>
+								<th>備考</th>
+							</tr>
+				        </thead>
+						<tbody>
+				        </tbody>
+					</table>
+				</div>
+			</div>
 			<div class="tab_content" id="tab_option">
 				<div class="content" id="option">
 					<table>
@@ -88,10 +123,15 @@ Attendance 	ATND
 		<footer role="contentinfo">
 		</footer>
 	</body>
+	<!--
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="jquery.tabledit.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 	<script src="http://www.cyokodog.net/jquery.ex-table-filter/jquery.ex-table-filter.js"></script>
-	<script src="menu.js?v=2020120701"></script>
-	<script src="edit.js?v=2020120701"></script>
+	<script src="menu.js?v=2020122501"></script>
+	<script src="edit.js?v=2020122501"></script>
 </html>

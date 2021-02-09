@@ -31,6 +31,8 @@
 	versionStr = "2020.07.10 クリップボード出力対応(Chrome)"
 	versionStr = "2020.07.11 検索できない不具合修正"
 	versionStr = "2020.07.28 IE11で配達不可が先頭に表示されるように修正"
+	versionStr = "2020.12.11 集計表(iStar2)検証用"
+	versionStr = "2020.12.16 集計表(iStar2) 着店名 追加"
 %>
 <HTML>
 <HEAD>
@@ -297,6 +299,8 @@ function autoChange() {
 					<label for="pTableColOkurisaki">集計表(集約送り先別)</label>
 				<INPUT TYPE="radio" NAME="ptype" VALUE="pTableOkurisaki" id="pTableOkurisaki">
 					<label for="pTableOkurisaki">集計表(送り先別)</label>
+				<INPUT TYPE="radio" NAME="ptype" VALUE="pTable_iStar2" id="pTable_iStar2">
+					<label for="pTable_iStar2">集計表(着店)</label>
 				<br>
 				<INPUT TYPE="radio" NAME="ptype" VALUE="pTablePnMonth" id="pTablePnMonth">
 					<label for="pTablePnMonth">集計表(品番/月別)</label>
@@ -465,6 +469,29 @@ function autoChange() {
 			sqlStr = sqlStr & whereStr
 			sqlStr = sqlStr & " group by ""出荷日"",""集約送り先コード"",""送り先コード"",""送り先"",""送り先住所"",""配達不可"",""運送会社"",""便"""
 			sqlStr = sqlStr & " order by ""出荷日"",""集約送り先コード"",""送り先コード"",""便"""
+		case "pTable_iStar2"	' 集計表(着店)
+			sqlStr = sqlStr & " SYUKA_YMD ""出荷日"""					'1
+			sqlStr = sqlStr & ",convert(INS_BIN,SQL_DECIMAL) ""便"""	'2
+			sqlStr = sqlStr & ",UNSOU_KAISHA ""運送会社"""				'3
+			sqlStr = sqlStr & ",TYAKUTEN ""着店"""						'4
+			sqlStr = sqlStr & ",TYAKUTEN_NM ""着店名"""					'5
+ 			sqlStr = sqlStr & ",YUBIN_No ""Zip"""						'6
+ 			sqlStr = sqlStr & ",JYUSHO ""送り先住所"""					'7
+			sqlStr = sqlStr & ",COL_OKURISAKI_CD ""集約送り先"""		'8
+ 			sqlStr = sqlStr & ",OKURISAKI_CD ""送り先"""				'9
+ 			sqlStr = sqlStr & ",OKURISAKI ""送り先名"""					'10
+ 			sqlStr = sqlStr & ",TEL_No ""Tel"""							'11
+			sqlStr = sqlStr & ",count(distinct if(OKURI_NO = '',null(),OKURI_NO)) ""送状"""
+			sqlStr = sqlStr & ",count(*) ""件数"""
+			sqlStr = sqlStr & ",sum(if(KENPIN_NOW <> '',1,0)) ""検品済"""
+			sqlStr = sqlStr & ",sum(convert(SURYO,SQL_DECIMAL)) ""数量"""
+			sqlStr = sqlStr & ",max(convert(KUTI_SU,SQL_DECIMAL)) ""口数"""
+			sqlStr = sqlStr & ",max(convert(SAI_SU,SQL_DECIMAL)) ""才数"""
+			sqlStr = sqlStr & ",max(convert(JURYO,SQL_DECIMAL)) ""重量"""
+			sqlStr = sqlStr & " From " & tblStr & " s"
+			sqlStr = sqlStr & whereStr
+			sqlStr = sqlStr & " group by ""出荷日"",""集約送り先"",""送り先"",""Tel"",""Zip"",""送り先名"",""送り先住所"",""運送会社"",""着店"",""着店名"",""便"""
+			sqlStr = sqlStr & " order by 3,4,5,6,7,8,9,10,1,2"
 		case "pTableKoguchi"	' 集計表
 			sqlStr = sqlStr & " s.SYUKA_YMD as ""出荷日"""
 			sqlStr = sqlStr & ",UNSOU_KAISHA as ""運送会社"""

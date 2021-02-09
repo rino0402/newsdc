@@ -4,13 +4,15 @@ import sys
 import io
 import csv
 import pyodbc
-
+from datetime import date, datetime, timedelta, time
+from dateutil.relativedelta import relativedelta
 #-------------------------------------------------------------
 def main(r):
     print("main({})".format(r))
     print("pyodbc.connect({})".format(r["dns"]), end=".")
     conn = pyodbc.connect('DSN=' + r["dns"])
     print("ok")
+    sql_del = ""
     with open(r["csv"], "r") as f:
         #reader = csv.reader(f)
         part = False
@@ -28,6 +30,18 @@ def main(r):
             d["Name"] = "{}".format(row[2])
             d["Post"] = "{}".format(row[3])
             d["Dt"] = "{}".format(row[4].replace("/","-"))
+            if sql_del == "":
+                dt1 = datetime.strptime(d["Dt"], '%Y-%m-%d')
+                if dt1.day < 16:
+                    dt1 -= relativedelta(months=1)
+                dt1 = date(dt1.year,dt1.month,16)
+                dt2 = dt1 + relativedelta(months=1)
+                dt2 = date(dt2.year,dt2.month,15)
+                sql_del = "delete from timepack where Dt between '{:%Y-%m-%d}' and '{:%Y-%m-%d}'".format(dt1, dt2)
+                print(sql_del, end=".")
+                conn.execute(sql_del)
+                print(conn.execute("select @@rowcount").fetchone()[0])
+                
             d["Shift"] = "{}".format(row[5])
             d["Holiday"] = "{}".format(row[6])
             d["Absence"] = "{}".format(row[7])
@@ -111,7 +125,8 @@ def insert(conn, data):
     except pyodbc.Error as e:
         if '(Btrieve Error 5) (-4994)' in str(e.args):
             print("(W)")
-            return 0
+            print(e)
+            raise
         else:
             print(e)
             raise

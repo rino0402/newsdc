@@ -37,6 +37,12 @@ $(document).ready(function() {
 		var	key = $('#key').text() + '#' + this.id;
 		var	val = localStorage.getItem(key);
 		console.log('getItem():' + key + ':' + val);
+		if(!val) {
+			switch(this.id) {
+			case 'dns':	val = 'newsdc';	break;
+			}
+		}
+		console.log('getItem():' + key + ':' + val);
 		$(this).val(val);
 	});
 	$(document).on("change",'input[type="text"].config', function() {
@@ -55,49 +61,18 @@ function getTs() {
 function padZero(num) {
     return (num < 10 ? "0" : "") + num;
 }
-function dns() {
-	var	dns = 'newsdc';
-	return dns;
-}
 $(document).ready(function() {
 	// 初期値セット
 	//設定：初期値
-	$('#pref').text('');
-	var dns = 'newsdc';
-	console.log('dns:' + dns);
-	$('#dns').text(dns);
-	console.log('#dns:' + $('#dns').text());
-	//設定：変更メソッド
-	$(document).on("change",".config", function() {
-		console.log( 'change() ' + this.id + ':' + $(this).val());
-		var id = '#' + this.id;
-		storage(id,$(this).val());
-	});
 	//ユーザー名
 	console.log('username...');
 	$('#username').text('...');
-	fetch('username.asp').then((res) => {
+	fetch('username.py').then((res) => {
 		return res.json();
 	}).then((json) => {
-		console.log('username:' + json.username);
+		console.log(json);
 		$('#username').text(json.username);
 	}).catch(function(err) {
 		$('#username').text(err);
     });
 });
-//localStorage 保存
-function storage(n,v) {
-	console.log( 'storage() ' + n + ':' + v);
-	if(typeof v === 'undefined') {
-		v = null;
-	}
-//	n = location.pathname + '.' + n;
-	var	stg = localStorage;
-	if(v == null) {
-		v = stg.getItem(n,v);
-	} else {
-		stg.setItem(n,v);
-	}
-	console.log( 'storage().' + n + ':' + v);
-	return v;
-}

@@ -14,6 +14,7 @@ from decimal import Decimal
 import locale
 import codecs
 import traceback
+import sdc
 
 def eprint(*args, **kwargs):
     if 'REQUEST_METHOD' in os.environ:
@@ -63,11 +64,17 @@ left outer join Staff s
 inner join Calendar c
  on (a.Dt = c.CalDate)
 where a.Dt between '{}' and '{}'
+""".format(r["dt0"], r["dt1"])
+    if sdc.user().post:
+        sql += " and s.Post = '{}'".format(sdc.user().post)
+    if r["post"]:
+        sql += " and s.Post like '{}'".format(r["post"].upper())
+    sql += """
 order by
  s.Post
 ,a.StaffNo
 ,a.Dt
-""".format(r["dt0"], r["dt1"])
+"""
     print(sql)
     df = pd.read_sql(sql, conn)
     #locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
@@ -103,21 +110,24 @@ order by
 if __name__ == "__main__":
     if 'REQUEST_METHOD' in os.environ:
         cgitb.enable()
+        sdc.log()
         form = cgi.FieldStorage()
         r = {}
         r["dns"] = form.getvalue('dns', 'newsdc')
         r["month"] = form.getvalue('month', "{:%Y-%m}".format(date.today()))
+        r["post"] = form.getvalue('post', '')
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
         print('Content-Type:application/json; charset=UTF-8;\n')
         df = r["df"]
         print(df.to_json(orient='table'))
-#        print(r["df"].to_json(orient= 'split', force_ascii= True))
+        #print(r["df"].to_json(orient= 'split', force_ascii= True))
     else:
         import argparse
         parser = argparse.ArgumentParser()
         parser.add_argument("month", help="", nargs="?", default="{:%Y-%m}".format(date.today()), type=str)
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--post", help="", default="", type=str)
         r = main(vars(parser.parse_args()))
         print(r["df"].to_json(orient= 'split', force_ascii= True))

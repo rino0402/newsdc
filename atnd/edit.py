@@ -9,11 +9,12 @@ import xlrd
 import pandas as pd
 import pyodbc
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from decimal import Decimal
 import locale
 import codecs
 import traceback
+import sdc
 
 def main(r):
     print("main({})".format(r))
@@ -23,25 +24,30 @@ def main(r):
     print("ok")
     r["StaffNo"] = r["id"].split("_")[0]
     r["Dt"] = r["id"].split("_")[1]
-    if len(r.keys() & {"BegTm_i","FinTm_i","StartTm_i","FinishTm_i"}) > 0:
-        sql = "select top 1 * from Atnd where StaffNo='{}' and Dt='{}'".format(r["StaffNo"],r["Dt"])
+    if len(r.keys() & {"Shift","StartTm_i","FinishTm_i"}) > 0:
+        sql = "select top 1 j.JCode,a.* from Atnd a,Jgyobu j where j.JGYOBU='0' and a.StaffNo='{}' and a.Dt='{}'".format(r["StaffNo"],r["Dt"])
         print(sql)
         row = conn.execute(sql).fetchone()
         print(row)
         d = {}
+        d["JCode"] = row.JCode.rstrip()
+        d["Shift"] = r["Shift"].replace("_","") if r.get('Shift') else row.Shift
         d["BegTm"] = "{:%H:%M}".format(row.BegTm)
         d["BegTm_i"] = datetime.strptime(r["BegTm_i"], "%H:%M") if r.get('BegTm_i') else row.BegTm_i
         
         d["FinTm"] = "{:%H:%M}".format(row.FinTm) if row.FinTm else row.FinTm
         d["FinTm_i"] = datetime.strptime(r["FinTm_i"], "%H:%M") if r.get('FinTm_i') else row.FinTm_i
 
-        d["StartTm"] = row.StartTm
+        d["StartTm"] = "{:%H:%M}".format(row.StartTm) if row.StartTm else ""
         d["StartTm_i"] = r["StartTm_i"] if r.get('StartTm_i') else row.StartTm_i
-        d["FinishTm"] = row.FinishTm
+        d["FinishTm"] = "{:%H:%M}".format(row.FinishTm) if row.FinishTm else ""
         d["FinishTm_i"] = r["FinishTm_i"] if r.get('FinishTm_i') else row.FinishTm_i
+       
         import atnd
         d = atnd.calc(d)
         print(d)
+        r["StartTm"] = "{:%H:%M}".format(d["StartTm"]) if d["StartTm"] else ""
+        r["FinishTm"] = "{:%H:%M}".format(d["FinishTm"]) if d["FinishTm"] else ""
         try:
             r["Actual"] = "{}".format(d["Actual"])
             r["Extra"] = "{}".format(d["Extra"])
@@ -61,12 +67,19 @@ def update(conn, data):
     sql = "update Atnd"
     st = " set"
     for d in data:
-        if d not in ["StaffNo","Dt","dns","id", "action"]:
+        if d not in ["JCode","StaffNo","Dt","dns","id", "action"]:
             if d in ["BegTm_i","FinTm_i","StartTm_i","FinishTm_i"]:
                 try:
-                    tm = datetime.strptime(data[d],"%H:%M")
-                    sql += "{} {} = '{}'".format(st, d, data[d])
+                    sql += "{} {} = '{}'".format(st, d, datetime.strptime(data[d],"%H:%M"))
+                    #tm = datetime.strptime(data[d],"%H:%M")
+                    #sql += "{} {} = '{}'".format(st, d, data[d])
                 except:
+                    sql += "{} {} = null".format(st, d)
+            elif d in ["StartTm","FinishTm"]:
+                print(d, data[d], type(data[d]))
+                if data[d] != "":
+                    sql += "{} {} = '{}'".format(st, d, data[d][-8:])
+                else:
                     sql += "{} {} = null".format(st, d)
             elif d in ["Actual_i","Extra_i","Night_i"]:
                 if data[d]:
@@ -106,8 +119,11 @@ if __name__ == "__main__":
         cgitb.enable()
         form = cgi.FieldStorage(keep_blank_values= True)
         r = {}
+        post = ""
         for c in form.keys():
             r[c] = form[c].value
+            post += "{}={} ".format(c, form[c].value)
+        sdc.log(post)
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
@@ -122,8 +138,10 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("id", help="", nargs="?", default="", type=str)
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
-        parser.add_argument("--FinTmM", help="", default="", type=str)
-        parser.add_argument("--BegTmM", help="", default="", type=str)
+        parser.add_argument("--StartTm_i", help="", default="", type=str)
+        parser.add_argument("--FinishTm_i", help="", default="", type=str)
         parser.add_argument("--PTO", help="", default="", type=str)
         r = main(vars(parser.parse_args()))
+        import pprint
+        pprint.pprint(r)
 

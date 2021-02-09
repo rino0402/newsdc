@@ -4,6 +4,16 @@ pvddl newsdc timepack.sql -server w3
 py timepack.py --dns newsdc3 "\\wakame\c$\kintai\Ž ‰ê (7)"
 pvddl newsdc timepack.sql -server w1
 @TPEX
+
+pvddl newsdc timepack.sql -server w7
+py timepack.py --dns newsdc7 w7\dtkintai.csv
+
+pvddl newsdc timepack.sql -server w2
+py timepack.py --dns newsdc2 w2\dtkintai.csv
+
+pvddl newsdc timepack.sql -server w6
+py timepack.py --dns newsdc6 w6\dtkintai.csv
+
 */
 Drop Table TimePack IN DICTIONARY #
 

@@ -14,9 +14,19 @@ function fmtHour(d) {
 function fmtTm(tm) {
 	if(tm) {
 //		console.log(tm + '=' + tm.prototype.toString);
-		console.log(tm + '=' + typeof tm);	//08:45:00=string
+//		console.log(tm + '=' + typeof tm);	//08:45:00=string
 //		return tm.getHours() + ':' + tm.getMinutes();
 		return tm.slice(0,5);
+	} else {
+		return '';
+	}
+}
+function fmtDt(dt) {
+	if(dt) {
+//		console.log(tm + '=' + tm.prototype.toString);
+//		console.log(dt + '=' + typeof dt);	//08:45:00=string
+//		return tm.getHours() + ':' + tm.getMinutes();
+		return dt.slice(0,10);
 	} else {
 		return '';
 	}
@@ -26,12 +36,16 @@ function fmtTm(tm) {
 $("input[name='load']").on('click', function() {
 	var	req = 'load.py?dns=' + $('#dns').val();
 	req += '&month=' + $("input[name='month']").val();
-
-	$(this).addClass("gif-load");
+	if($("input[name='post']").val()) {
+		req += '&post=' + $("input[name='post']").val();
+	}
+//	$(this).addClass("gif-load");
+	dispLoading('検索中');
 	$('#msg').text(req);
 	fetch(req).then((res) => {
 		$('#msg').text('');
-		$(this).removeClass("gif-load");
+//		$(this).removeClass("gif-load");
+		removeLoading();
 		return res.json();
 	}).then((json) => {
 		var	tr = '';
@@ -43,17 +57,21 @@ $("input[name='load']").on('click', function() {
 //		tr += '</tr>';
 		for ( var i = 0 ; i < json.data.length ; i++) {
 			var	id = json.data[i]['StaffNo'] + '_' + json.data[i]['strDt'];
-			tr += '<tr id="' + id + '">';
+			var	cls = '';
+			if (json.data[i].strDt.slice(-2) == '16') {
+				cls = 'dt-top';
+			}
+			tr += '<tr id="' + id + '" class="' + cls + '">';
 			tr += '<td>' + id + '</td>';
-			tr += '<td>' + json.data[i]['StaffNo'] + '</td>';
-			tr += '<td>' + json.data[i]['Name'] + '</td>';
+			tr += '<td class="Post">' + json.data[i].Post.trim() + '</td>';
+			tr += '<td class="StaffNo">' + json.data[i]['StaffNo'] + '</td>';
+			tr += '<td class="Name">' + json.data[i]['Name'] + '</td>';
 			var	cls = '';
 			if (json.data[i]['Holiday'] != '') {
 				cls = ' holiday';
 			}
 			tr += '<td class="date ' + json.data[i]['strDay'] + cls + '" title="' + json.data[i]['Holiday'] + '">' + json.data[i]['fmtDt'] + '</td>';
-//			tr += '<td>' + '</td>';
-//			tr += '<td>' + json.data[i]['Shift'] + '</td>';
+			tr += '<td class="Shift">' + json.data[i].Shift + '</td>';
 			if (json.data[i]['BegTm_i'] == '') {
 				tr += '<td class="time BegTm">' + json.data[i]['BegTm5'] + '</td>';
 			} else {
@@ -114,6 +132,41 @@ $("input[name='load']").on('click', function() {
 		}
 		$('#list tbody').find("tr").remove();
 		$('#list tbody').append(tr);
+		$('#list').exTableFilter('#filter',
+								{ignore : '0,1,5,6,7,8,9,10,11,12,14,15,16,17'
+								,elementAutoBindTrigger : 'change'
+								}
+								);
+		$('#filter').trigger('change');	//フィルター実行
+		$('#tab_month input[name="edit"]').trigger('click');	//編集可
+		total();
+	}).catch((error) => {
+		$('#msg').text(error);
+	});
+});
+var	shift_list =  '';	//'{"00": "休出", "04": "04", "09": "09"}';
+//[{"01":"いろはにほへと"},{"02":"ちりぬるを"},{"11":"わかよたれそ"},{"12":"つねならむ"}]
+$(document).ready(function() {
+	var	req = 'shift.py?dns=' + $('#dns').val();
+	console.log(req);
+	fetch(req).then((res) => {
+		return res.json();
+	}).then((json) => {
+		console.log(json);
+		shift_list = '{"00_": "休出"';
+		for ( var i = 0 ; i < json.length ; i++) {
+			shift_list += ',"' + json[i].Shift + '_": "' + json[i].Shift + '"';
+		}
+		shift_list += '}';
+	}).catch(function(err) {
+		console.log(req + ' error:' + err);
+    });
+});
+$('#tab_month input[name="edit"]').on('click', function(){
+		console.log('edit:click');
+		console.log('shift_list=' + shift_list);
+		console.log(jQuery.parseJSON(shift_list));
+		$('#log').html($('#log').html() + '<br>' + 'shift_list=' + shift_list);
 		$('#list').Tabledit({
 			url: 'edit.py?dns=' + $('#dns').val(),
 			editButton: false,
@@ -151,18 +204,44 @@ $("input[name='load']").on('click', function() {
 				console.log(data.id);
 				var id = '#' + data.id;
 				$(id).removeClass("gif-load");
-				if(data.BegTmM !== 'undefined') {
-					if(data.BegTmM == '') {
-//						$(id).find(".BegTm").removeClass('modify');
-						$(id).find(".BegTm").text($(id).find(".BegTm").attr('title'));
-					} else {
-//						$(id).find(".BegTm").addClass('modify');
-					}
+				if(data.StartTm) {
+					console.log('StartTm=' + data.StartTm);
+					$(id).find("td.StartTm span").text(fmtTm(data.StartTm));
+					$(id).find("td.StartTm input").val(fmtTm(data.StartTm));
+				}
+				if(data.StartTm_i) {
+					console.log('StartTm_i=' + data.StartTm_i);
+					$(id).find("td.StartTm span").text(fmtTm(data.StartTm_i));
+					$(id).find("td.StartTm input").val(fmtTm(data.StartTm_i));
+					$(id).find("td.StartTm").addClass('modify');
+				} else {
+					$(id).find("td.StartTm").removeClass('modify');
+				}
+				if(data.FinishTm) {
+					console.log('FinishTm=' + data.FinishTm);
+					$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm));
+					$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm));
+				}
+				if(data.FinishTm_i) {
+					console.log('FinishTm_i=' + data.FinishTm_i);
+					$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm_i));
+					$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm_i));
+					$(id).find("td.FinishTm").addClass('modify');
+				} else {
+					$(id).find("td.FinishTm").removeClass('modify');
 				}
 				if(data.Actual) {
 					console.log('Actual=' + data.Actual);
 					$(id).find("td.Actual span").text(fmtHour(parseFloat(data.Actual)));
 					$(id).find("td.Actual input").val(fmtHour(parseFloat(data.Actual)));
+				}
+				if(data.Actual_i) {
+					console.log('Actual_i=' + data.Actual_i);
+					$(id).find("td.Actual span").text(fmtHour(parseFloat(data.Actual_i)));
+					$(id).find("td.Actual input").val(fmtHour(parseFloat(data.Actual_i)));
+					$(id).find("td.Actual").addClass('modify');
+				} else {
+					$(id).find("td.Actual").removeClass('modify');
 				}
 				if(data.Extra) {
 					console.log('Extra=' + data.Extra + ' ' + fmtHour(parseFloat(data.Extra)));
@@ -173,10 +252,26 @@ $("input[name='load']").on('click', function() {
 					$(id).find("td.Extra input").val(fmtHour(parseFloat(data.Extra)));
 					console.log($(id).find("td.Extra").html());
 				}
+				if(data.Extra_i) {
+					console.log('Extra_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Extra_i)));
+					$(id).find("td.Extra span").text(fmtHour(parseFloat(data.Extra_i)));
+					$(id).find("td.Extra input").val(fmtHour(parseFloat(data.Extra_i)));
+					$(id).find("td.Extra").addClass('modify');
+				} else {
+					$(id).find("td.Extra").removeClass('modify');
+				}
 				if(data.Night) {
 					console.log('Night=' + data.Night);
 					$(id).find("td.Night span").text(fmtHour(parseFloat(data.Night)));
 					$(id).find("td.Night input").val(fmtHour(parseFloat(data.Night)));
+				}
+				if(data.Night_i) {
+					console.log('Night_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Night_i)));
+					$(id).find("td.Night span").text(fmtHour(parseFloat(data.Night_i)));
+					$(id).find("td.Night input").val(fmtHour(parseFloat(data.Night_i)));
+					$(id).find("td.Night").addClass('modify');
+				} else {
+					$(id).find("td.Night").removeClass('modify');
 				}
 				total();
 	        },
@@ -185,31 +280,29 @@ $("input[name='load']").on('click', function() {
 				console.log(jqXHR);
 				console.log(textStatus);
 				console.log(errorThrown);
+				$('#msg').html(jqXHR.responseText);
+
 			},
 			onAlways: function () {
 				console.log('onAlways()');
 			},
 		    columns: {
 		      identifier: [0, 'id'],
-		        editable: [	 [ 4, 'BegTm_i']
-							,[ 5, 'StartTm_i']
-							,[ 6, 'FinishTm_i']
-							,[ 7, 'FinTm_i']
-							,[ 8, 'Late']
-							,[ 9, 'Early']
-							,[10, 'PTO']
-							,[11, 'Actual_i']
-							,[12, 'Extra_i']
-							,[13, 'Night_i']
-							,[14, 'Memo']
+		        editable: [  [ 5, 'Shift', shift_list]
+							//,[ 6, 'BegTm_i']
+							,[ 7, 'StartTm_i']
+							,[ 8, 'FinishTm_i']
+							//,[ 9, 'FinTm_i']
+							,[10, 'Late']
+							,[11, 'Early']
+							,[12, 'PTO']
+							,[13, 'Actual_i']
+							,[14, 'Extra_i']
+							,[15, 'Night_i']
+							,[16, 'Memo']
 						  ]
 		    }
 		});
-		$('#list').exTableFilter('#filter');
-		total();
-	}).catch((error) => {
-		$('#msg').text(error);
-	});
 });
 $(document).on("change",'.hour input[type="text"]', function() {
 	console.log('change() this=' + this);
@@ -250,9 +343,16 @@ $(document).on("change",'.time input[type="text"]', function() {
 	}
 });
 $(document).ready(function() {
+	//年月初期値セット
 	var	dt = new Date();
-	dt.setDate(dt.getDate() + 10);
-	var	month = dt.getFullYear() + '-' + (dt.getMonth() + 1);
+	console.log('dt=' +dt);
+	if (dt.getDate() > 18) {
+		dt.setDate(1);
+		dt.setMonth(dt.getMonth() + 1);
+	}
+	console.log('dt=' +dt);
+//	dt.setDate(dt.getDate() + 10);
+	var	month = dt.getFullYear() + '-' + ('0' + (dt.getMonth() + 1)).slice(-2);
 	$("input[name='month']").val(month);
 	window.location.hash = '#tab_month';
 });
@@ -264,6 +364,8 @@ function total() {
 	var	actual = 0;
 	var	extra = 0;
 	var	night = 0;
+	var	slist = 0;
+	$('#slist').find("option").remove();
 	$('#list tbody tr').each(function(i) {
 //		console.log(i + ' ' + id + ' ' + this.id);
 		if(id != this.id.slice(0,5)) {
@@ -273,6 +375,8 @@ function total() {
 			actual = 0;
 			extra = 0;
 			night = 0;
+		    $('#slist').append($('<option />').val(id).html($(this).find(".Name").text()));
+			slist++;
 		}
 		if($(this).find(".BegTm").text()) {
 			days++;
@@ -301,80 +405,218 @@ function total() {
 		$(this).find(".Total_H").text(fmtHour(actual + extra + night));
 	});
 }
+var	thead = '';
+$('input[name="copy0"]').on('click', function(){
+	console.log(this);
+	thead = $('#list thead').html();
+	$.when(
+		$('#list th').each(function(i) {
+			console.log($(this).html());
+			$(this).html($(this).html().replace('<br>', ''));
+		})
+	).done(function() {
+		$('#tab_month input[name="copy"]').trigger('click');	//編集可
+	});
+});
 $('input[name="copy"]').on('click', function(){
 	console.log(this);
-	$('#list th').each(function(i) {
-		console.log($(this).html());
-		$(this).data('html', $(this).html());
-		$(this).html($(this).html().replace('<br>', ''));
-	});
     var clipboard = new ClipboardJS(this);
     clipboard.on('success', function(e) {
 		console.log(e);
-		$('#list th').each(function(i) {
-			console.log($(this).data('html'));
-			$(this).html($(this).data('html'));
-		});
+		$('#list thead').html(thead);
+		clipboard.destroy();
     });
     clipboard.on('error', function(e) {
 		console.log(e);
+		$('#list thead').html(thead);
+		clipboard.destroy();
     });
 });
-
-$(function () {
-	$('--#list').Tabledit({
-		url: 'edit.py',
-		columns: {
-			identifier: [0, 'id'],
-			editable: [[6, 'bgnTm'], [7, 'finTm'], [8, 'Actual']]
-	    },
-		onDraw: function () {
-			console.log('onDraw()');
-		},
-        onAjax: function(action, serialize) {
-            console.log('onAjax(action, serialize)');
-            console.log(action);
-            console.log(serialize);
-        },
-        onSuccess: function(data, textStatus, jqXHR) {
-            console.log('onSuccess(data, textStatus, jqXHR)');
-            console.log(data);
-            console.log(textStatus);
-            console.log(jqXHR);
-        },
-		onFail: function (jqXHR, textStatus, errorThrown) {
-			console.log('onFail(jqXHR, textStatus, errorThrown)');
-			console.log(jqXHR);
-			console.log(textStatus);
-			console.log(errorThrown);
-		},
-		onAlways: function () {
-			console.log('onAlways()');
-		},
-        buttons: {
-            edit: {
-                class: 'btn btn-sm btn-default',
-                html: '<span class="glyphicon glyphicon-pencil"></span>',
-                action: 'edit'
-            },
-            delete: {
-                class: 'btn btn-sm btn-default',
-                html: '<span class="glyphicon glyphicon-trash"></span>',
-                action: 'delete'
-            },
-            save: {
-                class: 'btn btn-sm btn-success',
-                html: '保存'
-            },
-            restore: {
-                class: 'btn btn-sm btn-warning',
-                html: 'Restore',
-                action: 'restore'
-            },
-            confirm: {
-                class: 'btn btn-sm btn-danger',
-                html: '削除'
-            }
+//従業員テーブル 検索
+$("#tab_staff input[name='staff']").on('click', function() {
+	var	req = 'staff.py?dns=' + $('#dns').val();
+	$(this).addClass("gif-load");
+	fetch(req).then((res) => {
+		$(this).removeClass("gif-load");
+		return res.json();
+	}).then((json) => {
+		var	tr = '';
+		for ( var i = 0 ; i < json.data.length ; i++) {
+//			for (var item in json.data[i]) {
+//				tr += '<td>' + json.data[i][item] || '' + '</td>';
+//			}
+			tr += '<tr id="' + json.data[i].StaffNo + '">';
+			tr += '<td>' + json.data[i].StaffNo + '</td>';
+			tr += '<td>' + json.data[i].Post + '</td>';
+			tr += '<td>' + json.data[i].StaffNo + '</td>';
+			tr += '<td>' + json.data[i].Name + '</td>';
+			tr += '<td>' + json.data[i].Shift + '</td>';
+			tr += '<td>' + fmtDt(json.data[i].QuitDt) + '</td>';
+			tr += '<td>' + json.data[i].Quit + '</td>';
+			tr += '</tr>';
 		}
+		$('#tab_staff table tbody').find("tr").remove();
+		$('#tab_staff table tbody').append(tr);
+		$('#tab_staff table').Tabledit({
+			url: 'staff.py?dns=' + $('#dns').val(),
+			editButton: false,
+			deleteButton: false,
+			hideIdentifier: true,
+		    columns: {
+		      identifier: [0, 'id'],
+		        editable: [  [ 1, 'Post']
+							,[ 2, 'StaffNo']
+							,[ 3, 'Name']
+							,[ 4, 'Shift']
+							,[ 5, 'QuitDt']
+							,[ 6, 'Quit']
+						  ]
+		    },
+			onDraw: function () {
+				console.log('onDraw()');
+//				console.log($('#tab_staff table tbody').html());
+			},
+			onAjax: function(action, serialize) {
+				//Ajax開始時
+				console.log('onAjax(action, serialize)');
+				console.log(action);
+				console.log(serialize);
+				var urlParams = new URLSearchParams(serialize);
+				console.log(urlParams.get('id'));
+			},
+			onSuccess: function(data, textStatus, jqXHR) {
+				console.log('onSuccess(data, textStatus, jqXHR)');
+				console.log(data);
+				console.log(textStatus);
+				console.log(jqXHR);
+				console.log(data.id);
+	        },
+			onFail: function (jqXHR, textStatus, errorThrown) {
+				console.log('onFail(jqXHR, textStatus, errorThrown)');
+				console.log(jqXHR);
+				console.log(textStatus);
+				console.log(errorThrown);
+			},
+			onAlways: function () {
+				console.log('onAlways()');
+			},
+		});
+	}).catch((error) => {
+		$('#tab_staff table tbody').find("tr").remove();
+		$('#tab_staff table tbody').append('<tr><td>' + error + '</td></tr>');
 	});
+});
+$('#tab_staff').trigger('click');
+/* ------------------------------
+ Loading イメージ表示関数
+ 引数： msg 画面に表示する文言
+ ------------------------------ */
+function dispLoading(msg){
+  // 引数なし（メッセージなし）を許容
+  if( msg == undefined ){
+    msg = "";
+  }
+  // 画面表示メッセージ
+  var dispMsg = "<div class='loadingMsg'>" + msg + "</div>";
+  // ローディング画像が表示されていない場合のみ出力
+  if($("#loading").length == 0){
+    $("body").append("<div id='loading'>" + dispMsg + "</div>");
+  }
+}
+ 
+/* ------------------------------
+ Loading イメージ削除関数
+ ------------------------------ */
+function removeLoading(){
+  $("#loading").remove();
+}
+/* ------------------------------
+勤務表 印刷
+ ------------------------------ */
+$("#tab_month input[name='print']").on('click', function() {
+	var	title = '勤務表-' + $("input[name='month']").val();;
+	var	html = '<html><head><title>' + title + '</title>';
+	html += '</head>';
+	html += '<style>';
+	html += 'table {';
+	html += 'border-collapse: collapse;';
+	html += '}';
+	html += 'table caption {';
+	html += 'text-align : left;';
+	html += 'font-size : 2em;';
+	html += '}';
+	html += 'th {';
+	html += 'padding:1px 1px;';
+	html += 'font-weight: normal;';
+	html += 'border: solid thin black;';
+	html += 'white-space: nowrap;';
+	html += '}';
+	html += 'td {';
+	html += 'padding:6px 5px;';
+	html += 'font-weight: normal;';
+	html += 'border: solid thin black;';
+	html += 'white-space: nowrap;';
+	html += '}';
+	html += 'tr th:nth-child(-n+4) {display : none;}';
+	html += 'tr td:nth-child(-n+4) {display : none;}';
+	html += 'tr td:nth-child(n+5):nth-child(-n+6) {text-align : center;}';
+	html += 'tr th:nth-child(6) {font-size:0.6em}';
+	html += 'tr td:nth-child(7),td:nth-child(10) {font-size:0.6em;}';
+	html += 'tr td:nth-child(n+11):nth-child(-n+16) {text-align : right;}';
+	html += 'tr td:nth-last-child(7) {white-space: normal; font-size:0.6em;padding:1;}';	//備考
+	html += 'tr td:nth-last-child(-n+6) {text-align : right;}';
+//	html += 'tr.page-break {background: yellow;}';
+//	html += '@media print {';
+//	html += 'table {display: table;}';
+//	html += 'td {display: table-cell;}';
+//	html += 'tr.page-break  { display: block; page-break-before: always; }';
+//	html += '}';
+	html += '</style>';
+	html += '<body onLoad="window.print();">';
+	html += '<table>';
+	var	thead = '<thead>';
+	$('#list thead tr').each(function(i) {
+		thead += '<tr>';
+		$(this).find('th').each(function(j) {
+			thead += '<th>' + $(this).html() + '</th>';
+		});
+		thead += '</tr>';
+	});
+	thead += '</head>';
+	$('#list tbody tr').each(function(i) {
+		if(i > 0 && $(this).hasClass('dt-top')) {
+			html += '</tbody></table>';
+			html += '<table style="page-break-before:always;">';
+		} else if(i == 0) {
+			html += '<table>';
+		}
+		if(i == 0 || $(this).hasClass('dt-top')) {
+			html += '<caption>';
+			var	month = $("input[name='month']").val();
+			html += '<span>' + month.replace('-0','-').replace('-','年') + '月</span>';
+			html += ' <span>' + $(this).find('.Post').text() + '</span>';
+			html += ' <span>' + $(this).find('.StaffNo').text() + '</span>';
+			html += ' <span>' + $(this).find('.Name').text() + '</span>';
+			html += '</caption>';
+			html += thead;
+			html += '<tbody>';
+		}
+		html += '<tr>';
+		$(this).find('td').each(function(j) {
+			html += '<td>';
+			if($(this).find('span').text() != '') {
+				html += $(this).find('span').text();
+			} else {
+				html += $(this).text();
+			}
+			html += '</td>';
+		});
+		html += '</tr>';
+	});
+	html += '</tbody>';
+	html += '</table>';
+	html += '</body></html>';
+	var	w = window.open("", title);
+	w.document.write(html);
+	w.document.close();
 });

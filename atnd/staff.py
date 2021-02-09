@@ -10,6 +10,7 @@ import json
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 import traceback
+import sdc
 
 def main(r):
     print("main({})".format(r))
@@ -17,14 +18,52 @@ def main(r):
     conn = pyodbc.connect('DSN=' + r["dns"])
     print("ok")
 
-    make(conn, r)
-    conn.commit()
+    if r["action"] == "make":
+        make(conn, r)
+        conn.commit()
+    elif r["action"] == "edit":
+        edit(conn, r)
+        conn.commit()
+    else:
+        r["df"] = load(conn, r)
 
     print("conn.close()", end=".")
     conn.close()
     print("ok")
     
     return r
+
+def edit(conn, r):
+    sql = "update Staff"
+    sql += " set"
+    for n in r:
+        if n in ["Name","Post","Shift","Quit"]:
+            sql += " " if sql.endswith('set') else ","
+            sql += "{}='{}'".format(n,r[n])
+    sql += " where StaffNo='{}'".format(r["id"])
+    r["sql"] = sql
+    conn.execute(sql)
+    r["rowcount"] = conn.execute("select @@rowcount").fetchone()[0]
+    return r
+
+def load(conn, r):
+    sql = """
+select
+*
+from Staff
+"""
+    if sdc.user().post:
+        sql += " where Post='{}'".format(sdc.user().post)
+    sql += " order by Post, StaffNo"
+
+    df = pd.read_sql(sql, conn)
+    df["StaffNo"] = df["StaffNo"].str.rstrip()
+    df["Name"] = df["Name"].str.rstrip()
+    df["Post"] = df["Post"].str.rstrip()
+    df["Shift"] = df["Shift"].str.rstrip()
+    df["Quit"] = df["Quit"].str.rstrip()
+    print(df)
+    return df
 
 def make(conn, r):
     print("make({})".format(r))
@@ -124,16 +163,33 @@ def insert(conn, data):
 if __name__ == "__main__":
     if 'REQUEST_METHOD' in os.environ:
         cgitb.enable()
-        form = cgi.FieldStorage()
+        form = cgi.FieldStorage(keep_blank_values= True)
         r = {}
-        r["dns"] = form.getvalue('dns', 'newsdc')
+        r["action"] = ""
+        for c in form.keys():
+            r[c] = form[c].value
+        if r["dns"]:
+            pass
+        else:
+            r["dns"] = "newsdc"
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
         print('Content-Type:application/json; charset=UTF-8;\n')
-        print(r["df"].to_json(orient= 'split', force_ascii= True))
+        #print(r["df"].to_json())
+        if r["action"] == "edit":
+            print(json.dumps(r, ensure_ascii=False, indent=4))
+        else:
+            print(r["df"].to_json(orient='table'))
+        #print(r["df"].to_json(orient= 'split', force_ascii= True))
     else:
         import argparse
         parser = argparse.ArgumentParser()
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--action", action="store_true", default=False)
         r = main(vars(parser.parse_args()))
+        print(sdc)
+        print(dir(sdc))
+        print(sdc.user().name)
+        print(sdc.user().post)
+        
