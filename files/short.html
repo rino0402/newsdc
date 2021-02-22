@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="expires" content="0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+		<meta name="format-detection" content="telephone=no">
+		<title>品薄リスト</title>
+		<link type="text/css" rel="stylesheet" href="jquery-ui.css">
+		<link type="text/css" rel="stylesheet" href="jquery.toast.css">
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2020070101">
+		<link type="text/css" rel="stylesheet" href="short.css?v=2020070101">
+	</head>
+	<body>
+		<header role="banner">
+			<audio id="chime" src="sound/tin1.mp3"></audio>
+			<audio id="chime3" src="sound/chime3.mp3"></audio>
+			<nav>
+				<span id="menu"></span>
+				<ul>
+					<li class="active"><a href="#tab_home">品薄リスト</a></li>
+					<li><a href="#tab_gorder">入荷予定</a></li>
+					<li><a href="#tab_pnshort">PN共通備考</a></li>
+					<li><a href="#tab_hosoku">SDC備考</a></li>
+					<li><a href="#tab_option">設定</a></li>
+					<li><a href="#tab_version">ver</a></li>
+				</ul>
+				<span id="dns_span">newsdc</span>
+			</nav>
+		</header>
+		<main role="main">
+			<div class="tab_content" id="tab_home">
+				<div class="content">
+					<form method="get">
+						事<input id="jgyobu" type="text" class="config">
+						<input id="submit" type="submit" value="検索">　　
+						<input class="excel" type="button" value="Excel">
+					</form>
+					<table id="list" class="sticky">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>品番</th>
+								<th>内部品番</th>
+								<th>品名</th>
+								<th>国内<br>供給区分</th>
+								<th>海外<br>供給区分</th>
+								<th>在庫数</th>
+								<th>３ヶ月平均<br>月/出荷数</th>
+								<th>在庫月数</th>
+								<th>１ヶ月以下</th>
+								<th>５日以下</th>
+								<th>国内供給<br>打切年月</th>
+								<th>PN共通備考欄</th>
+								<th>SDC備考</th>
+								<th>受入月日<br>数量</th>
+								<th>受入月日<br>数量</th>
+							</tr>
+				        </thead>
+						<tbody>
+							<tr>
+								<td>.</td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+				        </tbody>
+					</table>
+					<p id="msg"></p>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_gorder">
+				<div class="content">
+					<form method="get">
+						<input type="button" class="search" value="検索">
+						<span class="table" title="GOrder">更新日時</span>
+						<div class="uploadButton">
+							<div>アップロード</div>
+						    <input type="file" class="upload" title="クリックしてファイルを選択 又は ファイルをドロップ"/>
+						</div>
+						<div class="result"></div>
+					</form>
+					<table class="sticky">
+				        <thead>
+							<tr>
+								<th>行</th>
+								<th>発注納入<br>管理番号</th>
+								<th>品目番号</th>
+								<th>入出庫<br>予定数</th>
+								<th>納入予定日</th>
+								<th>発注年月日</th>
+								<th>指定納期日</th>
+								<th>納期回答日</th>
+							</tr>
+				        </thead>
+						<tbody>
+				        </tbody>
+					</table>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_pnshort">
+				<div class="content">
+					<form method="get">
+						<input type="button" class="search" value="検索">
+						<span class="table" title="PnShort">更新日時</span>
+						<div class="uploadButton">
+							<div>アップロード</div>
+						    <input type="file" class="upload" title="クリックしてファイルを選択 又は ファイルをドロップ"/>
+						</div>
+						<div class="result"></div>
+					</form>
+					<table class="sticky">
+				        <thead>
+							<tr>
+								<th>#</th>
+								<th>事業場<br>コード</th>
+								<th>品目番号</th>
+								<th>品目名称</th>
+								<th>代表機種<br>品目コード</th>
+								<th>機種品目<br>カテゴリー名</th>
+								<th>品目<br>コード</th>
+								<th>品目<br>カテゴリー名</th>
+								<th>国内供給<br>開始年月</th>
+								<th>国内生産<br>打切年月</th>
+								<th>国内供給<br>部品区分</th>
+								<th>輸出供給<br>開始年月</th>
+								<th>輸出供給<br>打切年月</th>
+								<th>海外供給<br>部品区分</th>
+								<th>備考欄</th>
+							</tr>
+				        </thead>
+						<tbody>
+				        </tbody>
+					</table>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_hosoku">
+				<div class="content">
+					<form method="get">
+						<input type="button" class="search" value="検索">
+						<span class="table" title="ShortXls">更新日時</span>
+						<div class="uploadButton">
+							<div>アップロード</div>
+						    <input type="file" class="upload" title="クリックしてファイルを選択 又は ファイルをドロップ"/>
+						</div>
+						<div class="result"></div>
+					</form>
+					<table class="sticky">
+				        <thead>
+							<tr>
+								<th>#</th>
+								<th>品番</th>
+								<th>SDC備考</th>
+								<th>PN共通備考欄</th>
+							</tr>
+				        </thead>
+						<tbody>
+				        </tbody>
+					</table>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_option">
+				<div class="content" id="option">
+					<table>
+						<tr><td>DNS</td><td><input id="dns" type="text" class="config"></td><tr>
+						<tr><td>limit</td><td><input id="limit" type="text" class="config"></td><tr>
+						<tr><td>key</td><td id="key"></td><tr>
+						<!--tr><td>dbinfo</td><td><input id="dbinfo" type="text" class="config"></td><tr-->
+						<tr><td></td><td><input type="button" value="chime" onClick="chime();"></td><tr>
+						<tr><td></td><td><input type="button" value="chime3" onClick="chime('#chime3');"></td><tr>
+					</table>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_version">
+				<div class="content" id="version"></div>
+				<div class="content" id="log"></div>
+			</div>
+			<div id="result_table"></div>
+		</main>
+		<footer role="contentinfo">
+		</footer>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="jquery-ui.js"></script>
+	<script type="text/javascript" src="jquery.toast.js"></script>
+	<!--script src="jquery.floatThead.min.js"></script-->
+	<script src="menu.js?v=2020070101"></script>
+	<script src="short.js?v=2020070102"></script>
+</html>
