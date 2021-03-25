@@ -32,16 +32,18 @@ def main(r):
         d = {}
         d["JCode"] = row.JCode.rstrip()
         d["Shift"] = r["Shift"].replace("_","") if r.get('Shift') else row.Shift
-        d["BegTm"] = "{:%H:%M}".format(row.BegTm)
+        d["BegTm"] = "{:%H:%M}".format(row.BegTm) if row.BegTm else ""
         d["BegTm_i"] = datetime.strptime(r["BegTm_i"], "%H:%M") if r.get('BegTm_i') else row.BegTm_i
         
         d["FinTm"] = "{:%H:%M}".format(row.FinTm) if row.FinTm else row.FinTm
         d["FinTm_i"] = datetime.strptime(r["FinTm_i"], "%H:%M") if r.get('FinTm_i') else row.FinTm_i
 
         d["StartTm"] = "{:%H:%M}".format(row.StartTm) if row.StartTm else ""
-        d["StartTm_i"] = r["StartTm_i"] if r.get('StartTm_i') else row.StartTm_i
+        d["StartTm_i"] = r.get('StartTm_i', "{:%H:%M}".format(row.StartTm_i) if row.StartTm_i else "")
+        r["StartTm_i"] = d["StartTm_i"]
         d["FinishTm"] = "{:%H:%M}".format(row.FinishTm) if row.FinishTm else ""
-        d["FinishTm_i"] = r["FinishTm_i"] if r.get('FinishTm_i') else row.FinishTm_i
+        d["FinishTm_i"] = r.get('FinishTm_i', "{:%H:%M}".format(row.FinishTm_i) if row.FinishTm_i else "")
+        r["FinishTm_i"] = d["FinishTm_i"]
        
         import atnd
         d = atnd.calc(d)
@@ -50,6 +52,9 @@ def main(r):
         r["FinishTm"] = "{:%H:%M}".format(d["FinishTm"]) if d["FinishTm"] else ""
         try:
             r["Actual"] = "{}".format(d["Actual"])
+        except:
+            pass
+        try:
             r["Extra"] = "{}".format(d["Extra"])
         except:
             pass

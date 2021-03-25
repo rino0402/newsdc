@@ -35,7 +35,12 @@ body {
 	display: block;
 }
 .content {
-	padding: 10px;
+}
+#msg {
+	padding: 3px;
+}
+main {
+	padding: 3px 10px;
 }
 input {
 	font-size	: 100%;
@@ -226,6 +231,11 @@ th.edit {
 #list .Memo input {
 	width		: 6em	!important	;
 }
+th.PTO {
+	padding:2px 4px;
+	font-size: 0.7em;
+	white-space: normal;
+}
 th.total {
 	padding:2px 4px;
 	font-size: 0.7em;
@@ -239,6 +249,14 @@ td.total {
 .Shift {
 	text-align: center;
 }
+
+.data_sch th {
+	background: none;
+}
+.data_sch caption {
+	text-align: left;
+}
+
 #loading {
 	z-index: 100;
 	display: table;

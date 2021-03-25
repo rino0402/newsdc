@@ -16,10 +16,10 @@ def stat2(dns):
     sql = """
 select
  h.JCode
-,h.Soko
+,if(h.Soko = 'ACD','ZACS',h.Soko) Soko
 ,h.KJCode
 ,h.SJCode
-,j.Name
+,rtrim(j.Name) + if(h.Soko = 'ACD','(湖南)','') Name
 ,count(distinct h.Pn) cntPn
 ,count(*) cnt
 ,sum(h.Qty) sumQty
@@ -32,7 +32,7 @@ select
 from HMTAH015 h
 left outer join JGyobu j
 on (j.JCode = h.SJCode)
-where h.Stts='2' and h.Soko<>'ACD'
+where h.Stts='2' //and h.Soko<>'ACD'
 group by
  h.JCode
 ,h.Soko
@@ -42,10 +42,10 @@ group by
 union
 select
  'Z0036003'
-,'ACD'
+,'ZACD' Soko
 ,'00025800'
 ,'00025800'
-,'エアコン'
+,'エアコン(緊急)'
 ,count(distinct Pn) cntPn
 ,count(*) cnt
 ,sum(Qty) sumQty
@@ -58,10 +58,14 @@ select
 from AcShort
 group by
  '00036003'
-,'ACD'
+,Soko
 ,'00025800'
-,'エアコン'
-order by 1,2,3,4
+,'エアコン(緊急)'
+order by
+ 1
+,2
+,3
+,4
 """
     print(sql)
     print("conn.execute(sql)", end=".")

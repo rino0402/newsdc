@@ -37,9 +37,15 @@ def edit(conn, r):
     sql = "update Staff"
     sql += " set"
     for n in r:
-        if n in ["Name","Post","Shift","Quit"]:
+        if n in ["Name","Post","Shift","Quit","QuitDt"]:
             sql += " " if sql.endswith('set') else ","
-            sql += "{}='{}'".format(n,r[n])
+            if n in ["QuitDt"]:
+                if r[n]:
+                    sql += "{}='{}'".format(n,r[n])
+                else:
+                    sql += "{} = null".format(n)
+            else:
+                sql += "{}='{}'".format(n,r[n])
     sql += " where StaffNo='{}'".format(r["id"])
     r["sql"] = sql
     conn.execute(sql)
@@ -54,6 +60,9 @@ from Staff
 """
     if sdc.user().post:
         sql += " where Post='{}'".format(sdc.user().post)
+    if r.get("quit"):
+        sql += " and" if sql.find("where") > 0 else " where"
+        sql += " QuitDt is null"
     sql += " order by Post, StaffNo"
 
     df = pd.read_sql(sql, conn)

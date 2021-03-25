@@ -22,7 +22,8 @@ set NewSdc=%3
 if "%NewSdc%" == ""	set NewSdc=newsdc
 
 echo.xcopy/d/y g:\gift\recv\%fName% in_save\ ...%time%
-xcopy/d/y g:\gift\recv\%fName% in_save\
+rem xcopy/d/y g:\gift\recv\%fName% in_save\
+copy/y g:\gift\recv\%fName% in_save\
 echo.xcopy/d/y g:\gift\recv\%fName% in_save\ ...%time%完了
 for %%i in (d:\%NewSdc%\hostfile\shiji_out_?.txt) do copy nul %%i > nul && echo.%%i
 for %%i in (d:\%NewSdc%\hostfile\shiji_in_?.txt ) do copy nul %%i > nul && echo.%%i
@@ -113,6 +114,8 @@ if /i "%Bu%" == "A" (
 	call d:\newsdc\tool\slack "hmem500.py %NewSdc% %Bu%" %cd%\hmem500.log
 )
 cscript//nologo d:\%NewSdc%\files\hmem500.vbs /db:%NewSdc% %fName% >> geting.txt
+echo.■■Pn連携：新品番のみ
+call d:\newsdc\app\pn.bat %Bu% %NewSdc%
 goto _End_Log
 
 rem  -------------------------------

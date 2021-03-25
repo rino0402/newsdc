@@ -50,6 +50,7 @@ select
 ,a.Late
 ,a.Early
 ,a.PTO
+,a.PTO_tm
 ,a.Actual
 ,a.Extra
 ,a.Night
@@ -63,7 +64,8 @@ left outer join Staff s
  on (a.StaffNo = s.StaffNo)
 inner join Calendar c
  on (a.Dt = c.CalDate)
-where a.Dt between '{}' and '{}'
+where a.Dt between '{0}' and '{1}'
+and a.dt <= ifnull(s.QuitDt,'{1}')
 """.format(r["dt0"], r["dt1"])
     if sdc.user().post:
         sql += " and s.Post = '{}'".format(sdc.user().post)

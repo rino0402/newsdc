@@ -170,7 +170,7 @@ Function GetJGyobu(objBk)
 			select case strName
 			case "小野パーツセンター　（IHｸｯｷﾝｸﾞﾋｰﾀｰ分）"
 				strJGyobu = "D"
-			case "小野パーツセンター　（ビューティ・リビングBU分）","小野パーツセンター　（ビューティ・リビング分）"
+			case "小野パーツセンター　（ビューティ・リビングBU分）","小野パーツセンター　（ビューティ・リビング分）","小野パーツセンター　（調理小物分）"
 				strJGyobu = "5"
 			case "小野パーツセンター　（炊飯機器分）"
 				strJGyobu = "4"
@@ -237,7 +237,7 @@ Function LoadBill(objDb,objRs,objBk,byVal strJGyobu,byVal strSheetName)
 		strBillDt = GetDt(RTrim(objSt.Range("C4")))
 	case "⑦部内出庫","⑩部内出庫"
 		strKBN = "B"
-		strBillDt = GetDt(RTrim(objSt.Range("C4")))
+		strBillDt = GetDt(RTrim(objSt.Range("C3")))
 	case "⑤入庫","⑦入庫"
 		strKBN = "C"
 		strBillDt = GetDt(RTrim(objSt.Range("B4")))

@@ -1,4 +1,14 @@
-﻿function fmtDay(d) {
+﻿// バージョン
+var	ver = [];
+ver.push('0.05 2021.03.24 変更：従業員で退職者を除く(選択可)ように変更');
+ver.push('0.04 2021.03.23 変更：出勤にしない場合はシフト"--"を選択して下さい。');
+ver.push('0.03 2021.03.22 修正：所定内がマイナスになる不具合を修正。');
+ver.push('0.02 2021.03.18 変更：有休時間 を追加しました。');
+ver.push('0.01 2021.03.16 修正：出勤/退勤の両方がない場合、始業／終業が入力できない。');
+$('#version').html(ver.join('<p>'));
+$('#msg').html(ver[0]);
+
+function fmtDay(d) {
 	return d.getMonth() + '/' + d.getDay();
 }
 function fmtHour(d) {
@@ -58,7 +68,8 @@ $("input[name='load']").on('click', function() {
 		for ( var i = 0 ; i < json.data.length ; i++) {
 			var	id = json.data[i]['StaffNo'] + '_' + json.data[i]['strDt'];
 			var	cls = '';
-			if (json.data[i].strDt.slice(-2) == '16') {
+//			if (json.data[i].strDt.slice(-2) == '16') {
+			if (i == 0 || json.data[i]['StaffNo'] != json.data[i-1]['StaffNo']) {
 				cls = 'dt-top';
 			}
 			tr += '<tr id="' + id + '" class="' + cls + '">';
@@ -71,7 +82,11 @@ $("input[name='load']").on('click', function() {
 				cls = ' holiday';
 			}
 			tr += '<td class="date ' + json.data[i]['strDay'] + cls + '" title="' + json.data[i]['Holiday'] + '">' + json.data[i]['fmtDt'] + '</td>';
-			tr += '<td class="Shift">' + json.data[i].Shift + '</td>';
+			var	shift = json.data[i].Shift;
+			if( shift == '00') {
+				shift = '休出';
+			}
+			tr += '<td class="Shift">' + shift + '</td>';
 			if (json.data[i]['BegTm_i'] == '') {
 				tr += '<td class="time BegTm">' + json.data[i]['BegTm5'] + '</td>';
 			} else {
@@ -99,6 +114,7 @@ $("input[name='load']").on('click', function() {
 			tr += '<td class="hour">' + fmtHour(json.data[i]['Late']) + '</td>';
 			tr += '<td class="hour">' + fmtHour(json.data[i]['Early']) + '</td>';
 			tr += '<td class="hour PTO">' + fmtHour(json.data[i]['PTO']) + '</td>';
+			tr += '<td class="hour PTO_tm">' + fmtHour(json.data[i]['PTO_tm']) + '</td>';
 			if (json.data[i]['Actual_i'] || json.data[i]['Actual_i'] == 0) {
 				tr += '<td class="hour Actual modify" title="' + (fmtHour(json.data[i]['Actual']) || '0.00') + '">';
 				tr += fmtHour(json.data[i]['Actual_i']) || '0.00' + '</td>';
@@ -153,7 +169,7 @@ $(document).ready(function() {
 		return res.json();
 	}).then((json) => {
 		console.log(json);
-		shift_list = '{"00_": "休出"';
+		shift_list = '{"--_": "--", "00_": "休出"';
 		for ( var i = 0 ; i < json.length ; i++) {
 			shift_list += ',"' + json[i].Shift + '_": "' + json[i].Shift + '"';
 		}
@@ -204,7 +220,7 @@ $('#tab_month input[name="edit"]').on('click', function(){
 				console.log(data.id);
 				var id = '#' + data.id;
 				$(id).removeClass("gif-load");
-				if(data.StartTm) {
+				if(data.StartTm != undefined) {
 					console.log('StartTm=' + data.StartTm);
 					$(id).find("td.StartTm span").text(fmtTm(data.StartTm));
 					$(id).find("td.StartTm input").val(fmtTm(data.StartTm));
@@ -217,7 +233,7 @@ $('#tab_month input[name="edit"]').on('click', function(){
 				} else {
 					$(id).find("td.StartTm").removeClass('modify');
 				}
-				if(data.FinishTm) {
+				if(data.FinishTm != undefined) {
 					console.log('FinishTm=' + data.FinishTm);
 					$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm));
 					$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm));
@@ -296,10 +312,11 @@ $('#tab_month input[name="edit"]').on('click', function(){
 							,[10, 'Late']
 							,[11, 'Early']
 							,[12, 'PTO']
-							,[13, 'Actual_i']
-							,[14, 'Extra_i']
-							,[15, 'Night_i']
-							,[16, 'Memo']
+							,[13, 'PTO_tm']
+							,[14, 'Actual_i']
+							,[15, 'Extra_i']
+							,[16, 'Night_i']
+							,[17, 'Memo']
 						  ]
 		    }
 		});
@@ -378,13 +395,16 @@ function total() {
 		    $('#slist').append($('<option />').val(id).html($(this).find(".Name").text()));
 			slist++;
 		}
-		if($(this).find(".BegTm").text()) {
+		if($(this).find(".BegTm").text() || $(this).find(".StartTm").text()) {
 			days++;
 		}
 		$(this).find(".Days").text(days);
 
 		if($(this).find(".PTO").text()) {
 			pto += parseFloat($(this).find(".PTO").text());
+		}
+		if($(this).find(".PTO_tm").text()) {
+			pto += parseFloat($(this).find(".PTO_tm").text());
 		}
 		$(this).find(".PTO_H").text(fmtHour(pto));
 
@@ -435,8 +455,13 @@ $('input[name="copy"]').on('click', function(){
 //従業員テーブル 検索
 $("#tab_staff input[name='staff']").on('click', function() {
 	var	req = 'staff.py?dns=' + $('#dns').val();
+	if($("#quit").prop("checked")) {
+		req += '&quit=true';
+	}
+	$('#msg').text(req);
 	$(this).addClass("gif-load");
 	fetch(req).then((res) => {
+		$('#msg').text('');
 		$(this).removeClass("gif-load");
 		return res.json();
 	}).then((json) => {
@@ -619,4 +644,14 @@ $("#tab_month input[name='print']").on('click', function() {
 	var	w = window.open("", title);
 	w.document.write(html);
 	w.document.close();
+});
+$("input[name='staff_add']").on('click', function() {
+    var table = $(this).attr('for-table');  //get the target table selector
+    var $tr = $(table + ">tbody>tr:last-child").clone(true, true);  //clone the last row
+    var nextID = parseInt($tr.find("input.tabledit-identifier").val()) + 1; //get the ID and add one.
+    $tr.find("input.tabledit-identifier").val(nextID);  //set the row identifier
+    $tr.find("span.tabledit-identifier").text(nextID);  //set the row identifier
+    $(table + ">tbody").append($tr);    //add the row to the table
+    $tr.find(".tabledit-edit-button").click();  //pretend to click the edit button
+    $tr.find("input:not([type=hidden]), select").val("");   //wipe out the inputs.
 });

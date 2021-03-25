@@ -140,7 +140,7 @@ where j.JGYOBU='0'
     if r["id"]:
         sql += " and s.StaffNo='{}'".format(r["id"])
     if r["quit"] == "0":
-        sql += " and (s.QuitDt > '{}' or s.QuitDt is null)".format(r["dt"] if r["dt"] != "" else date.today())
+        sql += " and (s.QuitDt >= '{}' or s.QuitDt is null)".format(r["dt"] if r["dt"] != "" else date.today())
     elif r["quit"] == "1":
         sql += " and s.Quit <> ''"
     print(sql)
@@ -162,8 +162,11 @@ where j.JGYOBU='0'
             d["BegTm"] = row["minTs"]
         d["FinTm"] = row["FinTm"]
         d["FinTm_i"] = row["FinTm_i"]
-        if row["maxTs"]:
-            d["FinTm"] = row["maxTs"]
+        if row["maxTs"] and row["minTs"]:
+            if row["maxTs"] != row["minTs"]:
+                d["FinTm"] = row["maxTs"]
+            else:
+                d["FinTm"] = None
         d["StartTm"] = row["StartTm"]
         d["StartTm_i"] = row["StartTm_i"]
         d["FinishTm"] = row["FinishTm"]
@@ -184,11 +187,168 @@ def get_h_m_s(td):
 
 def calc(d):
     print("calc({})".format(d))
+
+    # 出勤時刻
+    beg = d.get("BegTm", None)
+    if beg:
+        if re.search('^\d+:\d+$', str(beg)):
+            beg = datetime.strptime(str(beg), "%H:%M").time()
+        elif re.search('^\d+:\d+:\d+$', str(beg)):
+            beg = datetime.strptime(str(beg), "%H:%M:%S").time()
+    print("calc():beg={}".format(beg))
+    if beg and d["Shift"] != "--":
+        # 始業時刻 StartTm
+        if d["JCode"] == "OSAKA":
+            if d["Shift"] == "09":
+                # 9:30 - 16:00 5.50
+                if "{:%H:%M}".format(beg) <= "09:30":
+                    beg = time(9,30)
+            elif d["Shift"] == "06":
+                if "{:%H:%M}".format(beg) <= "07:30":
+                    beg = time(7,30)
+                elif "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "90":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            else:
+                if "{:%H:%M}".format(beg) <= "08:00":
+                    beg = time(8,00)
+                elif "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+                elif "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+        elif d["JCode"] == "CARP":
+            if "{:%H:%M}".format(beg) <= "08:00":
+                beg = time(8,00)
+            elif "{:%H:%M}".format(beg) <= "09:00":
+                beg = time(9,00)
+        elif d["JCode"] == "NARA":
+            if d["Shift"] == "1A":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "2B":
+                if "{:%H:%M}".format(beg) <= "10:00":
+                    beg = time(10,00)
+            elif d["Shift"] == "3C":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "4D":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "5E":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "6G":
+                if "{:%H:%M}".format(beg) <= "09:45":
+                    beg = time(9,45)
+            elif d["Shift"] == "7L":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "9M":
+                if "{:%H:%M}".format(beg) <= "15:00":
+                    beg = time(15,00)
+            else:
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+                elif "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+        else:
+            if "{:%H:%M}".format(beg) <= "09:00":
+                beg = time(9,00)
+        minute15 = -(-beg.minute // 15) * 15
+        if minute15 == 60:
+            d["StartTm"] = beg.replace(hour=beg.hour + 1, minute=0)
+        else:
+            d["StartTm"] = beg.replace(minute=minute15)
+    else:
+        d["StartTm"] = None
+        beg = None
+    print("calc():StartTm={}".format(d["StartTm"]))
+    if d.get("StartTm_i", None):
+        print("calc():StartTm_i={}".format(d["StartTm_i"]))
+        if re.search('^\d+:\d+$', str(d["StartTm_i"])):
+            beg = datetime.strptime(str(d["StartTm_i"]), "%H:%M").time()
+        elif re.search('^\d+:\d+:\d+$', str(d["StartTm_i"])):
+            beg = datetime.strptime(str(d["StartTm_i"]), "%H:%M:%S").time()
+    # 10進数 15分単位で切り上げ
+    if beg:
+        beg = beg.hour + (-(-beg.minute // 15) * 0.25)
+    print("calc():beg={}".format(beg))
+
+    # 退勤時刻
+    fin = d.get("FinTm", None)
+    if fin:
+        if re.search('^\d+:\d+$', str(fin)):
+            fin = datetime.strptime(str(fin), "%H:%M").time()
+        elif re.search('^\d+:\d+:\d+$', str(fin)):
+            fin = datetime.strptime(str(fin), "%H:%M:%S").time()
+    print("calc():fin={}".format(fin))
+    if fin and d["Shift"] != "--":
+        # 終業時刻 FinishTm
+        if d["JCode"] == "OSAKA":
+            if d["Shift"] == "90":
+                if "{:%H:%M}".format(fin) >= "17:00":
+                    fin = time(17,0)
+        minute15 = fin.minute // 15 * 15
+        d["FinishTm"] = fin.replace(minute=minute15)
+        if d["StartTm"] and d["FinishTm"] < d["StartTm"]:
+            d["FinishTm"] = None
+    else:
+        d["FinishTm"] = None
+        fin = None
+    print("calc():FinishTm={}".format(d["FinishTm"]))
+    if d.get("FinishTm_i", None):
+        print("calc():FinishTm_i={}".format(d["FinishTm_i"]))
+        if re.search('^\d+:\d+$', str(d["FinishTm_i"])):
+            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M").time()
+        elif re.search('^\d+:\d+:\d+$', str(d["FinishTm_i"])):
+            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M:%S").time()
+    # 10進数 15分単位で切り捨て
+    if fin:
+        fin = fin.hour + (fin.minute // 15) * 0.25
+    print("calc():fin={}".format(fin))
+    #所定内
+    act = 0
+    if fin and beg:
+        act = fin - beg
+        #昼休み 12:00-12:45
+        if beg < 12 and fin > 12.75 and d["Shift"] not in ["6G","7L"]:
+            act -= 0.75
+        #休憩 15:00-15:15
+        if beg < 15 and fin > 15.25:
+            act -= 0.25
+        #休憩 19:30-19:45
+        if beg < 19.5 and fin > 19.75:
+            act -= 0.25
+        act = max(0, act)
+    print("calc():act={}".format(act))
+    d["Actual"] = min(act, 7.5)
+    #残業
+    d["Extra"] = max(0, act - 7.5)
+    #休出
+    if d["Shift"] == "00":
+        d["Extra"] += d["Actual"]
+        d["Actual"] = 0
+    return d
+
+def calc_old(d):
+    print("calc({})".format(d))
+    d["Actual"] = 0
+    d["Extra"] = 0
     # 出勤
     beg = None
     try:
         print("BegTm_i={}".format(d["BegTm_i"]))
         beg = d["BegTm_i"]
+    except:
+        traceback.print_exc()
+    try:
+        print("StartTm_i={}".format(d["StartTm_i"]))
+        if re.search('^\d+:\d+$', str(d["StartTm_i"])):
+            beg = datetime.strptime(str(d["StartTm_i"]), "%H:%M")
+        elif re.search('^\d+:\d+:\d+$', str(d["StartTm_i"])):
+            beg = datetime.strptime(str(d["StartTm_i"]), "%H:%M:%S")
     except:
         traceback.print_exc()
     if beg == None:
@@ -200,82 +360,74 @@ def calc(d):
             beg = datetime.strptime(str(d["BegTm"]), "%H:%M")
         elif re.search('^\d+:\d+:\d+$', str(d["BegTm"])):
             beg = datetime.strptime(str(d["BegTm"]), "%H:%M:%S")
-        """
-        try:
-            beg = datetime.strptime(d["BegTm"], "%H:%M")
-        except:
-            pass
-        """
-    print("beg={}".format(beg))
-    if beg == None:
-        return d
-    # 始業
-    if d["JCode"] == "OSAKA":
-        if d["Shift"] == "09":
-            # 9:30 - 16:00 5.50
-            if "{:%H:%M}".format(beg) <= "09:30":
-                beg = time(9,30)
-        elif d["Shift"] == "06":
-            if "{:%H:%M}".format(beg) <= "07:30":
-                beg = time(7,30)
-            elif "{:%H:%M}".format(beg) <= "08:30":
-                beg = time(8,30)
-        else:
+        print("beg={}".format(beg))
+        if beg == None:
+            return d
+        # 始業
+        if d["JCode"] == "OSAKA":
+            if d["Shift"] == "09":
+                # 9:30 - 16:00 5.50
+                if "{:%H:%M}".format(beg) <= "09:30":
+                    beg = time(9,30)
+            elif d["Shift"] == "06":
+                if "{:%H:%M}".format(beg) <= "07:30":
+                    beg = time(7,30)
+                elif "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "90":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            else:
+                if "{:%H:%M}".format(beg) <= "08:00":
+                    beg = time(8,00)
+                elif "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+                elif "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+        elif d["JCode"] == "CARP":
             if "{:%H:%M}".format(beg) <= "08:00":
                 beg = time(8,00)
-            elif "{:%H:%M}".format(beg) <= "08:30":
-                beg = time(8,30)
             elif "{:%H:%M}".format(beg) <= "09:00":
                 beg = time(9,00)
-    elif d["JCode"] == "CARP":
-        if "{:%H:%M}".format(beg) <= "08:00":
-            beg = time(8,00)
-        elif "{:%H:%M}".format(beg) <= "09:00":
-            beg = time(9,00)
-    elif d["JCode"] == "NARA":
-        if d["Shift"] == "1A":
-            if "{:%H:%M}".format(beg) <= "08:30":
-                beg = time(8,30)
-        elif d["Shift"] == "2B":
-            if "{:%H:%M}".format(beg) <= "10:00":
-                beg = time(10,00)
-        elif d["Shift"] == "3C":
-            if "{:%H:%M}".format(beg) <= "09:00":
-                beg = time(9,00)
-        elif d["Shift"] == "4D":
-            if "{:%H:%M}".format(beg) <= "09:00":
-                beg = time(9,00)
-        elif d["Shift"] == "5E":
-            if "{:%H:%M}".format(beg) <= "08:30":
-                beg = time(8,30)
-        elif d["Shift"] == "6G":
-            if "{:%H:%M}".format(beg) <= "09:45":
-                beg = time(9,45)
-        elif d["Shift"] == "7L":
-            if "{:%H:%M}".format(beg) <= "09:00":
-                beg = time(9,00)
-        elif d["Shift"] == "9M":
-            if "{:%H:%M}".format(beg) <= "15:00":
-                beg = time(15,00)
+        elif d["JCode"] == "NARA":
+            if d["Shift"] == "1A":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "2B":
+                if "{:%H:%M}".format(beg) <= "10:00":
+                    beg = time(10,00)
+            elif d["Shift"] == "3C":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "4D":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "5E":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+            elif d["Shift"] == "6G":
+                if "{:%H:%M}".format(beg) <= "09:45":
+                    beg = time(9,45)
+            elif d["Shift"] == "7L":
+                if "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
+            elif d["Shift"] == "9M":
+                if "{:%H:%M}".format(beg) <= "15:00":
+                    beg = time(15,00)
+            else:
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+                elif "{:%H:%M}".format(beg) <= "09:00":
+                    beg = time(9,00)
         else:
-            if "{:%H:%M}".format(beg) <= "08:30":
-                beg = time(8,30)
-            elif "{:%H:%M}".format(beg) <= "09:00":
+            if "{:%H:%M}".format(beg) <= "09:00":
                 beg = time(9,00)
-    else:
-        if "{:%H:%M}".format(beg) <= "09:00":
-            beg = time(9,00)
 
-    minute15 = -(-beg.minute // 15) * 15
-    if minute15 == 60:
-        d["StartTm"] = beg.replace(hour=beg.hour + 1, minute=0)
-    else:
-        d["StartTm"] = beg.replace(minute=minute15)
-    # 始業 入力
-    try:
-        beg = datetime.strptime(d["StartTm_i"], "%H:%M")
-    except:
-        pass
+        minute15 = -(-beg.minute // 15) * 15
+        if minute15 == 60:
+            d["StartTm"] = beg.replace(hour=beg.hour + 1, minute=0)
+        else:
+            d["StartTm"] = beg.replace(minute=minute15)
     # 10進数 15分単位で切り上げ
     beg = beg.hour + (-(-beg.minute // 15) * 0.25)
 
@@ -285,6 +437,12 @@ def calc(d):
         fin = d["FinTm_i"]
     except:
         pass
+    if d["FinishTm_i"]:
+        print(str(d["FinishTm_i"]))
+        if re.search('^\d+:\d+$', str(d["FinishTm_i"])):
+            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M")
+        elif re.search('^\d+:\d+:\d+$', str(d["FinishTm_i"])):
+            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M:%S")
     if fin == None:
         if d["FinTm"] == None:
             pass
@@ -298,16 +456,15 @@ def calc(d):
         except:
             pass
         """
-    # 終業
-    if fin:
-        minute15 = fin.minute // 15 * 15
-        d["FinishTm"] = fin.replace(minute=minute15)
-    if d["FinishTm_i"]:
-        print(str(d["FinishTm_i"]))
-        if re.search('^\d+:\d+$', str(d["FinishTm_i"])):
-            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M")
-        elif re.search('^\d+:\d+:\d+$', str(d["FinishTm_i"])):
-            fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M:%S")
+        if d["JCode"] == "OSAKA":
+            if d["Shift"] == "90":
+                if "{:%H:%M}".format(fin) >= "17:00":
+                    fin = time(17,0)
+    
+        # 終業
+        if fin:
+            minute15 = fin.minute // 15 * 15
+            d["FinishTm"] = fin.replace(minute=minute15)
     print("fin={}".format(fin))
     if fin == None:
         return d
@@ -420,7 +577,7 @@ if __name__ == "__main__":
         parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
         parser.add_argument("--id", help="", default="", type=str)
         parser.add_argument("--dscopeid", help="0/1", default="1", type=str)
-        parser.add_argument("--quit", help="0:退職者除く 1:退職者のみ", default="", type=str)
+        parser.add_argument("--quit", help="0:退職者除く 1:退職者のみ", default="0", type=str)
         r = main(vars(parser.parse_args()))
         print(r["data"])
         for d in r["data"]:

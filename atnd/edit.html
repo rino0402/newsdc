@@ -16,7 +16,7 @@ Attendance 	ATND
 	    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		-->
 		<link type="text/css" rel="stylesheet" href="menu.css?v=2020122501">
-		<link type="text/css" rel="stylesheet" href="edit.css?v=2020122501">
+		<link type="text/css" rel="stylesheet" href="edit.css?v=2021032401">
 	</head>
 	<body>
 		<header role="banner">
@@ -33,6 +33,7 @@ Attendance 	ATND
 			</nav>
 		</header>
 		<main role="main">
+			<div id="msg"></div>
 			<div class="tab_content" id="tab_month">
 				<div class="content">
 					<form>
@@ -68,7 +69,8 @@ Attendance 	ATND
 								<th class="FinTm">退勤</th>
 								<th class="edit">遅刻</th>
 								<th class="edit">早退</th>
-								<th class="edit">有休</th>
+								<th class="edit PTO">有休<br>日</th>
+								<th class="edit PTO">有休<br>時間</th>
 								<th class="edit">所定内</th>
 								<th class="edit">残業</th>
 								<th class="edit">深夜</th>
@@ -84,13 +86,32 @@ Attendance 	ATND
 						<tbody>
 				        </tbody>
 					</table>
-					<p id="msg"></p>
+				<table class="data_sch">
+				<caption>データ連携スケジュール</caption>
+				<tr><th>D-Scope(顔認証)</th><th>E10(うさぎ)</th></tr>
+				<tr><td>08:50 から30分間隔</td><td></td></tr>
+				<tr><td>09:20 50</td>	<td>09:05</td></tr>
+				<tr><td>10:20 50</td>	<td>10:05</td></tr>
+				<tr><td>11:20 50</td>	<td></td></tr>
+				<tr><td>12:20 50</td>	<td>12:15</td></tr>
+				<tr><td>13:20 50</td>	<td></td></tr>
+				<tr><td>14:20 50</td>	<td></td></tr>
+				<tr><td>15:20 50</td>	<td></td></tr>
+				<tr><td>16:20 50</td>	<td></td></tr>
+				<tr><td>17:20 50</td>	<td>17:45</td></tr>
+				<tr><td>18:20 50</td>	<td></td></tr>
+				<tr><td>19:20 50</td>	<td></td></tr>
+				<tr><td>20:20 50</td>	<td></td></tr>
+				<tr><td>23:50</td>		<td>23:45</td></tr>
+				</table>
 				</div>
 			</div>
 			<div class="tab_content" id="tab_staff">
 				<div class="content">
 					<input type="button" name="staff" value="検索">
-					<table class="sticky">
+					<!--input type="button" name="staff_add" for-table="#staff_table" value="追加"-->
+					<input type="checkbox" id="quit" name="quit" checked><label for="quit">退職者を除く</label>　※退職日(例：2021-03-15)以降、勤怠編集に表示されなくなります。
+					<table class="sticky" id="staff_table">
 						<thead>
 							<tr>
 								<th>#</th>
@@ -106,6 +127,12 @@ Attendance 	ATND
 				        </tbody>
 					</table>
 				</div>
+				<ul>
+				<li>顔認証システム(D-Scope)に登録者情報を追加する際、IDにSDCの従業員登録して下さい。<br>
+					勤怠システムに自動登録されます。<br>
+					<a href="https://photos.app.goo.gl/LsoWh4BtqeWNiVBz7" target="_blank">D-Scope 登録者情報追加</a>
+				</li>
+				</ul>
 			</div>
 			<div class="tab_content" id="tab_option">
 				<div class="content" id="option">
@@ -133,5 +160,5 @@ Attendance 	ATND
 	<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 	<script src="http://www.cyokodog.net/jquery.ex-table-filter/jquery.ex-table-filter.js"></script>
 	<script src="menu.js?v=2020122501"></script>
-	<script src="edit.js?v=2020122501"></script>
+	<script src="edit.js?v=2021032401"></script>
 </html>

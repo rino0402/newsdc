@@ -20,7 +20,8 @@ Create Table Atnd using 'Atnd.DAT' with replace (
 ,	FinishTm	Time							//終業 add
 ,	Late		Currency default 0	not null	//入力 遅刻
 ,	Early		Currency default 0	not null	//入力 早退
-,	PTO			Currency default 0	not null	//入力 有給, 有給休暇: paid holiday, paid time off, PTO
+,	PTO			Currency default 0	not null	//入力 有給日, 有給休暇: paid holiday, paid time off, PTO
+,	PTO_tm		Currency default 0	not null	//入力 有給時間, 有給休暇: paid holiday, paid time off, PTO
 ,	Actual		Currency default 0	not null	//所定内
 ,	Extra		Currency default 0	not null	//残業
 ,	Night		Currency default 0	not null	//深夜

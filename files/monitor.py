@@ -290,7 +290,7 @@ and Soko in (select Value from Config where Name = 'Soko')
 // when d.ChoCode is not null then '直送 P産機'
  when y.CHOKU_KBN = '1' and y.LK_MUKE_CODE = '00027768' then '直送 P産機'
  when y.CHOKU_KBN = '1' then '直送 他'
- when ifnull(convert(m.DISPLAY_RANKING,sql_decimal),0) > 0 then m.MUKE_NAME
+ when ifnull(convert(m.DISPLAY_RANKING,sql_decimal),0) > 0 then m.MUKE_NAME + if(y.jgyobu = 'A',' エアコン','')
  when y.MUKE_NAME = '' then y.KEY_MUKE_CODE
  else y.MUKE_NAME
  end
