@@ -1,5 +1,6 @@
 ﻿// バージョン
 var	ver = [];
+ver.push('0.06 2021.03.25 修正：始業なしの場合、出勤日数をカウントしないように修正');
 ver.push('0.05 2021.03.24 変更：従業員で退職者を除く(選択可)ように変更');
 ver.push('0.04 2021.03.23 変更：出勤にしない場合はシフト"--"を選択して下さい。');
 ver.push('0.03 2021.03.22 修正：所定内がマイナスになる不具合を修正。');
@@ -74,7 +75,11 @@ $("input[name='load']").on('click', function() {
 			}
 			tr += '<tr id="' + id + '" class="' + cls + '">';
 			tr += '<td>' + id + '</td>';
-			tr += '<td class="Post">' + json.data[i].Post.trim() + '</td>';
+			var	post = json.data[i].Post;
+			if (post) {
+				post = post.trim();
+			}
+			tr += '<td class="Post">' + post + '</td>';
 			tr += '<td class="StaffNo">' + json.data[i]['StaffNo'] + '</td>';
 			tr += '<td class="Name">' + json.data[i]['Name'] + '</td>';
 			var	cls = '';
@@ -395,7 +400,7 @@ function total() {
 		    $('#slist').append($('<option />').val(id).html($(this).find(".Name").text()));
 			slist++;
 		}
-		if($(this).find(".BegTm").text() || $(this).find(".StartTm").text()) {
+		if($(this).find(".StartTm").text()) {
 			days++;
 		}
 		$(this).find(".Days").text(days);

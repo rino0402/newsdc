@@ -1652,7 +1652,7 @@ $(document).ready(function() {
 	});
 	$('#slogan').on('click', function(){
 		$.toast({
-			text : '<div>2020年度スローガン</div>' +
+			text : '<div>2021年度スローガン</div>' +
 				   '<div class="h0">衆知を集め 全員経営</div>' +
 				   '<div>社長</div>'
 			,textAlign : 'center'

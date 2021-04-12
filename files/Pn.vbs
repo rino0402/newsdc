@@ -389,6 +389,13 @@ Class Pn
 			end select
 		case "GLICS1_TANA","GLICS2_TANA","GLICS3_TANA"
 			select case GetField("jJGYOBU")
+			case "A"			' エアコン Glics棚1 をセットしない
+				select case strName
+				case "GLICS1_TANA"
+					if strSrc <> "" then
+						strDst = strSrc
+					end if
+				end select
 			case "R"			'
 				if lcase(strTable) = "pnnew" then
 					strDst = strSrc
