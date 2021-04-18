@@ -58,6 +58,10 @@ def main(r):
             r["Extra"] = "{}".format(d["Extra"])
         except:
             pass
+        try:
+            r["Dayoff"] = "{}".format(d["Dayoff"])
+        except:
+            pass
 
     r["update"] = update(conn, r)
     print("conn.commit()", end=".")
@@ -86,7 +90,7 @@ def update(conn, data):
                     sql += "{} {} = '{}'".format(st, d, data[d][-8:])
                 else:
                     sql += "{} {} = null".format(st, d)
-            elif d in ["Actual_i","Extra_i","Night_i"]:
+            elif d in ["Actual_i","Extra_i","Night_i","Dayoff_i"]:
                 if data[d]:
                     sql += "{} {} = '{}'".format(st, d, data[d])
                 else:

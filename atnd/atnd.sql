@@ -25,6 +25,7 @@ Create Table Atnd using 'Atnd.DAT' with replace (
 ,	Actual		Currency default 0	not null	//所定内
 ,	Extra		Currency default 0	not null	//残業
 ,	Night		Currency default 0	not null	//深夜
+,	Dayoff		Currency default 0	not null	//休出 2021.04.12
 ,	Memo		Char(80) default '' not null	//入力 備考
 ,	BegTm_i		Time							//入力 出勤
 ,	FinTm_i		Time							//入力 退勤
@@ -33,6 +34,7 @@ Create Table Atnd using 'Atnd.DAT' with replace (
 ,	Actual_i	Currency 						//入力 所定内
 ,	Extra_i		Currency						//入力 残業
 ,	Night_i		Currency						//入力 深夜
+,	Dayoff_i	Currency						//入力 休出 2021.04.12
 ,	PRIMARY KEY (
 		StaffNo
 	,	Dt

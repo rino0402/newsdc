@@ -3,6 +3,10 @@ short.js
 */
 // バージョン
 var	ver = [];
+ver.push('v0.09 2021.04.15 収支(SJ)追加');
+ver.push('v0.08 2021.04.15 Excel出力 入荷予定２件→５件に変更');
+ver.push('v0.07 2021.04.15 入荷予定を２件→３件に変更');
+ver.push('v0.06 2021.04.14 滋賀pc エアコン(A)対応');
 ver.push('v0.05 2020.07.01 4:炊飯／5:調理小物の入荷予定(商品化計画 入荷予定)も参照するように変更');
 ver.push('v0.04 2020.06.17 小野pc対応');
 ver.push('v0.03 2020.04.13 操作性向上');
@@ -269,10 +273,16 @@ $(document).ready(function() {
 				tr += '<td class="center">' + json.list[i].NaiDisconYm + '</td>';
 				tr += '<td class="text">' + json.list[i].Biko + '</td>';
 				tr += '<td class="text">' + json.list[i].PnxBiko + '</td>';
+				tr += '<td class="qty">' + ((json.list[i].jp == 0) ? '' : json.list[i].jp) + '</td>';
+				tr += '<td class="qty">' + ((json.list[i].s8 == 0) ? '' : json.list[i].s8) + '</td>';
+				tr += '<td class="qty">' + ((json.list[i].sj == 0) ? '' : json.list[i].sj) + '</td>';
+				tr += '<td class="qty">' + ((json.list[i].other == 0) ? '' : json.list[i].other) + '</td>';
 				tr += '<td class="center" title="' + json.list[i].YoteiDt + ' ' +  json.list[i].Qty + '">'
 				tr += json.list[i].YoteiDt.replace(year,'') + '<br>' + json.list[i].Qty + '</td>';
 				tr += '<td class="center" title="' + json.list[i].YoteiDt2 + ' ' +  json.list[i].Qty2 + '">'
 				tr += ((json.list[i].YoteiDt2 == null) ? '' : json.list[i].YoteiDt2.replace(year,'') + '<br>' + json.list[i].Qty2) + '</td>';
+				tr += '<td class="center" title="' + json.list[i].YoteiDt3 + ' ' +  json.list[i].Qty3 + '">'
+				tr += ((json.list[i].YoteiDt3 == null) ? '' : json.list[i].YoteiDt3.replace(year,'') + '<br>' + json.list[i].Qty3) + '</td>';
 //				tr += '<td class="center">' + ((json.list[i].Qty2 == null) ? '' : json.list[i].Qty2) + '</td>';
 				tr += '</tr>';
 			}

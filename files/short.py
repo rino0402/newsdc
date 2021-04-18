@@ -17,6 +17,8 @@ def main(r):
     print("main({})".format(r))
     if r["jgyobu"] == '7':
         r["jcode"] = '00023210'
+    elif r["jgyobu"] == 'A':
+        r["jcode"] = '00025800'
     elif r["jgyobu"] == 'D':
         r["jcode"] = '00023510'
     elif r["jgyobu"] == '4':
@@ -66,6 +68,10 @@ Day5
 ,pn.NaiDisconYm
 ,pns.Biko
 ,pnx.Biko PnxBiko
+,glics.jp
+,glics.s8
+,glics.sj
+,glics.other
 ,g.Qty
 ,g.YoteiDt
 from item i
@@ -111,7 +117,19 @@ where Pn <> ''
 and Qty <> 0
 and N_YOTEI_DT > '20200000'
 ) g
-    on (z.HIN_GAI = g.Pn)
+    on (i.HIN_GAI = g.Pn)
+left outer join (
+select
+ Pn
+,sum(if(SyuShi='JP',convert(Qty,sql_decimal),0)) jp
+,sum(if(SyuShi='S8',convert(Qty,sql_decimal),0)) s8
+,sum(if(SyuShi='SJ',convert(Qty,sql_decimal),0)) sj
+,sum(if(SyuShi not in ('JP','S8','SJ'),convert(Qty,sql_decimal),0)) other
+from ZaikoBu
+where JCode='00025800'
+group by
+ Pn
+) glics on (i.HIN_GAI = glics.Pn)
 where i.JGYOBU='{0}' and i.NAIGAI='1'
 and (z.qty > 0 or ifnull(convert(a.AVE_SYUKA,sql_decimal),0) > 0)
 order by
@@ -201,6 +219,18 @@ def excel(r):
             sheet["O{}".format(row)] = "{0}\n{1}".format(d["YoteiDt2"][-5:].replace("-","/"), int(d["Qty2"]))
         except:
             sheet["O{}".format(row)] = ""
+        try:
+            sheet["P{}".format(row)] = "{0}\n{1}".format(d["YoteiDt3"][-5:].replace("-","/"), int(d["Qty3"]))
+        except:
+            sheet["P{}".format(row)] = ""
+        try:
+            sheet["Q{}".format(row)] = "{0}\n{1}".format(d["YoteiDt4"][-5:].replace("-","/"), int(d["Qty4"]))
+        except:
+            sheet["Q{}".format(row)] = ""
+        try:
+            sheet["R{}".format(row)] = "{0}\n{1}".format(d["YoteiDt5"][-5:].replace("-","/"), int(d["Qty5"]))
+        except:
+            sheet["R{}".format(row)] = ""
         row += 1
     sheet.delete_rows(row, 65536)
     #保存

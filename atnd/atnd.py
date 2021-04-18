@@ -328,8 +328,13 @@ def calc(d):
     d["Extra"] = max(0, act - 7.5)
     #休出
     if d["Shift"] == "00":
-        d["Extra"] += d["Actual"]
+        #d["Extra"] += d["Actual"]
+        #d["Actual"] = 0
+        d["Dayoff"] = d["Actual"] + d["Extra"]
         d["Actual"] = 0
+        d["Extra"] = 0
+    else:
+        d["Dayoff"] = 0
     return d
 
 def calc_old(d):

@@ -1,5 +1,16 @@
 ﻿// バージョン
 var	ver = [];
+var	ver007 = '0.07 2021.04.12 項目並び変更：所定内 残業 深夜 休出 有休日 有休時間 遅刻 早退 備考<br>';
+ver007 += '・休出(休日出勤)を追加<br>';
+ver007 += '・出勤日数＝始業、有休<br>';
+ver007 += '・所定内時間→実労働時間<br>';
+ver007 += '・合計時間＝有休＋実労働＋残業＋深夜＋休出<br>';
+ver007 += '・勤務表の項目変更対応<br>';
+ver007 += '2021.04.19 対応予定<br>';
+ver007 += '・各自の合計行を追加<br>';
+ver007 += '2021.04.26 対応予定<br>';
+ver007 += '・チェック済欄追加<br>';
+ver.push(ver007);
 ver.push('0.06 2021.03.25 修正：始業なしの場合、出勤日数をカウントしないように修正');
 ver.push('0.05 2021.03.24 変更：従業員で退職者を除く(選択可)ように変更');
 ver.push('0.04 2021.03.23 変更：出勤にしない場合はシフト"--"を選択して下さい。');
@@ -116,10 +127,6 @@ $("input[name='load']").on('click', function() {
 				tr += '<td class="time FinTm modify" title="' + json.data[i]['FinTm5'] + '">';
 				tr += json.data[i]['FinTm_i'] + '</td>';
 			}
-			tr += '<td class="hour">' + fmtHour(json.data[i]['Late']) + '</td>';
-			tr += '<td class="hour">' + fmtHour(json.data[i]['Early']) + '</td>';
-			tr += '<td class="hour PTO">' + fmtHour(json.data[i]['PTO']) + '</td>';
-			tr += '<td class="hour PTO_tm">' + fmtHour(json.data[i]['PTO_tm']) + '</td>';
 			if (json.data[i]['Actual_i'] || json.data[i]['Actual_i'] == 0) {
 				tr += '<td class="hour Actual modify" title="' + (fmtHour(json.data[i]['Actual']) || '0.00') + '">';
 				tr += fmtHour(json.data[i]['Actual_i']) || '0.00' + '</td>';
@@ -139,12 +146,23 @@ $("input[name='load']").on('click', function() {
 			} else {
 				tr += '<td class="hour Night">' + fmtHour(json.data[i]['Night']) + '</td>';
 			}
+			if (json.data[i]['Dayoff_i'] || json.data[i]['Dayoff_i'] == 0) {
+				tr += '<td class="hour Dayoff modify" title="' + (fmtHour(json.data[i]['Dayoff']) || '0.00') + '">';
+				tr += fmtHour(json.data[i]['Dayoff_i']) || '0.00' + '</td>';
+			} else {
+				tr += '<td class="hour Dayoff">' + fmtHour(json.data[i]['Dayoff']) + '</td>';
+			}
+			tr += '<td class="hour PTO">' + fmtHour(json.data[i]['PTO']) + '</td>';
+			tr += '<td class="hour PTO_tm">' + fmtHour(json.data[i]['PTO_tm']) + '</td>';
+			tr += '<td class="hour">' + fmtHour(json.data[i]['Late']) + '</td>';
+			tr += '<td class="hour">' + fmtHour(json.data[i]['Early']) + '</td>';
 			tr += '<td class="Memo">' + json.data[i]['Memo'] + '</td>';
 			tr += '<td class="total Days"></td>';
 			tr += '<td class="total PTO_H"></td>';
 			tr += '<td class="total Actual_H"></td>';
 			tr += '<td class="total Extra_H"></td>';
 			tr += '<td class="total Night_H"></td>';
+			tr += '<td class="total Dayoff_H"></td>';
 			tr += '<td class="total Total_H"></td>';
 //			for (var item in json.data[i]) {
 //				tr += '<td>' + json.data[i][item] || '' + '</td>';
@@ -154,7 +172,7 @@ $("input[name='load']").on('click', function() {
 		$('#list tbody').find("tr").remove();
 		$('#list tbody').append(tr);
 		$('#list').exTableFilter('#filter',
-								{ignore : '0,1,5,6,7,8,9,10,11,12,14,15,16,17'
+								{ignore : '0,1,5,6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,22,23,24,25'
 								,elementAutoBindTrigger : 'change'
 								}
 								);
@@ -294,6 +312,19 @@ $('#tab_month input[name="edit"]').on('click', function(){
 				} else {
 					$(id).find("td.Night").removeClass('modify');
 				}
+				if(data.Dayoff) {
+					console.log('Dayoff=' + data.Dayoff);
+					$(id).find("td.Dayoff span").text(fmtHour(parseFloat(data.Dayoff)));
+					$(id).find("td.Dayoff input").val(fmtHour(parseFloat(data.Dayoff)));
+				}
+				if(data.Dayoff_i) {
+					console.log('Dayoff_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Dayoff_i)));
+					$(id).find("td.Dayoff span").text(fmtHour(parseFloat(data.Dayoff_i)));
+					$(id).find("td.Dayoff input").val(fmtHour(parseFloat(data.Dayoff_i)));
+					$(id).find("td.Dayoff").addClass('modify');
+				} else {
+					$(id).find("td.Dayoff").removeClass('modify');
+				}
 				total();
 	        },
 			onFail: function (jqXHR, textStatus, errorThrown) {
@@ -314,14 +345,15 @@ $('#tab_month input[name="edit"]').on('click', function(){
 							,[ 7, 'StartTm_i']
 							,[ 8, 'FinishTm_i']
 							//,[ 9, 'FinTm_i']
-							,[10, 'Late']
-							,[11, 'Early']
-							,[12, 'PTO']
-							,[13, 'PTO_tm']
-							,[14, 'Actual_i']
-							,[15, 'Extra_i']
-							,[16, 'Night_i']
-							,[17, 'Memo']
+							,[10, 'Actual_i']
+							,[11, 'Extra_i']
+							,[12, 'Night_i']
+							,[13, 'Dayoff_i']
+							,[14, 'PTO']
+							,[15, 'PTO_tm']
+							,[16, 'Late']
+							,[17, 'Early']
+							,[18, 'Memo']
 						  ]
 		    }
 		});
@@ -386,6 +418,7 @@ function total() {
 	var	actual = 0;
 	var	extra = 0;
 	var	night = 0;
+	var	dayoff = 0;
 	var	slist = 0;
 	$('#slist').find("option").remove();
 	$('#list tbody tr').each(function(i) {
@@ -397,10 +430,11 @@ function total() {
 			actual = 0;
 			extra = 0;
 			night = 0;
+			dayoff = 0;
 		    $('#slist').append($('<option />').val(id).html($(this).find(".Name").text()));
 			slist++;
 		}
-		if($(this).find(".StartTm").text()) {
+		if($(this).find(".StartTm").text() || $(this).find(".PTO").text() || $(this).find(".PTO_tm").text() ) {
 			days++;
 		}
 		$(this).find(".Days").text(days);
@@ -427,7 +461,13 @@ function total() {
 			night += parseFloat($(this).find(".Night").text());
 		}
 		$(this).find(".Night_H").text(fmtHour(night));
-		$(this).find(".Total_H").text(fmtHour(actual + extra + night));
+
+		if($(this).find(".Dayoff").text()) {
+			dayoff += parseFloat($(this).find(".Dayoff").text());
+		}
+		$(this).find(".Dayoff_H").text(fmtHour(dayoff));
+
+		$(this).find(".Total_H").text(fmtHour(actual + extra + night + dayoff + pto));
 	});
 }
 var	thead = '';
@@ -593,8 +633,8 @@ $("#tab_month input[name='print']").on('click', function() {
 	html += 'tr th:nth-child(6) {font-size:0.6em}';
 	html += 'tr td:nth-child(7),td:nth-child(10) {font-size:0.6em;}';
 	html += 'tr td:nth-child(n+11):nth-child(-n+16) {text-align : right;}';
-	html += 'tr td:nth-last-child(7) {white-space: normal; font-size:0.6em;padding:1;}';	//備考
-	html += 'tr td:nth-last-child(-n+6) {text-align : right;}';
+	html += 'tr td:nth-last-child(8) {white-space: normal; font-size:0.6em;padding:1;}';	//備考
+	html += 'tr td:nth-last-child(-n+7) {text-align : right;}';
 //	html += 'tr.page-break {background: yellow;}';
 //	html += '@media print {';
 //	html += 'table {display: table;}';

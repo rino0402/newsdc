@@ -54,9 +54,11 @@ select
 ,a.Actual
 ,a.Extra
 ,a.Night
+,a.Dayoff
 ,a.Actual_i
 ,a.Extra_i
 ,a.Night_i
+,a.Dayoff_i
 ,a.Memo
 ,c.CalHoliday
 from Atnd a
