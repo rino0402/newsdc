@@ -7,6 +7,7 @@ $(document).ready(function() {
 		console.log('click():' + this.id);
 		$('nav>ul>li.active').removeClass('active');
 		$(this).addClass('active');
+		$('#msg').html('');
 	});
 	$('#key').text(location.pathname.replace(/\/[^/]*$/, '') + '/');
 	$("#menu").load('menu.html?q=' + getTs(),function(){

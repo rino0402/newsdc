@@ -1,5 +1,6 @@
 ﻿// バージョン
 var	ver = [];
+ver.push('0.08 2021.04.19 ・各自の合計行を追加');
 var	ver007 = '0.07 2021.04.12 項目並び変更：所定内 残業 深夜 休出 有休日 有休時間 遅刻 早退 備考<br>';
 ver007 += '・休出(休日出勤)を追加<br>';
 ver007 += '・出勤日数＝始業、有休<br>';
@@ -19,6 +20,10 @@ ver.push('0.02 2021.03.18 変更：有休時間 を追加しました。');
 ver.push('0.01 2021.03.16 修正：出勤/退勤の両方がない場合、始業／終業が入力できない。');
 $('#version').html(ver.join('<p>'));
 $('#msg').html(ver[0]);
+
+$("#tab_version").on('focus', function() {
+	$('#msg').html('');
+});
 
 function fmtDay(d) {
 	return d.getMonth() + '/' + d.getDay();
@@ -77,7 +82,50 @@ $("input[name='load']").on('click', function() {
 //			tr += '<td>' + json.columns[item] + '</td>';
 //		}
 //		tr += '</tr>';
-		for ( var i = 0 ; i < json.data.length ; i++) {
+		for ( var i = 0 ; i < (json.data.length + 1) ; i++) {
+			//合計行
+			var	sub_total = false;
+			if (i == json.data.length) {
+				sub_total = true;
+			} else if (i > 0 ) {
+				console.log(i + ':' + json.data[i].StaffNo + ':' + json.data[i-1].StaffNo);
+				if (json.data[i].StaffNo != json.data[i-1].StaffNo) {
+					sub_total = true;
+				}
+			}
+			if (sub_total) {
+				tr += '<tr id="' + json.data[i-1]['StaffNo'] + '_sub_total" class="sub_total">';
+				tr += '<td>' + json.data[i-1]['StaffNo'] + '_sub_total</td>';
+				tr += '<td class="Post">' + post + '</td>';
+				tr += '<td class="StaffNo">' + json.data[i-1]['StaffNo'] + '</td>';
+				tr += '<td class="Name">' + json.data[i-1]['Name'] + '</td>';
+				tr += '<td class="date">計</td>';
+				tr += '<td class="Shift">  </td>';
+				tr += '<td class="time BegTm"></td>';
+				tr += '<td class="time StartTm"></td>';
+				tr += '<td class="time FinishTm"></td>';
+				tr += '<td class="time FinTm"></td>';
+				tr += '<td class="hour Actual"></td>';
+				tr += '<td class="hour Extra"></td>';
+				tr += '<td class="hour Night"></td>';
+				tr += '<td class="hour Dayoff"></td>';
+				tr += '<td class="hour PTO"></td>';
+				tr += '<td class="hour PTO_tm"></td>';
+				tr += '<td class="hour Late"></td>';
+				tr += '<td class="hour Early"></td>';
+				tr += '<td class="Memo"></td>';
+				tr += '<td class="total Days"></td>';
+				tr += '<td class="total PTO_H"></td>';
+				tr += '<td class="total Actual_H"></td>';
+				tr += '<td class="total Extra_H"></td>';
+				tr += '<td class="total Night_H"></td>';
+				tr += '<td class="total Dayoff_H"></td>';
+				tr += '<td class="total Total_H"></td>';
+				tr += '</tr>';
+				if (i >= json.data.length) {
+					break;
+				}
+			}
 			var	id = json.data[i]['StaffNo'] + '_' + json.data[i]['strDt'];
 			var	cls = '';
 //			if (json.data[i].strDt.slice(-2) == '16') {
@@ -154,8 +202,8 @@ $("input[name='load']").on('click', function() {
 			}
 			tr += '<td class="hour PTO">' + fmtHour(json.data[i]['PTO']) + '</td>';
 			tr += '<td class="hour PTO_tm">' + fmtHour(json.data[i]['PTO_tm']) + '</td>';
-			tr += '<td class="hour">' + fmtHour(json.data[i]['Late']) + '</td>';
-			tr += '<td class="hour">' + fmtHour(json.data[i]['Early']) + '</td>';
+			tr += '<td class="hour Late">' + fmtHour(json.data[i]['Late']) + '</td>';
+			tr += '<td class="hour Early">' + fmtHour(json.data[i]['Early']) + '</td>';
 			tr += '<td class="Memo">' + json.data[i]['Memo'] + '</td>';
 			tr += '<td class="total Days"></td>';
 			tr += '<td class="total PTO_H"></td>';
@@ -415,10 +463,13 @@ function total() {
 	var	id = '';
 	var	days = 0;
 	var	pto = 0;
+	var	pto_tm = 0;
 	var	actual = 0;
 	var	extra = 0;
 	var	night = 0;
 	var	dayoff = 0;
+	var	late = 0;
+	var	early = 0;
 	var	slist = 0;
 	$('#slist').find("option").remove();
 	$('#list tbody tr').each(function(i) {
@@ -427,47 +478,61 @@ function total() {
 			id = this.id.slice(0,5);
 			days = 0;
 			pto = 0;
+			pto_tm = 0;
 			actual = 0;
 			extra = 0;
 			night = 0;
 			dayoff = 0;
+			late = 0;
+			early = 0;
 		    $('#slist').append($('<option />').val(id).html($(this).find(".Name").text()));
 			slist++;
 		}
-		if($(this).find(".StartTm").text() || $(this).find(".PTO").text() || $(this).find(".PTO_tm").text() ) {
-			days++;
+		if((this.id).endsWith('_sub_total')) {
+			$(this).find(".Actual").text(fmtHour(actual));
+			$(this).find(".Extra").text(fmtHour(extra));
+			$(this).find(".Night").text(fmtHour(night));
+			$(this).find(".Dayoff").text(fmtHour(dayoff));
+			$(this).find(".PTO").text(fmtHour(pto));
+			$(this).find(".PTO_tm").text(fmtHour(pto_tm));
+			$(this).find(".Late").text(fmtHour(late));
+			$(this).find(".Early").text(fmtHour(early));
+		} else {
+			if($(this).find(".StartTm").text() || $(this).find(".PTO").text() || $(this).find(".PTO_tm").text() ) {
+				days++;
+			}
+			if($(this).find(".PTO").text()) {
+				pto += parseFloat($(this).find(".PTO").text());
+			}
+			if($(this).find(".PTO_tm").text()) {
+				pto_tm += parseFloat($(this).find(".PTO_tm").text());
+			}
+			if($(this).find(".Actual").text()) {
+				actual += parseFloat($(this).find(".Actual").text());
+			}
+			if($(this).find(".Extra").text()) {
+				extra += parseFloat($(this).find(".Extra").text());
+			}
+			if($(this).find(".Night").text()) {
+				night += parseFloat($(this).find(".Night").text());
+			}
+			if($(this).find(".Dayoff").text()) {
+				dayoff += parseFloat($(this).find(".Dayoff").text());
+			}
+			if($(this).find(".Late").text()) {
+				late += parseFloat($(this).find(".Late").text());
+			}
+			if($(this).find(".Early").text()) {
+				early += parseFloat($(this).find(".Early").text());
+			}
 		}
 		$(this).find(".Days").text(days);
-
-		if($(this).find(".PTO").text()) {
-			pto += parseFloat($(this).find(".PTO").text());
-		}
-		if($(this).find(".PTO_tm").text()) {
-			pto += parseFloat($(this).find(".PTO_tm").text());
-		}
-		$(this).find(".PTO_H").text(fmtHour(pto));
-
-		if($(this).find(".Actual").text()) {
-			actual += parseFloat($(this).find(".Actual").text());
-		}
+		$(this).find(".PTO_H").text(fmtHour(pto + pto_tm));
 		$(this).find(".Actual_H").text(fmtHour(actual));
-
-		if($(this).find(".Extra").text()) {
-			extra += parseFloat($(this).find(".Extra").text());
-		}
 		$(this).find(".Extra_H").text(fmtHour(extra));
-
-		if($(this).find(".Night").text()) {
-			night += parseFloat($(this).find(".Night").text());
-		}
 		$(this).find(".Night_H").text(fmtHour(night));
-
-		if($(this).find(".Dayoff").text()) {
-			dayoff += parseFloat($(this).find(".Dayoff").text());
-		}
 		$(this).find(".Dayoff_H").text(fmtHour(dayoff));
-
-		$(this).find(".Total_H").text(fmtHour(actual + extra + night + dayoff + pto));
+		$(this).find(".Total_H").text(fmtHour(actual + extra + night + dayoff + pto + pto_tm));
 	});
 }
 var	thead = '';

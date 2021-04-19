@@ -183,7 +183,7 @@ table tr td {
 	background-clip: padding-box;
 }
 .dt-top td {
-	border-top: medium solid blue	!important;
+	*border-top: medium solid blue	!important;
 	*background-color: yellow;
 }
 .content form {
@@ -241,6 +241,10 @@ th.total {
 	font-size: 0.7em;
 	background-color: #CCFFFF;
 	white-space: normal;
+}
+.sub_total td {
+	background-color: #CCFFFF;
+	border-bottom: medium solid blue	!important;
 }
 td.total {
 	text-align: right;
