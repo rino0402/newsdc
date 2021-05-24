@@ -1,4 +1,5 @@
 @echo off
+setlocal ENABLEDELAYEDEXPANSION
 rem Glics出荷データ連携
 rem 2016.06.22 w6レンジ対応
 rem 2017.05.16 ログ出力メール log@kk-sdc.co.jp
@@ -10,7 +11,7 @@ set Bu=%2
 if exist %fSave% goto _End
 call d:\log\batlog △ %0 %*
 echo.%0 %* > getoutg.txt
-dir g:\gift\recv\%fName% | findstr /i %fName% >> getoutg.txt
+dir g:\glics\%fName% | findstr /i %fName% >> getoutg.txt
 echo.%DATE%  %TIME:~0,8% △ >> getoutg.txt
 color 9F
 
@@ -19,9 +20,9 @@ echo.■■Glics出荷 データ連携
 set NewSdc=%3
 if "%NewSdc%" == ""	set NewSdc=newsdc
 
-echo.xcopy/d/y g:\gift\recv\%fName% out_save\ ...%time%
-xcopy/d/y g:\gift\recv\%fName% out_save\
-echo.xcopy/d/y g:\gift\recv\%fName% out_save\ ...%time%完了
+echo.xcopy/d/y g:\glics\%fName% out_save\ ...%time%
+xcopy/d/y g:\glics\%fName% out_save\
+echo.xcopy/d/y g:\glics\%fName% out_save\ ...%time%完了
 for %%i in (d:\%NewSdc%\hostfile\shiji_out_?.dat) do copy nul %%i > nul && echo.%%i
 for %%i in (d:\%NewSdc%\hostfile\shiji_in_?.dat) do copy nul %%i > nul && echo.%%i
 copy %fSave%	d:\%NewSdc%\hostfile\shiji_out_%Bu%.dat
@@ -63,7 +64,7 @@ goto _End
 echo.%DATE%  %TIME:~0,8% ▽ >> getoutg.txt
 call d:\newsdc\tool\slack "■Glics出荷 %NewSdc%" %cd%\getoutg.txt
 echo.■■液晶ディスプレイ通知
-xcopy/d/y getoutg.txt d:\%NewSdc%\files\notice\
+xcopy/d/y getoutg.txt d:\newsdc\files\notice\
 xcopy/d/y getoutg.txt \\hs1\it\pos\newsdc\files\notice\
 
 rem  -------------------------------(★)
@@ -78,4 +79,4 @@ color
 for %%i in (%fSave%) do (
 	echo.■getoutg %1 %2 %%~zi
 )
-exit/b %ret%
+exit/b !ret!

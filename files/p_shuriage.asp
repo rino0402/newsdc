@@ -27,6 +27,7 @@ End Function
 	strVersion = "2007.11.05 一覧表:「得意先」「収支」「販売区分」に名称を追加"
 	strVersion = "2010.08.20 ポップアップメニュー対応"
 	strVersion = "2020.03.31 クリップボードコピー対応(IE以外)"
+	strVersion = "2021.04.19 GetDbName()対応"
 
 	dim objFS
 	dim objF
@@ -48,7 +49,7 @@ End Function
 	dim db
 	dim rsList
 	dim rsRow
-	dim dbName
+'	dim dbName
 	dim	sqlStr
 	dim	whereStr
 	dim andStr
@@ -62,7 +63,7 @@ End Function
 	dim	maxStr
 	dim	lngMax
 
-	dbName = "newsdc"
+'	dbName = "newsdc"
 	SHIJI_NOStr		= ucase(Request.QueryString("SHIJI_NO"))
 	SHIMUKE_CODEStr	= ucase(Request.QueryString("SHIMUKE_CODE"))
 	SHIJI_FStr		= ucase(Request.QueryString("SHIJI_F"))
@@ -248,7 +249,7 @@ End Function
 		Set db = Server.CreateObject("ADODB.Connection")
 		db.CommandTimeout = 360
 
-		db.open dbName
+		db.open GetRequest("dbName",GetDbName())
 		sqlStr = ""
 		whereStr = ""
 		andStr = " where"

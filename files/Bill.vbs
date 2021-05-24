@@ -238,6 +238,9 @@ Function LoadBill(objDb,objRs,objBk,byVal strJGyobu,byVal strSheetName)
 	case "‡F•”“àoŒÉ","‡I•”“àoŒÉ"
 		strKBN = "B"
 		strBillDt = GetDt(RTrim(objSt.Range("C3")))
+		if strBillDt = "" then
+			strBillDt = GetDt(RTrim(objSt.Range("C4")))
+		end if
 	case "‡D“üŒÉ","‡F“üŒÉ"
 		strKBN = "C"
 		strBillDt = GetDt(RTrim(objSt.Range("B4")))

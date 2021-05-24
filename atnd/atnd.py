@@ -201,7 +201,9 @@ def calc(d):
         if d["JCode"] == "OSAKA":
             if d["Shift"] == "09":
                 # 9:30 - 16:00 5.50
-                if "{:%H:%M}".format(beg) <= "09:30":
+                if "{:%H:%M}".format(beg) <= "08:30":
+                    beg = time(8,30)
+                elif "{:%H:%M}".format(beg) <= "09:30":
                     beg = time(9,30)
             elif d["Shift"] == "06":
                 if "{:%H:%M}".format(beg) <= "07:30":
@@ -293,7 +295,8 @@ def calc(d):
         minute15 = fin.minute // 15 * 15
         d["FinishTm"] = fin.replace(minute=minute15)
         if d["StartTm"] and d["FinishTm"] < d["StartTm"]:
-            d["FinishTm"] = None
+            pass
+            #d["FinishTm"] = None
     else:
         d["FinishTm"] = None
         fin = None
@@ -306,26 +309,39 @@ def calc(d):
             fin = datetime.strptime(str(d["FinishTm_i"]), "%H:%M:%S").time()
     # 10進数 15分単位で切り捨て
     if fin:
-        fin = fin.hour + (fin.minute // 15) * 0.25
+        fin = (fin.hour if fin.hour > 3 else fin.hour + 24) + (fin.minute // 15) * 0.25
+        
     print("calc():fin={}".format(fin))
     #所定内
     act = 0
+    night = 0
     if fin and beg:
+        if fin > 23:
+            #深夜 23:00～
+            night = fin - 23
+            #休憩 24:00-24:15
+            if fin >= 24.25:
+                night -= 0.25
+            fin = 23
         act = fin - beg
-        #昼休み 12:00-12:45
+        #昼休 12:00-12:45
         if beg < 12 and fin > 12.75 and d["Shift"] not in ["6G","7L"]:
             act -= 0.75
         #休憩 15:00-15:15
         if beg < 15 and fin > 15.25:
             act -= 0.25
         #休憩 19:30-19:45
-        if beg < 19.5 and fin > 19.75:
+        if beg < 19.5 and fin >= 19.75:
+            act -= 0.25
+        #休憩 21:45-22:00
+        if beg < 21.75 and fin >= 22.00:
             act -= 0.25
         act = max(0, act)
     print("calc():act={}".format(act))
     d["Actual"] = min(act, 7.5)
     #残業
     d["Extra"] = max(0, act - 7.5)
+    d["Night"] = night
     #休出
     if d["Shift"] == "00":
         #d["Extra"] += d["Actual"]
@@ -335,6 +351,8 @@ def calc(d):
         d["Extra"] = 0
     else:
         d["Dayoff"] = 0
+    print("{} {} {} {} {}".format(d["StartTm"], d["FinishTm"],
+                                  d["Actual"], d["Extra"], d["Night"]))
     return d
 
 def calc_old(d):

@@ -1,5 +1,9 @@
 ﻿// バージョン
 var	ver = [];
+ver.push('0.12 2021.05.24 修正：「始業、終業」変更で「所定内、残業、深夜、休出」が更新されない不具合を修正');
+ver.push('0.11 2021.05.18 「締日」対応');
+ver.push('0.10 2021.04.21 修正：休憩時間:21:45-22:00 24:00-24:15 を控除するように修正');
+ver.push('0.09 2021.04.20 修正：終業 19:45 の場合、19:30-19:45 の休憩時間を控除するように修正');
 ver.push('0.08 2021.04.19 ・各自の合計行を追加');
 var	ver007 = '0.07 2021.04.12 項目並び変更：所定内 残業 深夜 休出 有休日 有休時間 遅刻 早退 備考<br>';
 ver007 += '・休出(休日出勤)を追加<br>';
@@ -61,10 +65,13 @@ function fmtDt(dt) {
 
 //テーブル 検索
 $("input[name='load']").on('click', function() {
-	var	req = 'load.py?dns=' + $('#dns').val();
+	var	req = 'load.py?dsn=' + $('#dsn').val();
 	req += '&month=' + $("input[name='month']").val();
 	if($("input[name='post']").val()) {
 		req += '&post=' + $("input[name='post']").val();
+	}
+	if($("input[name='close_day']").val()) {
+		req += '&close_day=' + $("input[name='close_day']").val();
 	}
 //	$(this).addClass("gif-load");
 	dispLoading('検索中');
@@ -228,13 +235,13 @@ $("input[name='load']").on('click', function() {
 		$('#tab_month input[name="edit"]').trigger('click');	//編集可
 		total();
 	}).catch((error) => {
-		$('#msg').text(error);
+		$('#msg').html(error + '<br>' + req);
 	});
 });
 var	shift_list =  '';	//'{"00": "休出", "04": "04", "09": "09"}';
 //[{"01":"いろはにほへと"},{"02":"ちりぬるを"},{"11":"わかよたれそ"},{"12":"つねならむ"}]
 $(document).ready(function() {
-	var	req = 'shift.py?dns=' + $('#dns').val();
+	var	req = 'shift.py?dsn=' + $('#dsn').val();
 	console.log(req);
 	fetch(req).then((res) => {
 		return res.json();
@@ -255,7 +262,7 @@ $('#tab_month input[name="edit"]').on('click', function(){
 		console.log(jQuery.parseJSON(shift_list));
 		$('#log').html($('#log').html() + '<br>' + 'shift_list=' + shift_list);
 		$('#list').Tabledit({
-			url: 'edit.py?dns=' + $('#dns').val(),
+			url: 'edit.py?dsn=' + $('#dsn').val(),
 			editButton: false,
 			deleteButton: false,
 			hideIdentifier: true,
@@ -296,41 +303,51 @@ $('#tab_month input[name="edit"]').on('click', function(){
 					$(id).find("td.StartTm span").text(fmtTm(data.StartTm));
 					$(id).find("td.StartTm input").val(fmtTm(data.StartTm));
 				}
-				if(data.StartTm_i) {
-					console.log('StartTm_i=' + data.StartTm_i);
-					$(id).find("td.StartTm span").text(fmtTm(data.StartTm_i));
-					$(id).find("td.StartTm input").val(fmtTm(data.StartTm_i));
-					$(id).find("td.StartTm").addClass('modify');
-				} else {
-					$(id).find("td.StartTm").removeClass('modify');
+				if(data.StartTm_i != undefined) {
+					if(data.StartTm_i) {
+						console.log('StartTm_i=' + data.StartTm_i);
+						$(id).find("td.StartTm span").text(fmtTm(data.StartTm_i));
+						$(id).find("td.StartTm input").val(fmtTm(data.StartTm_i));
+						$(id).find("td.StartTm").addClass('modify');
+					} else {
+						$(id).find("td.StartTm span").text($(id).find("td.StartTm").attr('title'));
+						$(id).find("td.StartTm input").val($(id).find("td.StartTm").attr('title'));
+						$(id).find("td.StartTm").removeClass('modify');
+					}
 				}
 				if(data.FinishTm != undefined) {
 					console.log('FinishTm=' + data.FinishTm);
 					$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm));
 					$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm));
 				}
-				if(data.FinishTm_i) {
-					console.log('FinishTm_i=' + data.FinishTm_i);
-					$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm_i));
-					$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm_i));
-					$(id).find("td.FinishTm").addClass('modify');
-				} else {
-					$(id).find("td.FinishTm").removeClass('modify');
+				if(data.FinishTm_i != undefined) {
+					if(data.FinishTm_i) {
+						console.log('FinishTm_i=' + data.FinishTm_i);
+						$(id).find("td.FinishTm span").text(fmtTm(data.FinishTm_i));
+						$(id).find("td.FinishTm input").val(fmtTm(data.FinishTm_i));
+						$(id).find("td.FinishTm").addClass('modify');
+					} else {
+						$(id).find("td.FinishTm span").text($(id).find("td.FinishTm").attr('title'));
+						$(id).find("td.FinishTm input").val($(id).find("td.FinishTm").attr('title'));
+						$(id).find("td.FinishTm").removeClass('modify');
+					}
 				}
-				if(data.Actual) {
+				if(data.Actual != undefined) {
 					console.log('Actual=' + data.Actual);
 					$(id).find("td.Actual span").text(fmtHour(parseFloat(data.Actual)));
 					$(id).find("td.Actual input").val(fmtHour(parseFloat(data.Actual)));
 				}
-				if(data.Actual_i) {
-					console.log('Actual_i=' + data.Actual_i);
-					$(id).find("td.Actual span").text(fmtHour(parseFloat(data.Actual_i)));
-					$(id).find("td.Actual input").val(fmtHour(parseFloat(data.Actual_i)));
-					$(id).find("td.Actual").addClass('modify');
-				} else {
-					$(id).find("td.Actual").removeClass('modify');
+				if(data.Actual_i != undefined) {
+					if(data.Actual_i) {
+						console.log('Actual_i=' + data.Actual_i);
+						$(id).find("td.Actual span").text(fmtHour(parseFloat(data.Actual_i)));
+						$(id).find("td.Actual input").val(fmtHour(parseFloat(data.Actual_i)));
+						$(id).find("td.Actual").addClass('modify');
+					} else {
+						$(id).find("td.Actual").removeClass('modify');
+					}
 				}
-				if(data.Extra) {
+				if(data.Extra != undefined) {
 					console.log('Extra=' + data.Extra + ' ' + fmtHour(parseFloat(data.Extra)));
 					console.log($(id).find("td.Extra").html());
 					console.log($(id).find("td.Extra span").attr('class'));
@@ -339,39 +356,45 @@ $('#tab_month input[name="edit"]').on('click', function(){
 					$(id).find("td.Extra input").val(fmtHour(parseFloat(data.Extra)));
 					console.log($(id).find("td.Extra").html());
 				}
-				if(data.Extra_i) {
-					console.log('Extra_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Extra_i)));
-					$(id).find("td.Extra span").text(fmtHour(parseFloat(data.Extra_i)));
-					$(id).find("td.Extra input").val(fmtHour(parseFloat(data.Extra_i)));
-					$(id).find("td.Extra").addClass('modify');
-				} else {
-					$(id).find("td.Extra").removeClass('modify');
+				if(data.Extra_i != undefined) {
+					if(data.Extra_i) {
+						console.log('Extra_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Extra_i)));
+						$(id).find("td.Extra span").text(fmtHour(parseFloat(data.Extra_i)));
+						$(id).find("td.Extra input").val(fmtHour(parseFloat(data.Extra_i)));
+						$(id).find("td.Extra").addClass('modify');
+					} else {
+						$(id).find("td.Extra").removeClass('modify');
+					}
 				}
-				if(data.Night) {
+				if(data.Night != undefined) {
 					console.log('Night=' + data.Night);
 					$(id).find("td.Night span").text(fmtHour(parseFloat(data.Night)));
 					$(id).find("td.Night input").val(fmtHour(parseFloat(data.Night)));
 				}
-				if(data.Night_i) {
-					console.log('Night_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Night_i)));
-					$(id).find("td.Night span").text(fmtHour(parseFloat(data.Night_i)));
-					$(id).find("td.Night input").val(fmtHour(parseFloat(data.Night_i)));
-					$(id).find("td.Night").addClass('modify');
-				} else {
-					$(id).find("td.Night").removeClass('modify');
+				if(data.Night_i != undefined) {
+					if(data.Night_i) {
+						console.log('Night_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Night_i)));
+						$(id).find("td.Night span").text(fmtHour(parseFloat(data.Night_i)));
+						$(id).find("td.Night input").val(fmtHour(parseFloat(data.Night_i)));
+						$(id).find("td.Night").addClass('modify');
+					} else {
+						$(id).find("td.Night").removeClass('modify');
+					}
 				}
-				if(data.Dayoff) {
+				if(data.Dayoff != undefined) {
 					console.log('Dayoff=' + data.Dayoff);
 					$(id).find("td.Dayoff span").text(fmtHour(parseFloat(data.Dayoff)));
 					$(id).find("td.Dayoff input").val(fmtHour(parseFloat(data.Dayoff)));
 				}
-				if(data.Dayoff_i) {
-					console.log('Dayoff_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Dayoff_i)));
-					$(id).find("td.Dayoff span").text(fmtHour(parseFloat(data.Dayoff_i)));
-					$(id).find("td.Dayoff input").val(fmtHour(parseFloat(data.Dayoff_i)));
-					$(id).find("td.Dayoff").addClass('modify');
-				} else {
-					$(id).find("td.Dayoff").removeClass('modify');
+				if(data.Dayoff_i != undefined) {
+					if(data.Dayoff_i) {
+						console.log('Dayoff_i=' + data.Extra + ' ' + fmtHour(parseFloat(data.Dayoff_i)));
+						$(id).find("td.Dayoff span").text(fmtHour(parseFloat(data.Dayoff_i)));
+						$(id).find("td.Dayoff input").val(fmtHour(parseFloat(data.Dayoff_i)));
+						$(id).find("td.Dayoff").addClass('modify');
+					} else {
+						$(id).find("td.Dayoff").removeClass('modify');
+					}
 				}
 				total();
 	        },
@@ -448,7 +471,7 @@ $(document).ready(function() {
 	//年月初期値セット
 	var	dt = new Date();
 	console.log('dt=' +dt);
-	if (dt.getDate() > 18) {
+	if (dt.getDate() > 21) {
 		dt.setDate(1);
 		dt.setMonth(dt.getMonth() + 1);
 	}
@@ -564,7 +587,7 @@ $('input[name="copy"]').on('click', function(){
 });
 //従業員テーブル 検索
 $("#tab_staff input[name='staff']").on('click', function() {
-	var	req = 'staff.py?dns=' + $('#dns').val();
+	var	req = 'staff.py?dsn=' + $('#dsn').val();
 	if($("#quit").prop("checked")) {
 		req += '&quit=true';
 	}
@@ -593,7 +616,7 @@ $("#tab_staff input[name='staff']").on('click', function() {
 		$('#tab_staff table tbody').find("tr").remove();
 		$('#tab_staff table tbody').append(tr);
 		$('#tab_staff table').Tabledit({
-			url: 'staff.py?dns=' + $('#dns').val(),
+			url: 'staff.py?dsn=' + $('#dsn').val(),
 			editButton: false,
 			deleteButton: false,
 			hideIdentifier: true,

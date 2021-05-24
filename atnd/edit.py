@@ -17,10 +17,114 @@ import traceback
 import sdc
 
 def main(r):
+    print("pyodbc.connect({0})".format(r["dsn"]), end=";")
+    conn = pyodbc.connect('DSN=' + r["dsn"])
+    print("ok")
+    r["StaffNo"] = r["id"].split("_")[0]
+    r["Dt"] = r["id"].split("_")[1]
+    sql = "update Atnd set "
+    calc = False
+    for k in r.keys():
+        if k in ["Shift"]:
+            calc = True
+            sql += "{}='{}'".format(k, r[k])
+        elif k in ["Shift","Memo"]:
+            sql += "{}='{}'".format(k, r[k])
+        elif k in ["StartTm_i","FinishTm_i"]:
+            calc = True
+            if r[k]:
+                sql += "{} = '{}'".format(k, r[k])
+            else:
+                sql += "{} = Null".format(k)
+        elif k in ["Actual_i","Extra_i","Night_i","Dayoff_i"]:
+            if r[k]:
+                sql += "{} = {}".format(k, r[k])
+            else:
+                sql += "{} = Null".format(k)
+        elif k in ["Late","Early","PTO","PTO_tm"]:
+            if r[k]:
+                sql += "{} = {}".format(k, r[k])
+            else:
+                sql += "{} = 0".format(k, r[k])
+        else:
+            continue
+        break
+    if sql.endswith("set "):
+        print("更新項目エラー")
+        return r
+    sql += " where StaffNo='{}'".format(r["StaffNo"])
+    sql += " and Dt='{}'".format(r["Dt"])
+    print(sql)
+    conn.execute(sql)
+    print("rowcount=", conn.execute("select @@rowcount").fetchone()[0])
+
+    if calc:
+        print("再計算", calc)
+        sql = "select j.JCode, a.* from Atnd a, JGyobu j"
+        sql += " where a.StaffNo='{}'".format(r["StaffNo"])
+        sql += " and a.Dt='{}'".format(r["Dt"])
+        sql += " and j.JGYOBU='0'"
+        df = pd.read_sql(sql, conn)
+        df = df.fillna("")
+        print(df)
+        for i, row in df.iterrows():
+            for index, value in enumerate(row):
+                if isinstance(value, str):
+                    row[index] = value.rstrip()
+            d0= row.to_dict()
+            print(d0)
+            import atnd
+            d1 = d0.copy()
+            d1 = atnd.calc(d1)
+            print(d1)
+            print("StartTm", d0["StartTm"], d1["StartTm"])
+            print("FinishTm", d0["FinishTm"], d1["FinishTm"])
+            print("Actual", d0["Actual"], d1["Actual"])
+            print("Extra", d0["Extra"], d1["Extra"])
+            print("Night", d0["Night"], d1["Night"])
+            print("Dayoff", d0["Dayoff"], d1["Dayoff"])
+            if "StartTm_i" in r.keys():
+                r["StartTm"] = "{:%H:%M}".format(d1["StartTm"]) if d1["StartTm"] else ""
+            if "FinishTm_i" in r.keys():
+                r["FinishTm"] = "{:%H:%M}".format(d1["FinishTm"]) if d1["FinishTm"] else ""
+            sql = "update Atnd set"
+            if d0["Actual"] != d1["Actual"]:
+                sql += ", Actual = {}".format(d1["Actual"])
+                r["Actual"] = d1["Actual"]
+            if d0["Extra"] != d1["Extra"]:
+                sql += ", Extra = {}".format(d1["Extra"])
+                r["Extra"] = d1["Extra"]
+            if d0["Night"] != d1["Night"]:
+                sql += ", Night = {}".format(d1["Night"])
+                r["Night"] = d1["Night"]
+            if d0["Dayoff"] != d1["Dayoff"]:
+                sql += ", Dayoff = {}".format(d1["Dayoff"])
+                r["Dayoff"] = d1["Dayoff"]
+            if sql.endswith("set"):
+                print("変更なし")
+            else:
+                sql = sql.replace("set,", "set ")
+                sql += " where StaffNo='{}'".format(r["StaffNo"])
+                sql += " and Dt='{}'".format(r["Dt"])
+                print(sql)
+                conn.execute(sql)
+                print("rowcount=", conn.execute("select @@rowcount").fetchone()[0])
+                
+    if r["commit"] == "1":
+        print("conn.commit()", end=";")
+        conn.commit()
+        print("ok")
+    print("conn.close()", end=";")
+    conn.close()
+    print("ok")
+    return r
+
+
+def main0(r):
     print("main({})".format(r))
 
-    print("pyodbc.connect({0})".format(r["dns"]), end=".")
-    conn = pyodbc.connect('DSN=' + r["dns"])
+    print("pyodbc.connect({0})".format(r["dsn"]), end=".")
+    conn = pyodbc.connect('DSN=' + r["dsn"])
     print("ok")
     r["StaffNo"] = r["id"].split("_")[0]
     r["Dt"] = r["id"].split("_")[1]
@@ -59,6 +163,10 @@ def main(r):
         except:
             pass
         try:
+            r["Night"] = "{}".format(d["Night"])
+        except:
+            pass
+        try:
             r["Dayoff"] = "{}".format(d["Dayoff"])
         except:
             pass
@@ -76,7 +184,7 @@ def update(conn, data):
     sql = "update Atnd"
     st = " set"
     for d in data:
-        if d not in ["JCode","StaffNo","Dt","dns","id", "action"]:
+        if d not in ["JCode","StaffNo","Dt","dsn","id", "action"]:
             if d in ["BegTm_i","FinTm_i","StartTm_i","FinishTm_i"]:
                 try:
                     sql += "{} {} = '{}'".format(st, d, datetime.strptime(data[d],"%H:%M"))
@@ -132,6 +240,10 @@ if __name__ == "__main__":
         for c in form.keys():
             r[c] = form[c].value
             post += "{}={} ".format(c, form[c].value)
+        r["dsn"] = form.getvalue("dsn","newsdc")
+        if r["dsn"] == "":
+            r["dsn"] = "newsdc"
+        r["commit"] = form.getvalue("commit","1")
         sdc.log(post)
         sys.stdout = None
         r = main(r)
@@ -145,12 +257,16 @@ if __name__ == "__main__":
     else:
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument("id", help="", nargs="?", default="", type=str)
-        parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
-        parser.add_argument("--StartTm_i", help="", default="", type=str)
-        parser.add_argument("--FinishTm_i", help="", default="", type=str)
-        parser.add_argument("--PTO", help="", default="", type=str)
-        r = main(vars(parser.parse_args()))
+        parser.add_argument("edit", help="", nargs="?", default="", type=str)
+        parser.add_argument("--dsn", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--id", help="", default="", type=str)
+        parser.add_argument("--commit", help="0 1", default="1", type=str)
+        r = vars(parser.parse_args())
+        print(r)
+        print(r["edit"])
+        r[r["edit"].split("=")[0]] = r["edit"].split("=")[1]
+        print(r)
+        r = main(r)
         import pprint
         pprint.pprint(r)
 

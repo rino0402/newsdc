@@ -14,8 +14,8 @@ import sdc
 
 def main(r):
     print("main({})".format(r))
-    print("pyodbc.connect({0})".format(r["dns"]), end=".")
-    conn = pyodbc.connect('DSN=' + r["dns"])
+    print("pyodbc.connect({0})".format(r["dsn"]), end=".")
+    conn = pyodbc.connect('DSN=' + r["dsn"])
     print("ok")
 
     if r["action"] == "make":
@@ -177,10 +177,10 @@ if __name__ == "__main__":
         r["action"] = ""
         for c in form.keys():
             r[c] = form[c].value
-        if r["dns"]:
+        if r["dsn"]:
             pass
         else:
-            r["dns"] = "newsdc"
+            r["dsn"] = "newsdc"
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     else:
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--dsn", help="default: newsdc", default="newsdc", type=str)
         parser.add_argument("--action", action="store_true", default=False)
         r = main(vars(parser.parse_args()))
         print(sdc)

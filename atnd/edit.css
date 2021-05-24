@@ -75,6 +75,10 @@ input[name="month"] {
 	*width	: 10em	;
 	font-size	: 105%;
 }
+input[name="close_day"] {
+	width		: 2em		;
+	text-align	: center	;
+}
 input[name="filter"] {
 	*width	: 10em	;
 }

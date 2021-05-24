@@ -25,12 +25,14 @@ def eprint(*args, **kwargs):
 def main(r):
     eprint("main({})".format(r))
 
-    eprint("pyodbc.connect({0})".format(r["dns"]), end=".")
-    conn = pyodbc.connect('DSN=' + r["dns"])
+    eprint("pyodbc.connect({0})".format(r["dsn"]), end=".")
+    conn = pyodbc.connect('DSN=' + r["dsn"])
     eprint("ok")
 
-    r["dt1"] = "{}-15".format(r["month"])
-    r["dt0"] = "{:%Y-%m}-16".format(datetime.strptime(r["month"], "%Y-%m") - timedelta(days=1))
+    r["dt1"] = "{}-{}".format(r["month"], r["close_day"])
+    r["dt0"] = "{:%Y-%m}-{}".format(datetime.strptime(r["month"], "%Y-%m") - timedelta(days=1), r["close_day"] + 1)
+    #r["dt1"] = "{}-15".format(r["month"])
+    #r["dt0"] = "{:%Y-%m}-16".format(datetime.strptime(r["month"], "%Y-%m") - timedelta(days=1))
     #r["load"] = load(conn, r)
     sql = """
 select
@@ -117,9 +119,10 @@ if __name__ == "__main__":
         sdc.log()
         form = cgi.FieldStorage()
         r = {}
-        r["dns"] = form.getvalue('dns', 'newsdc')
+        r["dsn"] = form.getvalue('dsn', 'newsdc')
         r["month"] = form.getvalue('month', "{:%Y-%m}".format(date.today()))
         r["post"] = form.getvalue('post', '')
+        r["close_day"] = int(form.getvalue('close_day', 15))
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
@@ -131,7 +134,8 @@ if __name__ == "__main__":
         import argparse
         parser = argparse.ArgumentParser()
         parser.add_argument("month", help="", nargs="?", default="{:%Y-%m}".format(date.today()), type=str)
-        parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--dsn", help="default: newsdc", default="newsdc", type=str)
         parser.add_argument("--post", help="", default="", type=str)
+        parser.add_argument("--close_day", help="締日", default=15, type=int)
         r = main(vars(parser.parse_args()))
         print(r["df"].to_json(orient= 'split', force_ascii= True))

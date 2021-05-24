@@ -38,7 +38,7 @@ if /i "%ComputerName%" == "hs2" (
 	set	Chnl=w0
 )
 set Text=%1
-echo.%Text% | findstr "atnd.py" && set	Chnl=kintai
+echo.%Text% | findstr "atnd" && set	Chnl=kintai
 echo.%Text% | findstr "ascm.bat" && set	Chnl=kintai
 echo.%Text% | findstr "dscope" && set	Chnl=kintai
 python -V > nul

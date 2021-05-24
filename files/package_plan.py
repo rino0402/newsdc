@@ -76,9 +76,9 @@ def load(conn, df, limit):
             if item.uQty > 0:
                 data["stts"] = "uQty"
                 data["rank"] = 1
-            elif item.zQty92 >= data["Qty"]:
+            elif item.zQty92 >= int(data["Qty"] or 0):
                 data["stts"] = "zQty92"
-            elif item.sQty >= data["Qty"]:
+            elif item.sQty >= int(data["Qty"] or 0):
                 data["stts"] = "sQty"
                 data["rank"] = 1
 #            elif item.zQtySumi >= data["Qty"]:

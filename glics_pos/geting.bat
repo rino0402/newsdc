@@ -1,4 +1,5 @@
 @echo off
+setlocal ENABLEDELAYEDEXPANSION
 rem Glics振替データ連携
 rem 2016.03.08 gift対応版
 rem 2016.06.22 w6レンジ対応
@@ -12,7 +13,7 @@ set Bu=%2
 if exist in_save\%fName% goto _End
 call d:\log\batlog △ %0 %*
 echo.%0 %* > geting.txt
-dir g:\gift\recv\%fName% | findstr /i %fName% >> geting.txt
+dir g:\glics\%fName% | findstr /i %fName% >> geting.txt
 echo.%DATE%  %TIME:~0,8% △ >> geting.txt
 color 9F
 
@@ -21,10 +22,10 @@ echo.■■Glics振替 データ連携
 set NewSdc=%3
 if "%NewSdc%" == ""	set NewSdc=newsdc
 
-echo.xcopy/d/y g:\gift\recv\%fName% in_save\ ...%time%
-rem xcopy/d/y g:\gift\recv\%fName% in_save\
-copy/y g:\gift\recv\%fName% in_save\
-echo.xcopy/d/y g:\gift\recv\%fName% in_save\ ...%time%完了
+echo.xcopy/d/y g:\glics\%fName% in_save\ ...%time%
+rem xcopy/d/y g:\glics\%fName% in_save\
+copy/y g:\glics\%fName% in_save\
+echo.xcopy/d/y g:\glics\%fName% in_save\ ...%time%完了
 for %%i in (d:\%NewSdc%\hostfile\shiji_out_?.txt) do copy nul %%i > nul && echo.%%i
 for %%i in (d:\%NewSdc%\hostfile\shiji_in_?.txt ) do copy nul %%i > nul && echo.%%i
 for %%i in (d:\%NewSdc%\hostfile\shiji_out_?.dat) do copy nul %%i > nul && echo.%%i
@@ -115,7 +116,7 @@ if /i "%Bu%" == "A" (
 )
 cscript//nologo d:\%NewSdc%\files\hmem500.vbs /db:%NewSdc% %fName% >> geting.txt
 echo.■■Pn連携：新品番のみ
-call d:\newsdc\app\pn.bat %Bu% %NewSdc%
+call d:\newsdc\app\pn.bat %Bu% %DATE:/=%
 goto _End_Log
 
 rem  -------------------------------
@@ -158,4 +159,4 @@ color
 for %%i in (in_save\%1) do (
 	echo.■geting  %1 %2 %%~zi
 )
-exit/b %ret%
+exit/b !ret!
