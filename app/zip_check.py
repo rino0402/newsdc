@@ -93,7 +93,11 @@ order by 1,2,3,4,5
                 eprint("")
                 num += 1
         else:
-            pass
+            print("■不明■")
+            postman = Jusho()
+            div_addr = divide_addess(row.JYUSHO.replace('　',''))
+            for town in postman.towns_from_city(div_addr[1].strip(), div_addr[2].strip(), 'kanji'):
+                print(town.town_area_kanji)
         print()
         #print(addr[1], addr[2], addr[3])
         #print(postman.address_from_town(addr[1], addr[2], addr[3], 'kanji'))
@@ -115,10 +119,13 @@ def address(address):
             #print(town.town_area_kanji)
             new_town = None
             if town_area.startswith(town.town_area_kanji) \
-            or town_area.replace('大字','').startswith(town.town_area_kanji) \
-            or town_area.replace('ヶ','ケ').startswith(town.town_area_kanji) \
-            or town_area.replace('２条','二条').startswith(town.town_area_kanji) \
-            or town_area.replace('中川原中川原','中川原').startswith(town.town_area_kanji):
+            or town_area.replace('大字', '').startswith(town.town_area_kanji) \
+            or town_area.replace('字', '').startswith(town.town_area_kanji) \
+            or town_area.replace('ヶ', 'ケ').startswith(town.town_area_kanji) \
+            or town_area.replace('１', '一').startswith(town.town_area_kanji) \
+            or town_area.replace('２条', '二条').startswith(town.town_area_kanji) \
+            or town_area.replace('中川原中川原', '中川原').startswith(town.town_area_kanji) \
+            or town_area.startswith(town.town_area_kanji.split('（')[0]) :
                 #print(town.town_area_kanji, len(town.town_area_kanji))
                 new_town = town
             """
