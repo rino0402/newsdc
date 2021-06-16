@@ -15,9 +15,46 @@ Attendance 	ATND
 		<!--
 	    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		-->
-		<link type="text/css" rel="stylesheet" href="menu.css?v=2021052301">
-		<link type="text/css" rel="stylesheet" href="edit.css?v=2021052301">
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2021061401">
+		<link type="text/css" rel="stylesheet" href="edit.css?v=2021061401">
 	</head>
+	<style type="text/css">
+		div.parent {
+			position: relative;
+			*padding:0;
+		}
+		div.left {
+			*float: left;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+		div.right {
+			*float: right;
+			position: absolute;
+			top: 10px;
+			right: 10px;
+		}
+		div.wflow , .wflow div {
+			*display: inline-block;
+			*vertical-align: top;
+			*text-align: center;
+			text-align: center;
+		}
+		.wflow > div {
+			display: inline-block;
+			padding	: 2px				;
+			border	: solid thin black	;
+			color: red;
+		}
+		.wflow > div:hover {
+			background:	yellow;
+			cursor:		pointer;
+		}
+		#wflow_dialog input.readonly {
+			border:	0;
+		}
+	</style>
 	<body>
 		<header role="banner">
 			<nav>
@@ -33,28 +70,36 @@ Attendance 	ATND
 			</nav>
 		</header>
 		<main role="main">
-			<div id="msg"></div>
 			<div class="tab_content" id="tab_month">
 				<div class="content">
-					<form>
-						<input type="text" name="post" placeholder="部署">
-						<input type="month" name="month">
-						<input type="text" name="close_day" placeholder="締日" title="締日：15,20" inputmode="numeric" pattern="\d*">
-						<input type="button" name="load" value="検索">
-						<input type="search" name="filter" id="filter" placeholder="ﾌｨﾙﾀｰ;ID,名前,日付" autocomplete="off" list="slist">
-						<datalist id="slist">
-							<!--
-							<option value="apple" label="りんご">
-							<option value="lemon" label="れもん">
-							<option value="banana" label="ばなな">
-							-->
-						</datalist>
-						<input type="button" name="edit" value="編集">
-						<span class="edit">編集可(クリック：入力／Enter：確定)</span>
-						<input type="button" name="copy0" value="Copy">
-						<input type="button" name="copy" value="Copy" data-clipboard-target="#list">
-						<input type="button" name="print" value="勤務表">
-					</form>
+					<div>
+						<form>
+							<div id="msg"></div>
+							<input type="text" name="post" placeholder="部署">
+							<input type="month" name="month">
+							<input type="text" name="close_day" placeholder="締日" title="締日：15,20" inputmode="numeric" pattern="\d*">
+							<input type="button" name="load" value="検索">
+							<input type="search" name="filter" id="filter" placeholder="ﾌｨﾙﾀｰ;ID,名前,日付" autocomplete="off" list="slist">
+							<datalist id="slist">
+								<!--
+								<option value="apple" label="りんご">
+								<option value="lemon" label="れもん">
+								<option value="banana" label="ばなな">
+								-->
+							</datalist>
+							<input type="button" name="edit" value="編集">
+							<span class="edit">編集可(クリック：入力／Enter：確定)</span>
+							<input type="button" name="copy0" value="Copy">
+							<input type="button" name="copy" value="Copy" data-clipboard-target="#list">
+							<input type="button" name="print" value="勤務表">
+						</form>
+					</div>
+					<div class="wflow right">
+						<span class="wflow_update"><div>承認/確認</div></span>
+						<div id="keiri-3"><div class="dname">経理</div><div class="ts">--/--</div></div>
+						<div id="manager-2"><div class="dname">所長</div><div class="ts">--/--</div></div>
+						<div id="author-1"><div class="dname">担当</div><div class="ts">--/--</div></div>
+					</div>
 					<table id="list" class="sticky">
 						<thead>
 							<tr>
@@ -92,21 +137,21 @@ Attendance 	ATND
 					<p>
 					<table class="data_sch">
 						<caption>データ連携スケジュール</caption>
-						<tr><th>D-Scope(顔認証)</th><th>E10(うさぎ)</th></tr>
-						<tr><td>08:50 から30分間隔</td><td></td></tr>
-						<tr><td>09:20 50</td>	<td>09:05</td></tr>
-						<tr><td>10:20 50</td>	<td>10:05</td></tr>
-						<tr><td>11:20 50</td>	<td></td></tr>
-						<tr><td>12:20 50</td>	<td>12:15</td></tr>
-						<tr><td>13:20 50</td>	<td></td></tr>
-						<tr><td>14:20 50</td>	<td></td></tr>
-						<tr><td>15:20 50</td>	<td></td></tr>
-						<tr><td>16:20 50</td>	<td></td></tr>
-						<tr><td>17:20 50</td>	<td>17:45</td></tr>
-						<tr><td>18:20 50</td>	<td></td></tr>
-						<tr><td>19:20 50</td>	<td></td></tr>
-						<tr><td>20:20 50</td>	<td></td></tr>
-						<tr><td>23:50</td>		<td>23:45</td></tr>
+						<tr><th></th><th>D-Scope(顔認証)</th><th>E10(うさぎ)</th></tr>
+						<tr><td>08</td><td>50 から30分間隔</td><td></td></tr>
+						<tr><td>09</td><td>20 50</td>	<td>05</td></tr>
+						<tr><td>10</td><td>20 50</td>	<td>05</td></tr>
+						<tr><td>11</td><td>20 50</td>	<td></td></tr>
+						<tr><td>12</td><td>20 50</td>	<td>15</td></tr>
+						<tr><td>13</td><td>20 50</td>	<td></td></tr>
+						<tr><td>14</td><td>20 50</td>	<td></td></tr>
+						<tr><td>15</td><td>20 50</td>	<td></td></tr>
+						<tr><td>16</td><td>20 50</td>	<td></td></tr>
+						<tr><td>17</td><td>20 50</td>	<td>45</td></tr>
+						<tr><td>18</td><td>20 50</td>	<td></td></tr>
+						<tr><td>19</td><td>20 50</td>	<td></td></tr>
+						<tr><td>20</td><td>20 50</td>	<td></td></tr>
+						<tr><td>23</td><td>50</td>		<td>45</td></tr>
 					</table>
 				</div>
 			</div>
@@ -174,6 +219,16 @@ Attendance 	ATND
 		</main>
 		<footer role="contentinfo">
 		</footer>
+		<div id="wflow_dialog" title="承認/確認">
+		  <div class="wflow_id"></div>
+			<br />
+		  <label>部署：<input type="text" name="post" class="readonly" readonly></label><br />
+		  <label>年月：<input type="text" name="month" class="readonly" readonly></label><br />
+		  <label>締日：<input type="text" name="close_day" class="readonly" readonly></label><br />
+		  <label>名前：<input type="text" name="dname"></label><br />
+		  <label>ｺﾒﾝﾄ：<input type="text" name="comment"></label><br />
+		  <label>日時：<input type="text" name="ts" class="readonly" readonly></label><br />
+		</div>
 	</body>
 	<!--
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -181,9 +236,12 @@ Attendance 	ATND
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 	-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 	<script src="jquery.tabledit.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 	<script src="http://www.cyokodog.net/jquery.ex-table-filter/jquery.ex-table-filter.js"></script>
-	<script src="menu.js?v=2021052301"></script>
-	<script src="edit.js?v=2021052301"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js" type="text/javascript"></script>
+	<script src="menu.js?v=2021061401"></script>
+	<script src="edit.js?v=2021061401"></script>
 </html>

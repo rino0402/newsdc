@@ -19,19 +19,21 @@ def main(r):
     conn = pyodbc.connect('DSN=' + r["dsn"])
     print("ok")
 
+    ret = 0
     if r["item"]:
-        r = item(conn, r)
+        item(conn, r)
     elif r["y_nyuka"]:
-        r = y_nyuka(conn, r)
+        y_nyuka(conn, r)
     elif r["zaiko"]:
-        r = zaiko(conn, r)
+        zaiko(conn, r)
     elif r["y_syuka"]:
-        r = y_syuka(conn, r)
-    else:
-        if r["filename"]:
-            r = load(conn, r)
-        else:
-            r = list0(conn, r)
+        y_syuka(conn, r)
+    elif r["list"]:
+        ret = _list(conn, r)
+    elif "%" in r["filename"] or r["filename"] == "":
+        _summary(conn, r)
+    elif r["filename"]:
+        load(conn, r)
 
     if r["commit"] == "1":
         print("conn.commit()", end=".")
@@ -41,26 +43,96 @@ def main(r):
     print("conn.close()", end=".")
     conn.close()
     print("ok")
-    
-    return r
+    print("ret=", ret)
+    sys.exit(ret)
 
-def list0(conn, r):
+def leftb(str, num_bytes, encoding='shift-jis'):
+    while len(str.encode(encoding)) > num_bytes:
+        str = str[:-1]
+    return str
+
+import unicodedata
+def left(digit, msg):
+    for c in msg:
+        if unicodedata.east_asian_width(c) in ('F', 'W', 'A'):
+            digit -= 2
+        else:
+            digit -= 1
+    return msg + ' '*digit
+def truncate(txt, num_bytes, encoding='shift_jis'):
+    txt = txt.replace('\uff0d', '-')
+    while len(txt.encode(encoding)) > num_bytes:
+        txt = txt[:-1]
+
+    return txt + ' '*(num_bytes - len(txt.encode(encoding)))
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def _list(conn, r):
     sql = """
-select top 10
- Filename
-,count(*) cnt
-,sum(if(SyushiCd in ('SJ','SA'),1,0)) sjsa
-from hmem500
-group by
- Filename
-order by
- Filename desc
-"""
+select
+ h.Filename
+,y.*
+,i.st_soko + i.st_retu + i.st_ren + i.st_dan st_tana
+from hmem500 h
+inner join y_nyuka y
+ on (h.JGYOBU = y.JGYOBU and h.DenDt = y.SYUKA_YMD and (h.SyoriMD + h.Bin + h.SeqNo) = y.TEXT_NO)
+left outer join item i
+ on (h.JGYOBU = i.JGYOBU and i.NAIGAI = '1' and h.Pn = i.HIN_GAI)
+where h.Filename like '{}'
+order by 1,2,3,4,5,6,7
+""".format(os.path.basename(r["filename"]))
     print(sql)
     df = pd.read_sql(sql, conn)
     print(df)
-    return r
-    
+    ret = 0
+    for i, row in df.iterrows():
+        if i == 0:
+            eprint("品番" + " "*16,   end="")
+            eprint("品名" + " "*12,   end="")
+            eprint(" 数量",           end="")
+            eprint(" 前借",           end="")
+            eprint(" 入荷日  ",       end="")
+            eprint(" 振替元  ",       end="")
+            eprint("収支",            end="")
+            eprint(" 入荷棚番",       end="")
+            eprint(" 標準棚番",       end="")
+            eprint("")
+        for index, value in enumerate(row):
+            if isinstance(value, str):
+                row[index] = value.rstrip()
+        eprint("{:20.20}".format(row.HIN_NO), end="")
+        eprint("{}".format(truncate(row.HIN_NAME, 16)), end="")
+        eprint("{:5d}".format(int(row.SURYO)), end="")
+        eprint("{:5d}".format(int(row.MAEGARI_SURYO)) if int(row.MAEGARI_SURYO or 0) else "     " , end="")
+        eprint(" {:8.8}".format(row.SYUKO_YMD), end="")
+        eprint(" {:8.8}".format(row.YOSAN_FROM), end="")
+        eprint(" {:2.2} ".format(row.H_SOKO), end="")
+        eprint(" {:8.8}".format(row.NYUKO_TANABAN), end="")
+        eprint(" {:8.8}".format(row.st_tana), end="")
+        eprint("")
+        ret = i
+    return ret
+
+def _summary(conn, r):
+    sql = """
+select top 10
+ Filename
+,max(DenDt)
+,count(*) cnt
+,sum(if(SyushiCd in ('SJ','SA'),1,0)) sjsa
+from hmem500
+where Filename like '{}'
+group by
+ Filename
+order by
+ max(DenDt) desc
+""".format(os.path.basename(r["filename"]))
+    print(sql)
+    df = pd.read_sql(sql, conn)
+    print(df)
+    return
+   
 def zaiko(conn, r):
     sql = """
 select
@@ -77,6 +149,7 @@ on ((z.Soko_No + z.Retu + z.Ren + z.Dan) = y.NYUKO_TANABAN
     and z.NYUKA_DT = y.SYUKA_YMD)
 where h.Filename like '{}'
 and y.KAN_KBN = '0'
+and convert(y.SURYO,sql_decimal) > 0
 """.format(os.path.basename(r["filename"]))
     print(sql)
     df = pd.read_sql(sql, conn)
@@ -198,8 +271,8 @@ and hin_gai = '{}'
                 sql += " and NYUKA_DT='{}'".format(d["NYUKA_DT"])
                 conn.execute(sql)
             # 移動履歴 前借相殺
-            ido["SUMI_JITU_QTY"] = "{}".format(int(row.MAEGARI_SURYO))
-            ido["SUMI_HIN_Zaiko_Qty"] = "{}".format(int(ido["SUMI_HIN_Zaiko_Qty"])-int(row.MAEGARI_SURYO))
+            ido["MI_JITU_QTY"] = "{}".format(int(row.MAEGARI_SURYO))
+            ido["MI_HIN_Zaiko_Qty"] = "{}".format(int(ido["MI_HIN_Zaiko_Qty"])-int(row.MAEGARI_SURYO))
             ido["FROM_SOKO"] = ido["TO_SOKO"]
             ido["FROM_RETU"] = ido["TO_RETU"]
             ido["FROM_REN"] = ido["TO_REN"]
@@ -290,7 +363,7 @@ left outer join y_nyuka y
 on (h.JGYOBU = y.JGYOBU and h.DenDt = y.SYUKA_YMD and (h.SyoriMD + h.Bin + h.SeqNo) = y.TEXT_NO)
 where h.Filename like '{}'
 and h.IoKbn = '1'
-and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ'))
+and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ') and h.SyukoCd = 'JPSJ')
   or (h.JGYOBU = 'N')
   )
 """.format(os.path.basename(r["filename"]))
@@ -302,10 +375,16 @@ and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ'))
             if isinstance(value, str):
                 row[index] = value.rstrip()
         if row.JGyobu == "N":
-            if row.SyukoCd[2:4] == row.SyushiCd:
-                print("pass:", i, row)
+            if row.SyukoCd == "1202":
+                #収支振替 12KC→02KC
+                pass
+            elif row.SyukoCd[2:4] == row.SyushiCd:
+                print("pass:", i, row.JGyobu, row.SyukoCd, row.SyushiCd)
                 continue
-            row.JGyobu = "N"
+            elif "C17 ﾄｳ" in row.Loc1:
+                print("pass C17:", i, row.JGyobu, row.SyukoCd, row.SyushiCd, row.Loc1)
+                continue
+            #row.JGyobu = "N"
         d = {}
         d["DT_SYU"] = row.IoKbn
         d["JGYOBU"] = row.JGyobu
@@ -338,34 +417,39 @@ and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ'))
         d["LIST_OUT_END_F"] = "9"
         d["LIST_NYU_KANRI_F"] = "9"
         d["LIST_NYU_CHECK_F"] = "9"
-        d["NYUKO_TANABAN"] = "90010101"
         if row.TEXT_NO:
             d["UPD_TANTO"] = "HMEM500"
             d["Upd_DateTime"] = re.findall(r'\d+-\d+', row.Filename)[0].replace('-','')
             update(conn, "y_nyuka", d)
         else:
             d["KAN_KBN"] = "0"
-            sql = "select sum(convert(JITU_QTY,sql_decimal)) from j_nyuka"
-            sql += " where JGYOBU='{}'".format(d["JGYOBU"])
-            sql += " and NAIGAI='{}'".format(d["NAIGAI"])
-            sql += " and HIN_GAI='{}'".format(d["HIN_NO"])
-            jQty = conn.execute(sql).fetchone()[0]
-            if jQty:
-                d["MAEGARI_SURYO"] = "{}".format(min(int(row.Qty),jQty))
-                sql = "delete from j_nyuka"
+            if int(row.Qty) > 0:
+                d["NYUKO_TANABAN"] = "90010101"
+                #前借検索
+                sql = "select sum(convert(JITU_QTY,sql_decimal)) from j_nyuka"
                 sql += " where JGYOBU='{}'".format(d["JGYOBU"])
                 sql += " and NAIGAI='{}'".format(d["NAIGAI"])
                 sql += " and HIN_GAI='{}'".format(d["HIN_NO"])
-                conn.execute(sql)
-                jQty -= int(row.Qty)
-                if jQty > 0:
-                    j = {}
-                    j["JGYOBU"] = d["JGYOBU"]
-                    j["NAIGAI"] = d["NAIGAI"]
-                    j["HIN_GAI"] = d["HIN_NO"]
-                    j["JITU_QTY"] = "{}".format(int(jQty))
-                    j["INS_DATE"] = datetime.now().strftime("%Y%m%d")
-                    insert(conn, "j_nyuka", j)
+                jQty = conn.execute(sql).fetchone()[0]
+                if jQty:
+                    #前借数セット
+                    d["MAEGARI_SURYO"] = "{}".format(min(int(row.Qty),jQty))
+                    #前借削除
+                    sql = "delete from j_nyuka"
+                    sql += " where JGYOBU='{}'".format(d["JGYOBU"])
+                    sql += " and NAIGAI='{}'".format(d["NAIGAI"])
+                    sql += " and HIN_GAI='{}'".format(d["HIN_NO"])
+                    conn.execute(sql)
+                    jQty -= int(row.Qty)
+                    if jQty > 0:
+                        #前借残 登録
+                        j = {}
+                        j["JGYOBU"] = d["JGYOBU"]
+                        j["NAIGAI"] = d["NAIGAI"]
+                        j["HIN_GAI"] = d["HIN_NO"]
+                        j["JITU_QTY"] = "{}".format(int(jQty))
+                        j["INS_DATE"] = datetime.now().strftime("%Y%m%d")
+                        insert(conn, "j_nyuka", j)
                     
             d["INS_TANTO"] = "HMEM500"
             d["Ins_DateTime"] = re.findall(r'\d+-\d+', row.Filename)[0].replace('-','')
@@ -475,7 +559,7 @@ def insert(conn, table, data):
 import codecs
 def load(conn, r):
     basename = os.path.basename(r["filename"])
-    with open(r["filename"], mode='r', encoding='shift_jis') as f:
+    with open(r["filename"], mode='r', encoding='cp932') as f: # shift_jis
         sql = "delete from hmem500R where Filename = '{}'".format(basename)
         print(sql, end=" ; ")
         conn.execute(sql)
@@ -483,6 +567,7 @@ def load(conn, r):
         for i, line in enumerate(f.readlines(), start=1):
             print(basename, i, line)
             sql = "insert into hmem500R (Filename,Row,RecBuff) values ('{}',{},'{}')".format(basename, i, line)
+            print(sql, end=" ; ")
             conn.execute(sql)
             print("rowcount={}".format(conn.execute("select @@rowcount").fetchone()[0]))
     return r
@@ -501,4 +586,5 @@ if __name__ == "__main__":
         parser.add_argument("--y_nyuka", help="入荷予定登録", action="store_true")
         parser.add_argument("--zaiko", help="在庫データ登録", action="store_true")
         parser.add_argument("--y_syuka", help="出荷予定登録※子部品", action="store_true")
-        r = main(vars(parser.parse_args()))
+        parser.add_argument("--list", help="入荷リスト", action="store_true")
+        main(vars(parser.parse_args()))

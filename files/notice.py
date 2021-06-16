@@ -117,6 +117,10 @@ class notice:
             r["title"] = self.st_mtime.strftime('%H:%M') + " Active エアコン振替入荷：湖南→SDC"
             r["speech"] = self.st_mtime.strftime('%H:%M') + "...Active,エアコン振替入荷データを受信しました."
             r["chime"] = "tennoji2"
+        elif self.filename == 'hmem506.txt':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Glics エアコン入荷：JPSJ"
+            r["speech"] = self.st_mtime.strftime('%H:%M') + "...グリックス,エアコン入荷データを受信しました."
+            r["chime"] = "tennoji2"
         elif self.filename == 'corona.html':
             r["speech"] = "新型コロナウイルスの、感染防止対策のお願いです"
             r["title"] = self.filename

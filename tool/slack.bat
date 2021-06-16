@@ -41,21 +41,17 @@ set Text=%1
 echo.%Text% | findstr "atnd" && set	Chnl=kintai
 echo.%Text% | findstr "ascm.bat" && set	Chnl=kintai
 echo.%Text% | findstr "dscope" && set	Chnl=kintai
-python -V > nul
-if %errorlevel% == 0 (
-	if "%2" == "" (
-		python slack.py %User% %Chnl% %Text% nul
-	) else (
-		python slack.py %User% %Chnl% %Text% %2
-	)
+if "%2" == "" (
+	python slack.py %User% %Chnl% %Text% nul
 ) else (
-	call :_Cut %2
-	echo.cscript >> slack.tmp
-	cscript slack.vbs %User% %Chnl% %Text% slack.tmp
+	powershell -NoProfile -ExecutionPolicy Unrestricted ..\app\cut.ps1 %2 > cut.tmp
+	type cut.tmp
+	python slack.py %User% %Chnl% %Text% cut.tmp
 )
 popd
 endlocal
 exit/b
+
 :_Cut
 	setlocal
 	set sz=0

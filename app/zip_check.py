@@ -29,7 +29,8 @@ def main(r):
     conn.close()
     print("ok")
     
-    return num
+    print("num=", num)
+    sys.exit(num)
 
 def _list(conn, r):
     sql = """
@@ -78,31 +79,79 @@ order by 1,2,3,4,5
         for index, value in enumerate(row):
             if isinstance(value, str):
                 row[index] = value.rstrip()
-        print(row.YUBIN_No, end=" ")
-        div_addr = divide_addess(row.JYUSHO.replace('　',''))
-        print(div_addr[1], div_addr[2], div_addr[3])
-        addr = address(row.JYUSHO)
-        if addr:
-            print(addr.postal_code, addr.prefecture_kanji, addr.city_kanji, addr.town_area_kanji)
-            if addr.postal_code != row.YUBIN_No:
+        postman = Jusho()
+        town = postman.from_postal_code(row.YUBIN_No)
+        print("----")
+        print(town)
+        print("----")
+        address = row.JYUSHO.replace('　','')
+        print(row.YUBIN_No if row.YUBIN_No else "-------", address)
+        if town:
+            print(town.postal_code, town.prefecture_kanji, town.city_kanji, town.town_area_kanji)
+            if comp_addess(address, town):
                 eprint("★郵便番号エラー★")
                 eprint(row.SYUKA_YMD, row.UNSOU_KAISHA,  row.TYAKUTEN, row.TYAKUTEN_NM)
                 eprint(row.ID_NO_7, row.OKURISAKI_CD, row.OKURISAKI)
-                eprint("★", row.YUBIN_No if row.YUBIN_No else "-------", div_addr[1], div_addr[2], div_addr[3])
-                eprint("→", addr.postal_code, addr.prefecture_kanji, addr.city_kanji, addr.town_area_kanji)
+                eprint("★{} {}".format(row.YUBIN_No if row.YUBIN_No else "-------", address))
+                eprint("→{} {}{}".format(town.postal_code, town.prefecture_kanji, town.city_kanji, town.town_area_kanji))
                 eprint("")
                 num += 1
         else:
-            print("■不明■")
-            postman = Jusho()
-            div_addr = divide_addess(row.JYUSHO.replace('　',''))
-            for town in postman.towns_from_city(div_addr[1].strip(), div_addr[2].strip(), 'kanji'):
-                print(town.town_area_kanji)
-        print()
-        #print(addr[1], addr[2], addr[3])
-        #print(postman.address_from_town(addr[1], addr[2], addr[3], 'kanji'))
-        #print(postman.address_from_town('東京都', '新宿区', '歌舞伎町', 'kanji'))
+            print("不明")
+            print(row.SYUKA_YMD, row.UNSOU_KAISHA,  row.TYAKUTEN, row.TYAKUTEN_NM)
+            print(row.ID_NO_7, row.OKURISAKI_CD, row.OKURISAKI)
+            print("★{} {}".format(row.YUBIN_No if row.YUBIN_No else "-------", address))
     return num
+
+def comp_addess(address, town):
+    address = address.strip().replace(" ","").replace("　","")
+    if address.startswith(town.prefecture_kanji):
+        address = address.replace(town.prefecture_kanji,"")
+    else:
+        address = address.replace("岡山市都窪郡","都窪郡")
+        pass
+        #return True #!=都道府県
+    if address.startswith(town.city_kanji):
+        address = address.replace(town.city_kanji,"")
+    elif address.replace("新潟市東区山木戸","新潟市中央区山木戸").startswith(town.city_kanji):
+        address = address.replace("新潟市東区","")
+    elif address.replace("岡山市北区下中野","岡山市南区下中野").startswith(town.city_kanji):
+        address = address.replace("岡山市北区","")
+    else:
+        print("!=市町村", "({})".format(address), "({})".format(town.city_kanji))
+        return True #!=市町村
+    return False
+
+def comp_div_addess(div_addr, town):
+    #print(div_addr)
+    #print(town)
+    if div_addr[1].strip() != town.prefecture_kanji:
+        return True #!=都道府県
+    town_area = div_addr[3].strip()
+    if div_addr[2].strip() != town.city_kanji:
+        if (div_addr[2].strip() + div_addr[3].strip()) == town.city_kanji:
+            town_area = div_addr[4].strip()
+        else:
+            return True #!=市町村
+    if town_area.startswith(town.town_area_kanji):
+        return False #OK
+    town_area = town_area.replace("大字", "")
+    if town_area.startswith(town.town_area_kanji):
+        return False #OK
+    town_area = town_area.replace("字", "")
+    if town_area.startswith(town.town_area_kanji):
+        return False #OK
+    town_area = town_area.replace("ヶ", "ケ")
+    if town_area.startswith(town.town_area_kanji):
+        return False #OK
+    if town_area.startswith(town.town_area_kanji.replace("八木町","八木")):
+        return False #OK
+    if town_area.startswith(town.town_area_kanji.replace("（", "").replace("）", "")):
+        return False #OK
+    if town_area.startswith(re.sub("（.*）","",town.town_area_kanji)):
+        return False #OK
+    #!=町名
+    return True
 
 def address(address):
     postman = Jusho()
@@ -155,7 +204,7 @@ def divide_addess(address):
     pat += '((?:旭川|伊達|石狩|盛岡|奥州|田村|南相馬|那須塩原|東村山|武蔵村山|羽村|十日町|上越|富山|野々市|大町|蒲郡|四日市|姫路|大和郡山|廿日市|下松|岩国|田川|大村)市|.+?郡(?:玉村|大町|.+?)[町村]|.+?市.+?区|.+?[市区町村])'
     pat += '(.+)'
 
-    matches = re.match(pat, address)
+    matches = re.match(pat, address.strip().replace(" ",""))
     #print(matches[1])
     #print(matches[2])
     #print(matches[3])
@@ -173,5 +222,3 @@ if __name__ == "__main__":
         parser.add_argument("--chaku", help="default:着店空白, *:全て", default="", type=str)
         parser.add_argument("--zip", help="郵便番号", default="%", type=str)
         num = main(vars(parser.parse_args()))
-        print("num=", num)
-        sys.exit(num)

@@ -15,11 +15,11 @@ $(document).ready(function() {
 		console.log('load(menu.html).' + $('#cname').text());
 		$('#dns').trigger('blur');
 	});
-	$("#dns").blur(function() {
-		$('#dns_span').text($(this).val());
+	$("#dsn").blur(function() {
+		$('#dsn_span').text($(this).val());
 		var	key = $('#key').text() + '#cname';
 		$('#cname').text(localStorage.getItem(key));
-		var	req = 'jgyobu.py?dns=' + $(this).val() + '&jgyobu=0';
+		var	req = 'jgyobu.py?dsn=' + $(this).val() + '&jgyobu=0';
 		console.log(req);
 		fetch(req).then((res) => {
 			return res.json();
@@ -28,7 +28,7 @@ $(document).ready(function() {
 				$('#cname').text(json.list[0].Name);
 				localStorage.setItem(key ,$('#cname').text());
 			} else {
-				$('#cname').text('');
+				$('#cname').text('*未登録*');
 			}
 		}).catch(function(err) {
 			$('#cname').text(err);

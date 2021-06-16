@@ -254,7 +254,7 @@ End Function
 					<INPUT TYPE="radio" NAME="ptype" VALUE="pTableChild" id="pTableChild">
 						<label for="pTableChild">集計表(構成子)</label>
 					<br>
-					<INPUT TYPE="radio" NAME="ptype" VALUE="pList" id="pList" disabled>
+					<INPUT TYPE="radio" NAME="ptype" VALUE="pList" id="pList">
 						<label for="pList">一覧表</label>
 					<INPUT TYPE="radio" NAME="ptype" VALUE="pListClass" id="pListClass" onclick="sqlForm.DATA_KBN.value='0';">
 						<label for="pListClass">一覧表(クラス)</label>
@@ -402,13 +402,13 @@ End Function
 		select case ptypeStr                                       
 		case "pTableKbn"	' 集計表(区分別)                                                                            
 			db.CommandTimeout = 360
-			sqlStr = sqlStr & " SHIMUKE_CODE + ' ' + C_NAME as ""仕向先"""
-			sqlStr = sqlStr & ",sum(if(P_COMPO.DATA_KBN = '0',1,0)) as ""クラス<br>件数"""
-			sqlStr = sqlStr & ",sum(if(P_COMPO.DATA_KBN = '1',1,0)) as ""資材<br>件数"""
-			sqlStr = sqlStr & ",sum(if(P_COMPO.DATA_KBN = '2',1,0)) as ""外装<br>件数"""
-			sqlStr = sqlStr & ",sum(if(P_COMPO.DATA_KBN = '3',1,0)) as ""構成部品<br>件数"""
+			sqlStr = sqlStr & " p.SHIMUKE_CODE + rtrim(' ' + ifnull(c.C_NAME,'')) ""仕向先"""
+			sqlStr = sqlStr & ",sum(if(p.DATA_KBN = '0',1,0)) ""クラス<br>件数"""
+			sqlStr = sqlStr & ",sum(if(p.DATA_KBN = '1',1,0)) ""資材<br>件数"""
+			sqlStr = sqlStr & ",sum(if(p.DATA_KBN = '2',1,0)) ""外装<br>件数"""
+			sqlStr = sqlStr & ",sum(if(p.DATA_KBN = '3',1,0)) ""構成部品<br>件数"""
 			sqlStr = sqlStr & " From P_COMPO p"
-			sqlStr = sqlStr & "    left outer join p_code on (P_COMPO.SHIMUKE_CODE=p_code.C_Code and p_code.DATA_KBN='04')"
+			sqlStr = sqlStr & " left outer join p_code c on (p.SHIMUKE_CODE=c.C_Code and c.DATA_KBN='04')"
 			sqlStr = sqlStr & whereStr
 			sqlStr = sqlStr & " group by ""仕向先"""
 			sqlStr = sqlStr & " order by ""仕向先"""
@@ -448,6 +448,55 @@ End Function
 			sqlStr = sqlStr & " group by ""事業部(子)"",""内外(子)"",""品番(子)"",""品名(子)"""
 			sqlStr = sqlStr & " order by ""事業部(子)"",""内外(子)"",""品番(子)"""
 		case "pList"	' 一覧表
+			sqlStr = sqlStr & " p.SHIMUKE_CODE ""仕向先"""
+			sqlStr = sqlStr & ",p.HIN_GAI ""品番"""
+			sqlStr = sqlStr & ",p.DATA_KBN"
+			sqlStr = sqlStr & ",p.SEQNO"
+			sqlStr = sqlStr & ",p.KO_SYUBETSU"
+			sqlStr = sqlStr & ",p.KO_JGYOBU"
+			sqlStr = sqlStr & ",p.KO_NAIGAI"
+			sqlStr = sqlStr & ",p.KO_HIN_GAI"
+			sqlStr = sqlStr & ",convert(p.KO_QTY,sql_decimal) KO_QTY"
+			sqlStr = sqlStr & ",p.BIKOU ""備考"""
+			sqlStr = sqlStr & ",p.UPD_TANTO"
+			sqlStr = sqlStr & ",p.UPD_DATETIME"
+			sqlStr = sqlStr & " From ("
+			sqlStr = sqlStr & " select"
+			sqlStr = sqlStr & " SHIMUKE_CODE"
+			sqlStr = sqlStr & ",JGYOBU"
+			sqlStr = sqlStr & ",NAIGAI"
+			sqlStr = sqlStr & ",HIN_GAI"
+			sqlStr = sqlStr & ",DATA_KBN"
+			sqlStr = sqlStr & ",SEQNO"
+			sqlStr = sqlStr & ",'' KO_SYUBETSU"
+			sqlStr = sqlStr & ",'' KO_JGYOBU"
+			sqlStr = sqlStr & ",'' KO_NAIGAI"
+			sqlStr = sqlStr & ",'' KO_HIN_GAI"
+			sqlStr = sqlStr & ",Null KO_QTY"
+			sqlStr = sqlStr & ",BIKOU"
+			sqlStr = sqlStr & ",UPD_TANTO"
+			sqlStr = sqlStr & ",UPD_DATETIME"
+			sqlStr = sqlStr & " from p_compo"
+			sqlStr = sqlStr & " where DATA_KBN='0'"
+			sqlStr = sqlStr & " union select"
+			sqlStr = sqlStr & " SHIMUKE_CODE"
+			sqlStr = sqlStr & ",JGYOBU"
+			sqlStr = sqlStr & ",NAIGAI"
+			sqlStr = sqlStr & ",HIN_GAI"
+			sqlStr = sqlStr & ",DATA_KBN"
+			sqlStr = sqlStr & ",SEQNO"
+			sqlStr = sqlStr & ",KO_SYUBETSU"
+			sqlStr = sqlStr & ",KO_JGYOBU"
+			sqlStr = sqlStr & ",KO_NAIGAI"
+			sqlStr = sqlStr & ",KO_HIN_GAI"
+			sqlStr = sqlStr & ",KO_QTY"
+			sqlStr = sqlStr & ",KO_BIKOU BIKOU"
+			sqlStr = sqlStr & ",UPD_TANTO"
+			sqlStr = sqlStr & ",UPD_DATETIME"
+			sqlStr = sqlStr & " from p_compo_k"
+			sqlStr = sqlStr & " where DATA_KBN<>'0'"
+			sqlStr = sqlStr & " ) p"
+			sqlStr = sqlStr & " " & whereStr
 		case "pListClass"	' 一覧表(商品化クラス)                                                      
 			Server.ScriptTimeout = 900
 			db.CommandTimeout = 360

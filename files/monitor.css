@@ -2562,7 +2562,7 @@ img {
     border-width : 1px;
     border-style : solid;
 	padding : 1px;
-	font-size: min(3vh, 3vw);
+	font-size: 4vh;
 	line-height: 1;
 }
 #package_plan td {
@@ -2608,24 +2608,7 @@ img {
 	white-space: normal;
 	word-break: break-all;
 }
-#package_plan td.Sample {
-	text-align: center;
-	font-size: 5vh;
-	font-size-adjust : 0.56;
-	font-weight: bold;
-	*white-space: normal;
-	white-space: nowrap;
-}
-#package_plan th.Memo {
-	white-space: normal;
-	word-break: break-all;
-	font-size: 2vw;
-}
-#package_plan td.Memo {
-	white-space: normal;
-	word-break: break-all;
-	font-size: 2vw;
-}
+#package_plan td.Memo ,
 #package_plan td.Stat {
 	font-size: 3vh;
 }
@@ -2690,6 +2673,12 @@ img {
 		white 0%,
 		lightgray 100%
 	);
+}
+#package_plan td.Sample {
+	text-align: center;
+	font-size: 5vh;
+	font-weight: bold;
+	white-space: normal;
 }
 #package_plan div.info {
 	*display: inline-block;
@@ -2819,23 +2808,22 @@ img {
 	border-color: white;
     border-width : 1px;
     border-style : solid;
-	padding : 5px 5px;
+	padding : 5px 2px;
 	line-height: 1;
 	text-align: left;
 	font-size: 2vw;
 	white-space: normal;
 }
-#short_plan tbody td.c0 {
-	text-align: center;
+#short_plan tbody td {
+	font-size: 1.5vw;
+	word-break: break-all;
 }
-#short_plan tbody td.c1 ,
-#short_plan tbody td.c2 {
+/* サービス品番	入荷品番 */
+#short_plan tbody td.c0 ,
+#short_plan tbody td.c1 {
 	font-family: monospace,Courier,Consolas,'Courier New';
 	white-space: nowrap;
 	font-size: 2.5vw;
-}
-#short_plan tbody td.c3 {
-	font-size: 1.5vw;
 }
 #short_plan .rowNo {
 	background: none;

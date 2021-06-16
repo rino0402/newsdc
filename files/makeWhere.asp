@@ -243,9 +243,9 @@ function makeWhere(byval strWhere,byval strField,byval strValue1,byval strValue2
 			strWhere = strWhere & strAnd & " " & strField & " " & strCmp & " '" & strValue1 & "' and '" & strValue2 & "'"
 		else
 			select case left(strValue1,1)
-			case "<"
-				strValue1 = right(strValue1,len(strValue1)-1)
-				strCmp = "<"
+			case "<","=",">"
+				strCmp = left(strValue1,1)
+				strValue1 = "'" & right(strValue1,len(strValue1)-1) & "'"
 			case else
 				strValue1 = "'" & RTrim(strValue1) & "'"
 				if instr(1,strValue1,"%") > 0 _
@@ -263,6 +263,12 @@ function makeWhere(byval strWhere,byval strField,byval strValue1,byval strValue2
 				end if
 			end select
 		    select case strField
+			case "s.JYUSHO"
+    			strWhere = strWhere & strAnd & "( " & strField & " " & strCmp & " " & strValue1 & ""
+    			strWhere = strWhere & " or s.YUBIN_No " & strCmp & " " & strValue1 & ")"
+			case "s.OKURISAKI"
+    			strWhere = strWhere & strAnd & "( " & strField & " " & strCmp & " " & strValue1 & ""
+    			strWhere = strWhere & " or s.BIKOU " & strCmp & " " & strValue1 & ")"
 		    case "d.ChoCode"
     			strWhere = strWhere & strAnd & "( " & "y.KEY_MUKE_CODE" & " " & strCmp & " " & strValue1 & ""
     			strWhere = strWhere & " or " & "y.LK_MUKE_CODE" & " " & strCmp & " " & strValue1 & ""

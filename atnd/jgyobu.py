@@ -14,8 +14,8 @@ from decimal import Decimal
 def main(r):
     print("main({})".format(r))
 
-    print("pyodbc.connect({0})".format(r["dns"]), end=".")
-    conn = pyodbc.connect('DSN=' + r["dns"])
+    print("pyodbc.connect({0})".format(r["dsn"]), end=".")
+    conn = pyodbc.connect('DSN=' + r["dsn"])
     print("ok")
 
     r["list"] = list1(conn, r)
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     if 'REQUEST_METHOD' in os.environ:
         form = cgi.FieldStorage()
         r = {}
-        r["dns"] = form.getvalue('dns', 'newsdc')
+        r["dsn"] = form.getvalue('dsn', 'newsdc')
         r["jgyobu"] = form.getvalue('jgyobu', '')
         r["limit"] = int(form.getvalue('limit', 0))
         sys.stdout = None
@@ -95,12 +95,12 @@ if __name__ == "__main__":
     else:
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument("--dns", help="default: newsdc", default="newsdc", type=str)
+        parser.add_argument("--dsn", help="default: newsdc", default="newsdc", type=str)
         parser.add_argument("--jgyobu", help="", default="", type=str)
         parser.add_argument("--limit", help="default: 0", default=0, type=int)
         args= parser.parse_args()
         r = {}
-        r["dns"] = args.dns
+        r["dsn"] = args.dsn
         r["jgyobu"] = args.jgyobu
         r["limit"] = args.limit
         r = main(r)

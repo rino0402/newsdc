@@ -40,7 +40,8 @@ body {
 	padding: 3px;
 }
 main {
-	padding: 3px 10px;
+	*padding: 3px 10px;
+	padding: 3px;
 }
 input {
 	font-size	: 100%;
@@ -191,7 +192,7 @@ table tr td {
 	*background-color: yellow;
 }
 .content form {
-	padding: 2px 2px;
+	padding: 2px 0px;
 }
 .hour {
 	text-align: right;
@@ -252,6 +253,10 @@ th.total {
 }
 td.total {
 	text-align: right;
+	font-size: 0.7em;
+}
+td.total.Days {
+	font-size: 1em;
 }
 .Post,
 .Shift {
@@ -283,4 +288,8 @@ td.total {
   vertical-align: middle;
   padding-top: 140px;
   background: url("images/loading1.gif?v=2020032501") center center no-repeat;
+}
+
+.work_off td.total {
+	color : white;
 }

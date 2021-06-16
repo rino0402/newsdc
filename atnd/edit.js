@@ -1,5 +1,7 @@
 ﻿// バージョン
 var	ver = [];
+ver.push('0.14 2021.06.14 変更：「承認/確認」を右上固定 ※テストバージョン');
+ver.push('0.13 2021.06.09 変更：休日の時は集計項目を非表示(白表示)');
 ver.push('0.12 2021.05.24 修正：「始業、終業」変更で「所定内、残業、深夜、休出」が更新されない不具合を修正');
 ver.push('0.11 2021.05.18 「締日」対応');
 ver.push('0.10 2021.04.21 修正：休憩時間:21:45-22:00 24:00-24:15 を控除するように修正');
@@ -234,6 +236,7 @@ $("input[name='load']").on('click', function() {
 		$('#filter').trigger('change');	//フィルター実行
 		$('#tab_month input[name="edit"]').trigger('click');	//編集可
 		total();
+		$(".wflow_update").trigger('click');
 	}).catch((error) => {
 		$('#msg').html(error + '<br>' + req);
 	});
@@ -523,6 +526,9 @@ function total() {
 		} else {
 			if($(this).find(".StartTm").text() || $(this).find(".PTO").text() || $(this).find(".PTO_tm").text() ) {
 				days++;
+				$(this).removeClass("work_off");	//出勤
+			} else {
+				$(this).addClass("work_off");	//休み
 			}
 			if($(this).find(".PTO").text()) {
 				pto += parseFloat($(this).find(".PTO").text());
@@ -787,4 +793,163 @@ $("input[name='staff_add']").on('click', function() {
     $(table + ">tbody").append($tr);    //add the row to the table
     $tr.find(".tabledit-edit-button").click();  //pretend to click the edit button
     $tr.find("input:not([type=hidden]), select").val("");   //wipe out the inputs.
+});
+$(function(){
+  // ダイアログの初期設定
+  $("#wflow_dialog").dialog({
+    autoOpen: false,  // 自動的に開かないように設定
+    width: 500,       // 横幅のサイズを設定
+    modal: true,      // モーダルダイアログにする
+    buttons: [        // ボタン名 : 処理 を設定
+      {
+        text: 'ＯＫ',
+        click: function(){
+			//alert("ボタン2をクリックしました");
+			var	wflow_id = $("#wflow_dialog .wflow_id").text();
+			if(window.confirm(wflow_id + ": 更新します。")) {
+//				$('#' + wflow_id).find('.dname').attr('title', $("#wflow_dialog input[name='comment']").val());
+				var	dname = $("#wflow_dialog input[name='dname']").val();
+				var now = new Date();
+				var	ts = now.getFullYear();
+				ts += '-' + (now.getMonth()+1);
+				ts += '-' + now.getDate();
+				ts += ' ' + ('0' + now.getHours()).slice(-2);
+				ts += ':' + ('0' + now.getMinutes()).slice(-2);
+				ts += ':' + ('0' + now.getSeconds()).slice(-2);
+//				$('#' + wflow_id).find('.ts').attr('title', ts);
+				var	md = (now.getMonth()+1) + '/' + now.getDate();
+				if(dname == '') {
+					switch(wflow_id) {
+					case "author-1":	dname = '担当';	break;
+					case "manager-2":	dname = '所長';	break;
+					case "keiri-3":		dname = '経理';	break;
+					}
+					md = '--/--';
+				}
+				$('#' + wflow_id).find('.dname').text(dname);
+				$('#' + wflow_id).find('.ts').text(md);
+				var	tooltip = wflow_id;
+				tooltip += '\n' + dname;
+				tooltip += '\n' + $("#wflow_dialog input[name='comment']").val();
+				tooltip += '\n' + ts;
+				$('#' + wflow_id).attr('title', tooltip);
+
+				var	req = 'wflow.py?dsn=' + $('#dsn').val();
+				req += '&wfrole=' + wflow_id.split('-')[1];
+				req += '&post=' + $("#wflow_dialog input[name='post']").val();
+				req += '&month=' + $("#wflow_dialog input[name='month']").val();
+				req += '&close_day=' + $("#wflow_dialog input[name='close_day']").val();
+				req += '&dname=' + $("#wflow_dialog input[name='dname']").val();
+				req += '&comment=' + $("#wflow_dialog input[name='comment']").val();
+				req += '&ts=' + ts;
+				$('#msg').text(req);
+				$(this).addClass("gif-load");
+				fetch(req).then((res) => {
+					$('#msg').text('');
+					$(this).removeClass("gif-load");
+					return res.json();
+				}).then((json) => {
+					$(this).dialog("close");
+				}).catch((error) => {
+					$('#msg').html(error + '<br>' + req);
+				});
+			}
+        }
+      },
+      {
+        text: 'キャンセル',
+        click: function(){
+			// ダイアログを閉じる
+			$(this).dialog("close");
+        }
+      }
+    ]
+  });
+});
+$(".wflow_update").on('click', function() {
+	//alert('click:' + $(this).text());
+	$('#keiri-3 .dname').text('経理');
+	$('#manager-2 .dname').text('所長');
+	$('#author-1 .dname').text('担当');
+	$('#keiri-3 .ts').text('--/--');
+	$('#manager-2 .ts').text('--/--');
+	$('#author-1 .ts').text('--/--');
+	$("#wflow_dialog input[name='post']").val($("#tab_month input[name='post']").val());
+	$("#wflow_dialog input[name='month']").val($("#tab_month input[name='month']").val());
+	$("#wflow_dialog input[name='close_day']").val($("#tab_month input[name='close_day']").val());
+	var	req = 'wflow.py?a=list';
+	req += '&dsn=' + $('#dsn').val();
+	req += '&post=' + $("#wflow_dialog input[name='post']").val();
+	req += '&month=' + $("#wflow_dialog input[name='month']").val();
+	req += '&close_day=' + $("#wflow_dialog input[name='close_day']").val();
+	$('#msg').text(req);
+	$(this).addClass("gif-load");
+	fetch(req).then((res) => {
+		$('#msg').text('');
+		$(this).removeClass("gif-load");
+		return res.json();
+	}).then((json) => {
+		console.log(json.data);
+		for ( var i = 0 ; i < json.data.length ; i++) {
+//			console.log(i);
+			console.log(json.data[i].WFrole);
+			console.log(json.data[i].Name);
+			console.log(json.data[i].Comment);
+			console.log(json.data[i].TS);
+			var	wflow_id = "";
+			switch(json.data[i].WFrole) {
+			case "1":	wflow_id = "#author-1";		$(wflow_id + ' .dname').text('担当');	break;
+			case "2":	wflow_id = "#manager-2";	$(wflow_id + ' .dname').text('所長');	break;
+			case "3":	wflow_id = "#keiri-3";		$(wflow_id + ' .dname').text('経理');	break;
+			}
+			if(wflow_id) {
+				var	tooltip = wflow_id;
+				tooltip += '\n' + json.data[i].Name;
+				tooltip += '\n' + json.data[i].Comment;
+				//var now = new Date(json.data[i].TS);
+				var now = new Date(json.data[i].TS.split('.')[0]);
+				var	ts = now.getFullYear();
+				ts += '-' + (now.getMonth()+1);
+				ts += '-' + now.getDate();
+				ts += ' ' + ('0' + now.getHours()).slice(-2);
+				ts += ':' + ('0' + now.getMinutes()).slice(-2);
+				ts += ':' + ('0' + now.getSeconds()).slice(-2);
+//				ts = moment(json.data[i].TS.split('+')[0] + '+0900').format("YYYY-MM-DD HH:mm:SS") 
+				tooltip += '\n' + ts;
+				$(wflow_id).attr('title', tooltip);
+				var	md = (now.getMonth()+1) + '/' + now.getDate();
+				if(json.data[i].Name) {
+					$(wflow_id + ' .dname').text(json.data[i].Name);
+					$(wflow_id + ' .ts').text(md);
+				} else {
+					$(wflow_id + ' .ts').text('--/--');
+				}
+			}
+		}
+	}).catch((error) => {
+		$('#msg').html(error + '<br>' + req);
+	});
+});
+
+$(".wflow > div").on('click', function() {
+	//alert('click:' + $(this).text());
+	$("#wflow_dialog .wflow_id").text(this.id);
+	var	tooltip = $(this).attr('title') || '';
+	if(!tooltip) {
+//		tooltip = '';
+	}
+
+	var	dname = $(this).find('.dname').text();
+	$("#wflow_dialog input[name='dname']").val(dname);
+
+//	var	ts = $(this).find('.ts').attr('title');
+	var	ts = tooltip.split('\n')[3];
+	$("#wflow_dialog input[name='ts']").val(ts);
+
+//	var	comment = $(this).find('.dname').attr('title');
+	var	comment = tooltip.split('\n')[2];
+	$("#wflow_dialog input[name='comment']").val(comment);
+
+	$("#wflow_dialog").dialog("open");
+	$("#wflow_dialog input[name='dname']").focus();
 });

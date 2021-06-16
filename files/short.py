@@ -15,6 +15,7 @@ from decimal import Decimal
 #----------------------------------------------------------------
 def main(r):
     print("main({})".format(r))
+    r["pn_jcode"] = '00036003'
     if r["jgyobu"] == '7':
         r["jcode"] = '00023210'
     elif r["jgyobu"] == 'A':
@@ -25,6 +26,11 @@ def main(r):
         r["jcode"] = '00023410'
     elif r["jgyobu"] == '5':
         r["jcode"] = '00021397'
+    elif r["jgyobu"] == 'B':
+        r["jcode"] = '00021397'
+    elif r["jgyobu"] == 'N':
+        r["jcode"] = '00021373'
+        r["pn_jcode"] = '00021373'
     print("pyodbc.connect({0})".format(r["dns"]), end=".")
     conn = pyodbc.connect('DSN=' + r["dns"])
     print("ok")
@@ -88,7 +94,7 @@ left outer join (
 left outer join ave_syuka a
 	on (a.JGYOBU='{0}' and a.NAIGAI='1' and i.HIN_GAI=a.HIN_GAI)
 inner join PnNew pn
-	on (pn.JCode='00036003' and pn.ShisanJCode='{1}' and i.HIN_GAI=pn.Pn)
+	on (pn.JCode='{2}' and pn.ShisanJCode='{1}' and i.HIN_GAI=pn.Pn)
 left outer join PnShort pns
 	on (pns.JCode='{1}' and i.HIN_GAI=pns.Pn)
 left outer join ShortXls pnx
@@ -141,10 +147,11 @@ order by
 ,z.qty desc
 ,i.HIN_GAI
 ,g.YoteiDt
-""".format(r["jgyobu"], r["jcode"])
+""".format(r["jgyobu"], r["jcode"], r["pn_jcode"])
     rlist = []
     try:
         cursor = conn.cursor()
+        print(sql)
         cursor.execute(sql)
         columns = [column[0] for column in cursor.description]
         for row in cursor.fetchall():

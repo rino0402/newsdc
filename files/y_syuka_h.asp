@@ -33,6 +33,7 @@
 	versionStr = "2020.07.28 IE11で配達不可が先頭に表示されるように修正"
 	versionStr = "2020.12.11 集計表(iStar2)検証用"
 	versionStr = "2020.12.16 集計表(iStar2) 着店名 追加"
+	versionStr = "2021.01.26 検索条件：着店 追加"
 %>
 <HTML>
 <HEAD>
@@ -68,7 +69,6 @@
 	dim	autoStr
 	dim	fValue
 	dim	tdTag
-	dim	OKURI_NOStr
 	dim	CANCEL_FStr
 	dim	dbName
 	dim	lngMax
@@ -110,7 +110,6 @@
 	SYUKO_SYUSIStr	= ucase(Request.QueryString("SYUKO_SYUSI"))
 	SAI_SUStr		= ucase(Request.QueryString("SAI_SU"))
 	submitStr		= Request.QueryString("submit1")
-	OKURI_NOStr		= ucase(Request.QueryString("OKURI_NO"))
 	CANCEL_FStr		= ucase(Request.QueryString("CANCEL_F"))
 	COL_OKURISAKI_CDStr		= ucase(Request.QueryString("COL_OKURISAKI_CD"))
 	strOKURISAKI_CD		= ucase(Request.QueryString("OKURISAKI_CD"))
@@ -221,13 +220,12 @@ function autoChange() {
 			<th>伝票No</th>
 			<th>品番</th>
 			<th>才数</th>
-			<th>問合せNo</th>
+			<th>運送会社</th>	<!--th>問合せNo</th-->
 			<th>便</th>
 			<th>キャンセル</th>
 			<th>送り先</th>
 			<!--th>集約送り先コード</th-->
 			<!--th>送り先名</th-->
-			<th>運送会社</th>
 		</tr>
 		<tr valign="top">
 			<td align="center">
@@ -256,7 +254,9 @@ function autoChange() {
 				<INPUT TYPE="text" NAME="SAI_SU" id="SAI_SU" VALUE="<%=SAI_SUStr%>" size="5">
 			</td>
 			<td align="center">
-				<INPUT TYPE="text" NAME="OKURI_NO" id="OKURI_NO" VALUE="<%=OKURI_NOStr%>" size="15">
+				<div><INPUT TYPE="text" NAME="UNSOU_KAISHA" VALUE="<%=GetRequest("UNSOU_KAISHA","")%>" size="15" placeholder = "運送会社名"></div>
+				<div><INPUT TYPE="text" NAME="TYAKUTEN" VALUE="<%=GetRequest("TYAKUTEN","")%>" size="15" placeholder = "着店"></div>
+				<div><INPUT TYPE="text" NAME="OKURI_NO" VALUE="<%=GetRequest("OKURI_NO","")%>" size="15" placeholder = "問合せNo(送り状No)"></div>
 			</td>
 			<td align="center">
 				<INPUT TYPE="text" NAME="INS_BIN" id="INS_BIN" VALUE="<%=strINS_BIN%>" size="4"><br>
@@ -275,11 +275,11 @@ function autoChange() {
 			<td align="center">
 				<div><INPUT TYPE="text" NAME="OKURISAKI_CD" 		VALUE="<%=GetRequest("OKURISAKI_CD","")%>"		size="15" placeholder = "送り先コード"></div>
 				<div><INPUT TYPE="text" NAME="COL_OKURISAKI_CD" 	VALUE="<%=GetRequest("COL_OKURISAKI_CD","")%>"	size="15" placeholder = "集約送り先コード"></div>
-				<div><INPUT TYPE="text" NAME="MUKE_NAME" 		VALUE="<%=GetRequest("MUKE_NAME","")%>" 			size="15" placeholder = "送り先名"></div>
+				<div><INPUT TYPE="text" NAME="OKURISAKI" 		VALUE="<%=GetRequest("OKURISAKI","")%>" 			size="15" placeholder = "送り先名"></div>
 				<div><INPUT TYPE="text" NAME="JYUSHO"			VALUE="<%=GetRequest("JYUSHO","")%>"				size="15" placeholder = "送り先住所"></div>
+				<div><INPUT TYPE="text" NAME="YUBIN_No"			VALUE="<%=GetRequest("YUBIN_No","")%>"				size="15" placeholder = "送り先〒"></div>
 			</td>
 			<td align="center">
-				<INPUT TYPE="text" NAME="UNSOU_KAISHA" id="UNSOU_KAISHA" VALUE="<%=GetRequest("UNSOU_KAISHA","")%>" size="12">
 			</td>
 		</tr>
 		<tr>
@@ -364,7 +364,7 @@ function autoChange() {
 
 		whereStr = makeWhere(whereStr,"s.SYUKA_YMD"						,dtStr				,dtToStr	)
 		whereStr = makeWhere(whereStr,"s.ID_NO"							,KEY_ID_NOStr		,""			)
-		whereStr = makeWhere(whereStr,"s.OKURI_NO"						,OKURI_NOStr		,""			)
+		whereStr = makeWhere(whereStr,"s.OKURI_NO"						,GetRequest("OKURI_NO","")		,""			)
 		whereStr = makeWhere(whereStr,"s.DEN_NO"						,DEN_NOStr			,""			)
 		whereStr = makeWhere(whereStr,"s.MUKE_CODE"						,MUKE_CODEStr		,""			)
 		whereStr = makeWhere(whereStr,"s.HIN_NO"						,pnStr				,""			)
@@ -373,9 +373,11 @@ function autoChange() {
 		whereStr = makeWhere(whereStr,"s.OKURISAKI_CD"					,GetRequest("OKURISAKI_CD","")	,""			)
 		whereStr = makeWhere(whereStr,"s.COL_OKURISAKI_CD"				,COL_OKURISAKI_CDStr,""			)
 		whereStr = makeWhere(whereStr,"s.INS_BIN"						,strINS_BIN			,""			)
-		whereStr = makeWhere(whereStr,"s.MUKE_NAME"						,GetRequest("MUKE_NAME","")		,""			)
+		whereStr = makeWhere(whereStr,"s.OKURISAKI"						,GetRequest("OKURISAKI","")		,""			)
 		whereStr = makeWhere(whereStr,"s.JYUSHO"						,GetRequest("JYUSHO","")		,""			)
+		whereStr = makeWhere(whereStr,"s.YUBIN_No"						,GetRequest("YUBIN_No","")		,""			)
 		whereStr = makeWhere(whereStr,"s.UNSOU_KAISHA"					,GetRequest("UNSOU_KAISHA",""),"")
+		whereStr = makeWhere(whereStr,"s.TYAKUTEN"						,GetRequest("TYAKUTEN",""),"")
 
 		sqlStr = "select distinct "
 		if lngMax > 0 then
@@ -479,7 +481,7 @@ function autoChange() {
  			sqlStr = sqlStr & ",JYUSHO ""送り先住所"""					'7
 			sqlStr = sqlStr & ",COL_OKURISAKI_CD ""集約送り先"""		'8
  			sqlStr = sqlStr & ",OKURISAKI_CD ""送り先"""				'9
- 			sqlStr = sqlStr & ",OKURISAKI ""送り先名"""					'10
+ 			sqlStr = sqlStr & ",rtrim(OKURISAKI) + if(rtrim(BIKOU)='','','<br>' + rtrim(BIKOU)) ""送り先名"""					'10
  			sqlStr = sqlStr & ",TEL_No ""Tel"""							'11
 			sqlStr = sqlStr & ",count(distinct if(OKURI_NO = '',null(),OKURI_NO)) ""送状"""
 			sqlStr = sqlStr & ",count(*) ""件数"""
@@ -666,6 +668,8 @@ function autoChange() {
 						end if
 						tdTag = "<TD nowrap id=""Integer"">"
 					elseif rsList.Fields(i).Name = "送り先住所" then
+						tdTag = "<TD id=""Charactor"">"
+					elseif rsList.Fields(i).Name = "送り先名" then
 						tdTag = "<TD id=""Charactor"">"
 					elseif rsList.Fields(i).Name = "配達不可" then
 						tdTag = "<TD id=""Charactor"">"
