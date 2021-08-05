@@ -263,6 +263,12 @@ function makeWhere(byval strWhere,byval strField,byval strValue1,byval strValue2
 				end if
 			end select
 		    select case strField
+			case "i.Ins_Upd_DateTime"
+    			strWhere = strWhere & strAnd & "( i.Ins_DateTime " & strCmp & " " & strValue1 & ""
+    			strWhere = strWhere & " or i.Upd_DateTime " & strCmp & " " & strValue1 & ")"
+			case "i.Ins_Upd_ID"
+    			strWhere = strWhere & strAnd & "( UCASE(i.INS_TANTO) " & strCmp & " " & strValue1 & ""
+    			strWhere = strWhere & " or UCASE(i.UPD_TANTO) " & strCmp & " " & strValue1 & ")"
 			case "s.JYUSHO"
     			strWhere = strWhere & strAnd & "( " & strField & " " & strCmp & " " & strValue1 & ""
     			strWhere = strWhere & " or s.YUBIN_No " & strCmp & " " & strValue1 & ")"
@@ -454,6 +460,10 @@ Function GetDbName()
 '		strDbName = lcase(Split(Request.ServerVariables("APPL_PHYSICAL_PATH"),"\")(1))
 		strDbName = lcase(Split(Request.ServerVariables("PATH_TRANSLATED"),"\")(1))
 		strDbName = lcase(Split(Request.ServerVariables("URL"),"/")(1))
+		select case lcase(Split(Request.ServerVariables("SERVER_NAME"),".")(0))
+		case "sebd"
+			strDbName = "newsdcn"
+		end select
 '		select case Request.ServerVariables("HTTP_HOST")
 '		case "fhd.osk.sdch"
 '			strDbName = "fhd"

@@ -25,6 +25,9 @@ if /i "%ComputerName%" == "w4" (
 if /i "%ComputerName%" == "w5" (
 	set	Chnl=w5
 )
+if /i "%ComputerName%" == "sasuke" (
+	set	Chnl=w5
+)
 if /i "%ComputerName%" == "w6" (
 	set	Chnl=w6
 )
@@ -44,14 +47,14 @@ echo.%Text% | findstr "dscope" && set	Chnl=kintai
 if "%2" == "" (
 	python slack.py %User% %Chnl% %Text% nul
 ) else (
-	powershell -NoProfile -ExecutionPolicy Unrestricted ..\app\cut.ps1 %2 > cut.tmp
+rem	powershell -NoProfile -ExecutionPolicy Unrestricted .\cut.ps1 %2 > cut.tmp
+	powershell .\cut.ps1 %2 > cut.tmp
 	type cut.tmp
 	python slack.py %User% %Chnl% %Text% cut.tmp
 )
 popd
 endlocal
 exit/b
-
 :_Cut
 	setlocal
 	set sz=0

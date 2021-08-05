@@ -104,7 +104,7 @@ order by 1,2,3,4,5,6,7
         eprint("{:20.20}".format(row.HIN_NO), end="")
         eprint("{}".format(truncate(row.HIN_NAME, 16)), end="")
         eprint("{:5d}".format(int(row.SURYO)), end="")
-        eprint("{:5d}".format(int(row.MAEGARI_SURYO)) if int(row.MAEGARI_SURYO or 0) else "     " , end="")
+        eprint("{:5.0f}".format(float(row.MAEGARI_SURYO)) if float(row.MAEGARI_SURYO or 0) else "     " , end="")
         eprint(" {:8.8}".format(row.SYUKO_YMD), end="")
         eprint(" {:8.8}".format(row.YOSAN_FROM), end="")
         eprint(" {:2.2} ".format(row.H_SOKO), end="")
@@ -112,7 +112,7 @@ order by 1,2,3,4,5,6,7
         eprint(" {:8.8}".format(row.st_tana), end="")
         eprint("")
         ret = i
-    return ret
+    return len(df)
 
 def _summary(conn, r):
     sql = """
@@ -253,9 +253,9 @@ and hin_gai = '{}'
         ido["YOSAN_TO"] = row.YOSAN_TO
         insert(conn, "idoreki", ido)
 
-        if int(row.MAEGARI_SURYO or 0) > 0:
+        if float(row.MAEGARI_SURYO or 0) > 0:
             # 在庫 前借相殺
-            d["YUKO_Z_QTY"] = "{}".format(int(d["YUKO_Z_QTY"]) - int(row.MAEGARI_SURYO))
+            d["YUKO_Z_QTY"] = "{}".format(int(d["YUKO_Z_QTY"]) - int(float(row.MAEGARI_SURYO)))
             if int(d["YUKO_Z_QTY"]) > 0:
                 update(conn, "zaiko", d)
             else:
@@ -271,8 +271,8 @@ and hin_gai = '{}'
                 sql += " and NYUKA_DT='{}'".format(d["NYUKA_DT"])
                 conn.execute(sql)
             # 移動履歴 前借相殺
-            ido["MI_JITU_QTY"] = "{}".format(int(row.MAEGARI_SURYO))
-            ido["MI_HIN_Zaiko_Qty"] = "{}".format(int(ido["MI_HIN_Zaiko_Qty"])-int(row.MAEGARI_SURYO))
+            ido["MI_JITU_QTY"] = "{}".format(int(float(row.MAEGARI_SURYO)))
+            ido["MI_HIN_Zaiko_Qty"] = "{}".format(int(ido["MI_HIN_Zaiko_Qty"])-int(float(row.MAEGARI_SURYO)))
             ido["FROM_SOKO"] = ido["TO_SOKO"]
             ido["FROM_RETU"] = ido["TO_RETU"]
             ido["FROM_REN"] = ido["TO_REN"]
@@ -365,6 +365,7 @@ where h.Filename like '{}'
 and h.IoKbn = '1'
 and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ') and h.SyukoCd = 'JPSJ')
   or (h.JGYOBU = 'N')
+  or (h.JGYOBU = 'R' and h.SyushiCd not in ('PP'))
   )
 """.format(os.path.basename(r["filename"]))
     print(sql)
@@ -385,6 +386,10 @@ and ((h.JGYOBU = 'A' and h.SyushiCd in ('SJ') and h.SyukoCd = 'JPSJ')
                 print("pass C17:", i, row.JGyobu, row.SyukoCd, row.SyushiCd, row.Loc1)
                 continue
             #row.JGyobu = "N"
+        if row.JGyobu == "R":
+            if row.SyukoCd[2:4] == row.SyushiCd:
+                print("除外:収支振替", i, row.JGyobu, row.SyukoCd, row.SyushiCd)
+                continue
         d = {}
         d["DT_SYU"] = row.IoKbn
         d["JGYOBU"] = row.JGyobu
@@ -468,7 +473,7 @@ left outer join item i
 on (h.JGYOBU = i.JGYOBU and i.NAIGAI = '1' and h.Pn = i.HIN_GAI)
 where i.HIN_GAI is null
 and Filename like '{}'
-and (h.JGYOBU = 'N' or (h.JGYOBU = 'A' and SyushiCd in ('SJ','SA')))
+and (h.JGYOBU in ('N','R') or (h.JGYOBU = 'A' and SyushiCd in ('SJ','SA')))
 """.format(os.path.basename(r["filename"]))
     print(sql)
     df = pd.read_sql(sql, conn)

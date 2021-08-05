@@ -80,7 +80,7 @@ select
 from DScope d
 left outer join DScopeID i
  on (d.ID = i.ID)
-where d.id <> ''
+where d.id <> '' and d.Name <> ''
 and convert(d.ts, sql_date) = '{0}'
 group by
  Dt
@@ -101,7 +101,7 @@ select
 +right('00' + convert(MINUTE(max(d.ts)),sql_char),2)
  maxTs
 from DScope d
-where d.id <> ''
+where d.id <> '' and d.Name <> ''
 and convert(d.ts, sql_date) = '{0}'
 group by
  Dt
@@ -160,6 +160,9 @@ where j.JGYOBU='0'
         d["BegTm_i"] = row["BegTm_i"]
         if row["minTs"]:
             d["BegTm"] = row["minTs"]
+        else:
+            pass
+            #d["BegTm"] = None
         d["FinTm"] = row["FinTm"]
         d["FinTm_i"] = row["FinTm_i"]
         if row["maxTs"] and row["minTs"]:
@@ -294,9 +297,9 @@ def calc(d):
                     fin = time(17,0)
         minute15 = fin.minute // 15 * 15
         d["FinishTm"] = fin.replace(minute=minute15)
-        if d["StartTm"] and d["FinishTm"] < d["StartTm"]:
-            pass
-            #d["FinishTm"] = None
+        if d["StartTm"] and d["FinishTm"] <= d["StartTm"]:
+            d["FinishTm"] = None
+            #pass
     else:
         d["FinishTm"] = None
         fin = None
@@ -325,8 +328,12 @@ def calc(d):
             fin = 23
         act = fin - beg
         #昼休 12:00-12:45
-        if beg < 12 and fin > 12.75 and d["Shift"] not in ["6G","7L"]:
-            act -= 0.75
+        if d["JCode"] == "ONO" and d["Shift"] == "15":
+            if beg < 12 and fin > 13:
+                act -= 1
+        else:
+            if beg < 12 and fin > 12.75 and d["Shift"] not in ["6G","7L"]:
+                act -= 0.75
         #休憩 15:00-15:15
         if beg < 15 and fin > 15.25:
             act -= 0.25
@@ -581,18 +588,37 @@ def insert(conn, data):
         print('error')
         raise
 
+# date, datetimeの変換関数
+def json_serial(obj):
+    # 日付型の場合には、文字列に変換します
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    # 上記以外はサポート対象外.
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+def support_datetime_default(o):
+    if isinstance(o, datetime):
+        return o.isoformat()
+    elif isinstance(o, time):
+        return o.isoformat()
+    raise TypeError(repr(o) + " is not JSON serializable")
+
 if __name__ == "__main__":
     if 'REQUEST_METHOD' in os.environ:
         cgitb.enable()
         form = cgi.FieldStorage()
         r = {}
         r["dns"] = form.getvalue('dns', 'newsdc')
-        r["dt"] = form.getvalue('dt', '')
+        r["dt"] = form.getvalue('dt', "{:%Y-%m-%d}".format(date.today()))
+        r["dscopeid"] = form.getvalue('dscopeid', '0')
+        r["id"] = form.getvalue('id', '')
+        r["quit"] = form.getvalue('quit', '0')
         sys.stdout = None
         r = main(r)
         sys.stdout = sys.__stdout__
         print('Content-Type:application/json; charset=UTF-8;\n')
-        print(r["df"].to_json(orient= 'split', force_ascii= True))
+        #print(r["data"].to_json(orient= 'split', force_ascii= True))
+        print(json.dumps(r["data"], default=support_datetime_default, ensure_ascii=False, indent=4))
     else:
         import argparse
         parser = argparse.ArgumentParser()

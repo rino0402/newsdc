@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+		<title>作業ログ集計</title>
+		<link type="text/css" rel="stylesheet" href="menu.css?v=2020030601">
+		<link type="text/css" rel="stylesheet" href="log_report.css?v=2020032401">
+	</head>
+	<body>
+		<header role="banner">
+			<nav>
+				<span id="menu"></span>
+				<a href="#tab_home">作業ログ集計</a>
+				<ul>
+					<li class="active"><a href="#tab_home">作業ログ集計</a></li>
+					<li><a href="#tab_option">設定</a></li>
+					<li><a href="#tab_version">ver</a></li>
+				</ul>
+				<span id="dns_span">newsdcn</span>
+			</nav>
+		</header>
+		<main role="main">
+			<div class="tab_content" id="tab_home">
+				<div class="content">
+					<form method="get">
+						<lavel for="date_st">日付</lavel>
+						<input type="text" id="date_st" size="8">
+						<lavel for="date_ed">～</lavel>
+						<input type="text" id="date_ed" size="8">
+						<input id="submit" type="submit" value="検索">
+						<input id="copy" type="button" value="Copy" data-clipboard-target="#list">
+					</form>
+					<table id="list" class="sticky">
+						<thead>
+							<tr>
+								<th rowspan="2" class="row"></th>
+								<th rowspan="2">工程/要因</th>
+								<th colspan="2">合計</th>
+								<th colspan="2">7/21</th>
+								<th colspan="2">7/22</th>
+								<th colspan="2">7/23</th>
+							</tr>
+							<tr>
+								<th>件</th>
+								<th>個</th>
+								<th>件</th>
+								<th>個</th>
+								<th>件</th>
+								<th>個</th>
+								<th>件</th>
+								<th>個</th>
+							</tr>
+				        </thead>
+						<tbody>
+							<tr>
+								<td class="row"></td>
+								<td class="">入荷</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+							</tr>
+							<tr class="yoin">
+								<td class="row"></td>
+								<td class="yoin">12 BU戻り</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+								<td class="number">100</td><td class="number">1000</td>
+							</tr>
+				        </tbody>
+					</table>
+					<p id="msg"></p>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_option">
+				<div class="content" id="option">
+					<div><label for="dns">DNS<input id="dns" type="text" class="jyoken"></label></div>
+					<div><input type="button" value="chime" onClick="chime();"></div>
+					<div><input type="button" value="chime3" onClick="chime('#chime3');"></div>
+					<div><input type="button" value="Clear" onClick="localStorage.clear();"></div>
+					<audio id="chime" src="sound/tin1.mp3"></audio>
+					<audio id="chime3" src="sound/chime3.mp3"></audio>
+				</div>
+			</div>
+			<div class="tab_content" id="tab_version">
+				<div class="content" id="version"></div>
+				<div class="content" id="log"></div>
+			</div>
+		</main>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/clipboard.js/1.5.3/clipboard.min.js"></script>
+	<script src="menu.js?v=2020030602"></script>
+	<script src="log_report.js?v=2020032401"></script>
+</html>

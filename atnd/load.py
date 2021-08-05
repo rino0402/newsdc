@@ -64,7 +64,7 @@ select
 ,a.Memo
 ,c.CalHoliday
 from Atnd a
-left outer join Staff s
+inner join Staff s
  on (a.StaffNo = s.StaffNo)
 inner join Calendar c
  on (a.Dt = c.CalDate)

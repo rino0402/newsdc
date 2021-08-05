@@ -34,19 +34,27 @@ def main(r):
     return r
 
 def edit(conn, r):
-    sql = "update Staff"
-    sql += " set"
-    for n in r:
-        if n in ["Name","Post","Shift","Quit","QuitDt"]:
-            sql += " " if sql.endswith('set') else ","
-            if n in ["QuitDt"]:
-                if r[n]:
-                    sql += "{}='{}'".format(n,r[n])
+    if r.get("StaffNo") is None:
+        sql = "update Staff"
+        sql += " set"
+        for n in r:
+            if n in ["Name","Post","Shift","Quit","QuitDt"]:
+                sql += " " if sql.endswith('set') else ","
+                if n in ["QuitDt"]:
+                    if r[n]:
+                        sql += "{}='{}'".format(n,r[n])
+                    else:
+                        sql += "{} = null".format(n)
                 else:
-                    sql += "{} = null".format(n)
-            else:
-                sql += "{}='{}'".format(n,r[n])
-    sql += " where StaffNo='{}'".format(r["id"])
+                    sql += "{}='{}'".format(n,r[n])
+        sql += " where StaffNo='{}'".format(r["id"])
+    elif r["StaffNo"] == "":
+        sql = "delete from Staff"
+        sql += " where StaffNo='{}'".format(r["id"])
+    elif r["StaffNo"] != "":
+        sql = "update Staff"
+        sql += " set StaffNo='{}'".format(r["StaffNo"])
+        sql += " where StaffNo='{}'".format(r["id"])
     r["sql"] = sql
     conn.execute(sql)
     r["rowcount"] = conn.execute("select @@rowcount").fetchone()[0]

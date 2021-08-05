@@ -74,7 +74,9 @@ class notice:
             chime += ["999a"]
             chime += ["999b"]
             chime += ["999c"]
-            chime += ["jinglebell-jingle"]
+            #chime += ["jinglebell-jingle"]
+            chime += ["kisaradu"]
+            chime += ["okutama01"]
             r["chime"] = random.choice(chime)
         elif self.filename == 'getinn.txt':
             r["title"] = self.st_mtime.strftime('%H:%M') + " Active振替データを受信しました."
@@ -84,6 +86,15 @@ class notice:
             r["title"] = self.st_mtime.strftime('%H:%M') + " Glics出荷データを受信しました."
             r["speech"] = ""
             r["chime"] = "50 Dragon Quest 3 - Fanfare 1"
+        elif self.filename == 'hmem700.txt':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Glics出荷データ受信"
+            r["speech"] = self.st_mtime.strftime('%H:%M') + "...グリックス,出荷データを受信しました."
+            r["chime"] = "tennoji2"
+            r["chime"] = "maihama2"
+        elif self.filename == 'hmem500.txt':
+            r["title"] = self.st_mtime.strftime('%H:%M') + " Glics入荷データ受信"
+            r["speech"] = self.st_mtime.strftime('%H:%M') + "...グリックス,入荷データを受信しました."
+            r["chime"] = "tennoji2"
         elif self.filename == 'geting.txt':
             r["title"] = self.st_mtime.strftime('%H:%M') + " Glics振替データを受信しました."
             r["speech"] = ""
@@ -109,22 +120,27 @@ class notice:
             r["title"] = self.st_mtime.strftime('%H:%M') + " Spice入荷データを受信しました."
             r["speech"] = self.st_mtime.strftime('%H:%M') + "....スパイス入荷データを受信しました."
             r["chime"] = "tennoji2"
+            r["chime"] = "maihama1"
         elif self.filename == 'spc_syuka.log':
             r["title"] = self.st_mtime.strftime('%H:%M') + " Spice出荷データを受信しました."
             r["speech"] = self.st_mtime.strftime('%H:%M') + "....スパイス出荷データを受信しました."
             r["chime"] = "minatomirai1"
+            r["chime"] = "maihama2"
         elif self.filename == 'a_11b11.txt':
             r["title"] = self.st_mtime.strftime('%H:%M') + " Active エアコン振替入荷：湖南→SDC"
             r["speech"] = self.st_mtime.strftime('%H:%M') + "...Active,エアコン振替入荷データを受信しました."
             r["chime"] = "tennoji2"
+            r["chime"] = "maihama1"
         elif self.filename == 'hmem506.txt':
             r["title"] = self.st_mtime.strftime('%H:%M') + " Glics エアコン入荷：JPSJ"
             r["speech"] = self.st_mtime.strftime('%H:%M') + "...グリックス,エアコン入荷データを受信しました."
             r["chime"] = "tennoji2"
+            r["chime"] = "maihama2"
         elif self.filename == 'corona.html':
             r["speech"] = "新型コロナウイルスの、感染防止対策のお願いです"
             r["title"] = self.filename
             r["chime"] = "Chime-Announce09-1(5-Tone-Fast-Up)"
+            r["chime"] = "ome"
         elif self.filename == 'dscope_list.html':
             r["speech"] = ""
             r["title"] = self.st_mtime.strftime('%H:%M') + " 顔認証 D-Scope"

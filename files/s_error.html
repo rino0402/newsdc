@@ -48,6 +48,16 @@ div.s_error_title {
 	color		: red	;
 	font-weight	: bold	;
 }
+span.diff {
+	font-size	: 120%	;
+	text-shadow	: 2px  2px 10px skyblue ,
+               	 -2px  2px 10px skyblue ,
+               	  2px -2px 10px skyblue ,
+               	 -2px -2px 10px skyblue;
+}
+.s_error .list td.left {
+	text-align: left;
+}
 .s_error td.red {
 	background-color: pink;
 }
@@ -103,15 +113,15 @@ div.s_error_marquee p {
 	</tr>
 	<tr>
 		<td>2021年度</td>
-		<td class="red">２件</td>
-		<td class="">(5/31現在)</td>
+		<td class="red">６件</td>
+		<td class="">(7/12現在)</td>
 		<td class="" title="小野">－</td>
 		<td class="" title="滋Ｐ">－</td>
-		<td>－</td>
-		<td>－</td>
+		<td class="red new" title="滋物">２</td>
+		<td class="" title="袋井">－</td>
 		<td class="" title="大阪">１</td>
-		<td class="" title="奈良">－</td>
-		<td class="red new" title="広島">１</td>
+		<td class="" title="奈良">２</td>
+		<td class="" title="広島">１</td>
 	</tr>
 	<tr>
 		<td>2020年度</td>
@@ -152,17 +162,41 @@ div.s_error_marquee p {
 </table>
 <table class="list">
 	<caption>2021年度</caption>
+	<tr class="red">
+		<td>⑥</td>
+		<td>7/12</td>
+		<td class="new">滋賀物流</td>
+		<td class="left">中味違い（機種銘板）ACRE37-14350 (CS-400DFL2) と ACRE37-00740RX (CS-J566C2) をテレコ商品化</td>
+	</tr>
+	<tr class="">
+		<td>⑤</td>
+		<td>7/7</td>
+		<td class="">奈良営</td>
+		<td class="left">AXW024CA0700 対象ロット199個の内116個 同梱取説違い</td>
+	</tr>
+	<tr class="">
+		<td>④</td>
+		<td>6/25</td>
+		<td class="">滋賀物流</td>
+		<td class="left">中味違い ACRA73C714<span class="diff">1</span>RXに対してACRA73C714<span class="diff">7</span>RXのﾗﾍﾞﾙを貼付け</td>
+	</tr>
+	<tr class="">
+		<td>③</td>
+		<td>6/18</td>
+		<td class="">奈良ｾﾝﾀｰ倉庫</td>
+		<td class="left">同一送り先(OEM)３件のうち２件未発送<br>(ANPTZ-11Y0：1個／XTTAXW452：2個)</td>
+	</tr>
+	<tr class="">
+		<td>②</td>
+		<td>5/27</td>
+		<td class="">広島事</td>
+		<td class="left">個装仕様違い CE49-61-B15 １ｵｰﾀﾞｰ3個の荷姿(梱包)を間違って発送</td>
+	</tr>
 	<tr class="">
 		<td>①</td>
 		<td>5/20</td>
 		<td class="">大阪事</td>
-		<td>数量違い AD-5004FP-SY 数量6個⇒60個(6ケース×10個/ケース)発送</td>
-	</tr>
-	<tr class="red">
-		<td>②</td>
-		<td>5/27</td>
-		<td class="new">広島事</td>
-		<td>個装仕様違い CE49-61-B15 １ｵｰﾀﾞｰ3個の荷姿(梱包)を間違って発送</td>
+		<td class="left">数量違い AD-5004FP-SY 数量6個⇒60個(6ケース×10個/ケース)発送</td>
 	</tr>
 <!--
 	<caption>2020年度</caption>
@@ -229,7 +263,7 @@ div.s_error_marquee p {
 -->
 </table>
 
-<div class="s_error_box">誤出荷は１拠点だけの問題でなく、会社全体の信用・信頼を損ないます。細心の注意を心がけましょう！</div>
+<div class="s_error_box">誤出荷は１拠点だけの問題でなく、会社全体の信用・信頼を損ないます。<br>細心の注意を心がけましょう！</div>
 <!--div class="s_error_marquee">
 <p>
 2020年度誤出荷内訳

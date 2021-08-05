@@ -1,5 +1,12 @@
 ﻿// バージョン
 var	ver = [];
+ver.push('0.15 2021.07.05 変更：「従業員」：「退職者を除く」をフィルターで表示／非表示');
+ver.push('0.15 2021.07.05 変更：「承認/確認」：Windowsユーザー名を記録');
+ver.push('0.15 2021.07.05 変更：「従業員」：削除の対応');
+ver.push('0.15 2021.07.05 変更：「勤怠編集」：削除した「従業員」を表示しない');
+ver.push('0.15 2021.07.05 バグ：dsn変更が即座に反映されない(未fix)');
+ver.push('0.15 2021.07.05 予定：「承認/確認」Windowsユーザー名で権限制限');
+ver.push('0.15 2021.07.05 予定：「承認/確認」上位承認者へ自動送信');
 ver.push('0.14 2021.06.14 変更：「承認/確認」を右上固定 ※テストバージョン');
 ver.push('0.13 2021.06.09 変更：休日の時は集計項目を非表示(白表示)');
 ver.push('0.12 2021.05.24 修正：「始業、終業」変更で「所定内、残業、深夜、休出」が更新されない不具合を修正');
@@ -591,11 +598,26 @@ $('input[name="copy"]').on('click', function(){
 		clipboard.destroy();
     });
 });
+//従業員テーブル フィルター
+$('#tab_staff table').exTableFilter({
+	filters : {
+		5 : {
+			element : '#quit',
+			onFiltering : function(api){
+				if(api.getCurrentFilterVal()) {
+					return api.getCurrentCellVal() == '';
+				} else {
+					return true;
+				}
+			}
+		}
+	}
+});
 //従業員テーブル 検索
 $("#tab_staff input[name='staff']").on('click', function() {
 	var	req = 'staff.py?dsn=' + $('#dsn').val();
 	if($("#quit").prop("checked")) {
-		req += '&quit=true';
+//		req += '&quit=true';
 	}
 	$('#msg').text(req);
 	$(this).addClass("gif-load");
@@ -643,10 +665,17 @@ $("#tab_staff input[name='staff']").on('click', function() {
 			onAjax: function(action, serialize) {
 				//Ajax開始時
 				console.log('onAjax(action, serialize)');
-				console.log(action);
-				console.log(serialize);
+				console.log('action: ' + action);
+				console.log('serialize: ' + serialize);
 				var urlParams = new URLSearchParams(serialize);
-				console.log(urlParams.get('id'));
+//				console.log('urlParams: ' + urlParams);
+				console.log('id: ' + urlParams.get('id'));
+				console.log('StaffNo: ' + urlParams.get('StaffNo'));
+				if(urlParams.get('StaffNo') == '') {
+					if(!confirm('削除しますか？')) {
+						return false;
+					}
+				}
 			},
 			onSuccess: function(data, textStatus, jqXHR) {
 				console.log('onSuccess(data, textStatus, jqXHR)');
@@ -665,6 +694,7 @@ $("#tab_staff input[name='staff']").on('click', function() {
 				console.log('onAlways()');
 			},
 		});
+		$('#quit').trigger('change');	//フィルター実行
 	}).catch((error) => {
 		$('#tab_staff table tbody').find("tr").remove();
 		$('#tab_staff table tbody').append('<tr><td>' + error + '</td></tr>');
@@ -832,6 +862,7 @@ $(function(){
 				tooltip += '\n' + dname;
 				tooltip += '\n' + $("#wflow_dialog input[name='comment']").val();
 				tooltip += '\n' + ts;
+				tooltip += '\n' + $("#username").text();
 				$('#' + wflow_id).attr('title', tooltip);
 
 				var	req = 'wflow.py?dsn=' + $('#dsn').val();
@@ -896,6 +927,7 @@ $(".wflow_update").on('click', function() {
 			console.log(json.data[i].Name);
 			console.log(json.data[i].Comment);
 			console.log(json.data[i].TS);
+			console.log(json.data[i].UID);
 			var	wflow_id = "";
 			switch(json.data[i].WFrole) {
 			case "1":	wflow_id = "#author-1";		$(wflow_id + ' .dname').text('担当');	break;
@@ -916,6 +948,7 @@ $(".wflow_update").on('click', function() {
 				ts += ':' + ('0' + now.getSeconds()).slice(-2);
 //				ts = moment(json.data[i].TS.split('+')[0] + '+0900').format("YYYY-MM-DD HH:mm:SS") 
 				tooltip += '\n' + ts;
+				tooltip += '\n' + json.data[i].UID;
 				$(wflow_id).attr('title', tooltip);
 				var	md = (now.getMonth()+1) + '/' + now.getDate();
 				if(json.data[i].Name) {
@@ -945,6 +978,9 @@ $(".wflow > div").on('click', function() {
 //	var	ts = $(this).find('.ts').attr('title');
 	var	ts = tooltip.split('\n')[3];
 	$("#wflow_dialog input[name='ts']").val(ts);
+
+	var	uid = tooltip.split('\n')[4];
+	$("#wflow_dialog input[name='uid']").val(uid);
 
 //	var	comment = $(this).find('.dname').attr('title');
 	var	comment = tooltip.split('\n')[2];

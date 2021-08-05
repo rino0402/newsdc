@@ -15,7 +15,8 @@ def stat2(dns):
     print("ok")
     sql = """
 select
- h.JCode
+ j.Ena
+,h.JCode
 ,if(h.Soko = 'ACD','ZACS',h.Soko) Soko
 ,h.KJCode
 ,h.SJCode
@@ -34,14 +35,16 @@ left outer join JGyobu j
 on (j.JCode = h.SJCode)
 where h.Stts='2' //and h.Soko<>'ACD'
 group by
- h.JCode
+ j.Ena
+,h.JCode
 ,h.Soko
 ,h.KJCode
 ,h.SJCode
 ,j.Name
 union
 select
- 'Z0036003'
+ '0'
+,'Z0036003'
 ,'ZACD' Soko
 ,'00025800'
 ,'00025800'
@@ -62,7 +65,8 @@ group by
 ,'00025800'
 ,'エアコン(緊急)'
 order by
- 1
+ 1 desc
+,2
 ,2
 ,3
 ,4

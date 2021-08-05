@@ -1,0 +1,140 @@
+﻿/*
+log_report.css 2021.07.28 作成
+*/
+@media print{
+	header, a, .tab_content {
+		display: none;
+	}
+    #result_table {
+        display: block;
+    }
+}
+a {
+	text-decoration: none;
+}
+body {
+	font-family: monospace,Courier,Consolas,'Courier New';
+	*font-family: Consolas;
+}
+.tab_content {
+	display: none;
+}
+.tab_content:target {
+	display: block;
+}
+.content {
+	padding: 10px;
+}
+table {
+	border: solid thin black;
+	border-collapse: collapse;
+	*width:100%;
+}
+table tr th {
+	/* [上][右][下][左] */
+	padding:2px 3px;
+	font-weight: normal;
+	border: solid thin black;
+	background-color: aliceblue;
+	white-space: nowrap;
+}
+table tr td {
+	/* [上][右][下][左] */
+	padding:2px 3px;
+	border: solid thin black;
+	vertical-align: top;
+	white-space: nowrap;
+}
+table caption {
+	text-align: left;
+	white-space: nowrap;
+}
+.text {
+	text-align: left;
+	white-space: normal;
+}
+.number {
+	text-align: right;
+	padding-left	:	.5em;
+	padding-right	:	.5em;
+}
+.red {
+	color: red;
+}
+.center {
+	text-align: center;
+}
+.gif-load {
+	background-image:url("images/loading1.gif?v=2020032501");
+	background-repeat: no-repeat;
+	background-position: center center;
+	*background-size: contain;
+	background-size: cover;
+}
+.qty {
+	text-align: right;
+}
+#option table {
+	border: none;
+}
+#option table td {
+	border: none;
+}
+#option table td:first-child {
+	text-align: right;
+}
+.sticky {
+	border: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+.sticky thead {
+}
+.sticky thead tr th {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	border: solid thin black;
+	border-left: 0;
+	*font-weight: normal;
+	*padding:2px;
+	*background-color: aliceblue;
+	*white-space: nowrap;
+	background-clip: padding-box;
+}
+.sticky thead tr:nth-child(2) th {
+	border-top: 0;
+}
+table.sticky thead tr th.row {
+	border-top: 0;
+	border-bottom: 0;
+	*border-right: solid thin black;
+	background: 0;
+	background-color: white;
+	background-clip: padding-box;
+}
+.sticky tbody tr td {
+	*border: 1;
+	*border: solid thin black;
+	border-top: 0;
+	border-left: 0;
+	background-clip: padding-box;
+}
+.sticky tbody tr td.row {
+	border-top: 0;
+	border-bottom: 0;
+}
+.sticky tbody tr td.syuka.sales {
+	background-color	:	#CCFFCC	;	/* 緑 */
+}
+.sticky tbody tr td.shohin.sales {
+	background-color	:	#FFFFCC	;	/* 黄 */
+}
+.content form {
+	padding-left: 20px;
+	padding-bottom: 5px;
+}
+#list tbody tr td.yoin {
+	padding-left: 1em;
+}

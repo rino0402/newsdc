@@ -207,10 +207,11 @@ Class YSyuka
 					strBuff = strBuff & " " & GetField("ChokuKbn")
 					strBuff = strBuff & " " & GetField("Aitesaki")
 					strBuff = strBuff & " " & GetField("AitesakiName")
+					strBuff = strBuff & " " & GetField("Syushi")
 					strBuff = strBuff & " " & GetField("DenNo")
 					strBuff = strBuff & " " & GetField("IDNo")
-					strBuff = strBuff & " " & GetField("Pn")
-					strBuff = strBuff & " " & Right("       " & GetField("Qty"),7)
+					strBuff = strBuff & " " & Left(GetField("Pn") & space(20),16)
+					strBuff = strBuff & " " & Right(space(7) & GetField("Qty"),7)
 					if strMsg = "" then
 						strMsg = "▼POSデータ無し(Activeキャンセル漏れ又はPOSデータ未受信)"
 						Disp strMsg
@@ -230,7 +231,7 @@ Class YSyuka
 					strBuff = strBuff & " " & GetField("MUKE_NAME")
 					strBuff = strBuff & " " & GetField("DEN_NO")
 					strBuff = strBuff & " " & GetField("KEY_ID_NO")
-					strBuff = strBuff & " " & GetField("KEY_HIN_NO")
+					strBuff = strBuff & " " & Left(GetField("KEY_HIN_NO") & space(20),16)
 					strBuff = strBuff & " " & Right("       " & CLng(GetField("SURYO")),7)
 					strBuff = strBuff & " " & GetField("LK_SEQ_NO")
 					select case GetField("KAN_KBN")
@@ -297,15 +298,17 @@ Class YSyuka
 		SetSql ",g.ChokuKbn"
 		SetSql ",g.Aitesaki"
 		SetSql ",g.AitesakiName"
+		SetSql ",g.Syushi"
 		SetSql ",g.DenNo"
 		SetSql ",g.IDNo"
 		SetSql ",g.Pn"
 		SetSql ",g.Qty"
 		SetSql " from HMTAH015 g"
-		SetSql " where soko = '" & a_Soko & "'"
-		SetSql " and Stts='4'"
+		SetSql " where g.soko = '" & a_Soko & "'"
+		SetSql " and g.Stts='4'"
+		SetSql " and not (g.SJCode = '00025800' and g.Syushi = '12')"	'エアコン 収支12 除外
 	'	SetSql " and IDNo not in (select distinct KEY_ID_NO from y_syuka where JGYOBA = '00036003' union select distinct KEY_ID_NO from del_syuka where JGYOBA = '00036003' and KEY_SYUKA_YMD >= replace(convert(curdate()-1,SQL_CHAR),'-',''))"
-		SetSql " and IDNo not in (select distinct KEY_ID_NO from y_syuka where JGYOBA = '00036003')"
+		SetSql " and g.IDNo not in (select distinct KEY_ID_NO from y_syuka where JGYOBA = '00036003')"
 	'	SetSql " and IDNo not in (select distinct KEY_ID_NO from y_syuka union select distinct KEY_ID_NO from del_syuka)"
 	'	SetSql " and IDNo not in (select distinct KEY_ID_NO from del_syuka)"
 		GetSqlNotIn= strSql
